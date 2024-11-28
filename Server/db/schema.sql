@@ -123,18 +123,6 @@ CREATE TABLE IF NOT EXISTS user_team (
         ON UPDATE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS administrates (
-    user_id INT,
-    community_id INT,
-    PRIMARY KEY (user_id, community_id),
-    FOREIGN KEY (user_id) REFERENCES Users(id)
-        ON DELETE SET NULL
-        ON UPDATE CASCADE,
-    FOREIGN KEY (community_id) REFERENCES Community(id)
-        ON DELETE SET NULL
-        ON UPDATE CASCADE
-);
-
 CREATE TABLE IF NOT EXISTS joinAs (
     user_id INT,
     role_id INT,
@@ -148,6 +136,18 @@ CREATE TABLE IF NOT EXISTS joinAs (
         ON DELETE SET NULL
         ON UPDATE CASCADE,
     FOREIGN KEY (community_id) REFERENCES Community(id)
+        ON DELETE SET NULL
+        ON UPDATE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS registers_to (
+    user_id INT,
+    group_id INT,
+    PRIMARY KEY (user_id, group_id),
+    FOREIGN KEY (user_id) REFERENCES Users(id)
+        ON DELETE SET NULL
+        ON UPDATE CASCADE,
+    FOREIGN KEY (group_id) REFERENCES Groups(id)
         ON DELETE SET NULL
         ON UPDATE CASCADE
 );
