@@ -1,20 +1,22 @@
 const { Pool } = require("pg");
 const dotenv = require("dotenv");
 
-// Load environment variables from .env file
-dotenv.config();
+// Load environment variables
+dotenv.config({ path: "../.env" });
 
 const { PGHOST, PGUSER, PGPASSWORD, PGDATABASE, PGPORT } = process.env;
+console.log(process.env); // testing
+console.log({ PGHOST, PGUSER, PGPASSWORD, PGDATABASE, PGPORT }); // testing
 
-// Create a new pool instance with SSL configuration
 const pool = new Pool({
   host: PGHOST,
   user: PGUSER,
   password: PGPASSWORD,
   database: PGDATABASE,
-  port: PGPORT,
+  port: PGPORT || 5432,
   ssl: {
     rejectUnauthorized: false,
+    mode: "require",
   },
 });
 
