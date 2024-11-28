@@ -6,7 +6,8 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 const { PGHOST, PGUSER, PGPASSWORD, PGDATABASE, PGPORT } = process.env;
-
+console.log(process.env); // testing
+console.log({ PGHOST, PGUSER, PGPASSWORD, PGDATABASE, PGPORT }); // testing
 // Create a new pool instance with SSL configuration
 const pool = new Pool({
   host: PGHOST,
@@ -15,8 +16,8 @@ const pool = new Pool({
   database: PGDATABASE,
   port: PGPORT,
   ssl: {
-    rejectUnauthorized: false
-  }
+    rejectUnauthorized: false,
+  },
 });
 
 const app = express();
@@ -47,11 +48,41 @@ app.get("/create-users-table", async (req, res) => {
 
 app.post("/add-users", async (req, res) => {
   const users = [
-    { firstname: "John", lastname: "Doe", email: "john.doe@example.com", bio: "Bio of John", password: "password123" },
-    { firstname: "Jane", lastname: "Doe", email: "jane.doe@example.com", bio: "Bio of Jane", password: "password123" },
-    { firstname: "Alice", lastname: "Smith", email: "alice.smith@example.com", bio: "Bio of Alice", password: "password123" },
-    { firstname: "Bob", lastname: "Brown", email: "bob.brown@example.com", bio: "Bio of Bob", password: "password123" },
-    { firstname: "Charlie", lastname: "Davis", email: "charlie.davis@example.com", bio: "Bio of Charlie", password: "password123" }
+    {
+      firstname: "John",
+      lastname: "Doe",
+      email: "john.doe@example.com",
+      bio: "Bio of John",
+      password: "password123",
+    },
+    {
+      firstname: "Jane",
+      lastname: "Doe",
+      email: "jane.doe@example.com",
+      bio: "Bio of Jane",
+      password: "password123",
+    },
+    {
+      firstname: "Alice",
+      lastname: "Smith",
+      email: "alice.smith@example.com",
+      bio: "Bio of Alice",
+      password: "password123",
+    },
+    {
+      firstname: "Bob",
+      lastname: "Brown",
+      email: "bob.brown@example.com",
+      bio: "Bio of Bob",
+      password: "password123",
+    },
+    {
+      firstname: "Charlie",
+      lastname: "Davis",
+      email: "charlie.davis@example.com",
+      bio: "Bio of Charlie",
+      password: "password123",
+    },
   ];
 
   try {

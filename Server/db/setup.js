@@ -1,25 +1,23 @@
-const db = require("../src/config/db");
+const fs = require("fs");
+const path = require("path");
+const pool = require("../src/config/db");
 
-const createTables = async () => {
+const createTableScript = fs.readFileSync(
+  path.join(__dirname, "schema.sql"),
+  "utf8"
+);
+console.log(createTableScript); // testing
+
+const setupDatabase = async () => {
+  const client = await pool.connect();
   try {
-    await db.query(`
-      CREATE TABLE IF NOT EXISTS users (
-        id SERIAL PRIMARY KEY,
-        firstname VARCHAR(100),
-        lastname VARCHAR(100),
-        email VARCHAR(100) UNIQUE,
-        bio TEXT,
-        password VARCHAR(100),
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-      `);
-    console.log("Tables created successfully");
+    await client.query(createTableScript);
+    console.log("Tables created successfully!");
   } catch (err) {
-    console.log(`Falid to create the tables, ${err}`);
+    console.error("Error during table creation:", err);
   } finally {
-    process.exit;
+    client.release();
   }
 };
 
-createTables();
+setupDatabase();
