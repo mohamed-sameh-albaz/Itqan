@@ -5,8 +5,6 @@ const dotenv = require("dotenv");
 dotenv.config({ path: "../.env" });
 
 const { PGHOST, PGUSER, PGPASSWORD, PGDATABASE, PGPORT } = process.env;
-console.log(process.env); // testing
-console.log({ PGHOST, PGUSER, PGPASSWORD, PGDATABASE, PGPORT }); // testing
 
 const pool = new Pool({
   host: PGHOST,
