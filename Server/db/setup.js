@@ -6,7 +6,6 @@ const createTableScript = fs.readFileSync(
   path.join(__dirname, "schema.sql"),
   "utf8"
 );
-console.log(createTableScript); // testing
 
 const setupDatabase = async () => {
   const client = await pool.connect();
