@@ -16,11 +16,11 @@ const getAllUsers = async () => {
 const addUser = async (user) => {
   const client = await db.connect();
   try {
-    const { row } = await db.query(
-      `INSERT INTO users (firstname, lastname, email, bio, password) VALUES ($1, $2, $3, $4, $5)`,
-      [user.firstname, user.lastname, user.email, user.bio, user.password]
+    const { rows } = await db.query(
+      `INSERT INTO users (fname, lname, email, bio, password, photo) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+      [user.firstname, user.lastname, user.email, user.bio, user.password, user.photo]
     );
-    return row;
+    return rows[0];
   } catch (err) {
     console.error(`Error adding user: ${err.message}`);
     throw new Error("Database error: Unable to add user");
@@ -29,4 +29,17 @@ const addUser = async (user) => {
   }
 };
 
-module.exports = { getAllUsers, addUser };
+const findUserByEmail = async (email) => {
+  const client = await db.connect();
+  try {
+    const { rows } = await db.query("SELECT * FROM users WHERE email = $1", [email]);
+    return rows[0];
+  } catch (err) {
+    console.error(`Error finding user: ${err.message}`);
+    throw new Error("Database error: Unable to find user");
+  } finally {
+    client.release();
+  }
+};
+
+module.exports = { getAllUsers, addUser, findUserByEmail };
