@@ -20,17 +20,38 @@ CREATE TABLE IF NOT EXISTS Community (
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS Rewards (
+    id SERIAL PRIMARY KEY,
+    description TEXT,
+    type VARCHAR(50),
+    name VARCHAR(255),
+    image VARCHAR(255)
+);
+
+CREATE TABLE IF NOT EXISTS Levels (
+    id SERIAL PRIMARY KEY, 
+    name VARCHAR(50),
+    pointsThreshold INT UNIQUE,
+    reward_id INT,
+    FOREIGN KEY (reward_id) REFERENCES Rewards (id) 
+        ON DELETE SET NULL
+);
+
 CREATE TABLE IF NOT EXISTS Groups (
     id SERIAL PRIMARY KEY,
     description TEXT,
     title VARCHAR(255) NOT NULL,
     photo VARCHAR(255),
     comm_id INT,
+    level_id INT NOT NULL, -- group should have min allowed level or set default to 0
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (comm_id) REFERENCES Community(id)
         ON DELETE SET NULL
-        ON UPDATE CASCADE
+        ON UPDATE CASCADE,
+    FOREIGN KEY (level_id) REFERENCES Levels (id) 
+        ON DELETE SET NULL
+
 );
 
 CREATE TABLE IF NOT EXISTS Teams (
@@ -49,7 +70,7 @@ CREATE TABLE IF NOT EXISTS Contests (
     start_date TIMESTAMPTZ,
     end_date TIMESTAMPTZ,
     status VARCHAR(255),
-    group_id INT,
+    group_id INT NOT NULL, -- contest should be in a specific group
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (group_id) REFERENCES Groups(id)
@@ -57,18 +78,21 @@ CREATE TABLE IF NOT EXISTS Contests (
         ON UPDATE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS Tasks (
+CREATE TABLE IF NOT EXISTS Tasks ( -- default written
     id SERIAL PRIMARY KEY,
     contest_id INT,
+    approve_by INT,
     description TEXT,
     title VARCHAR(255),
     points INT,
+    type VARCHAR(25),
     image VARCHAR(255),
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (contest_id) REFERENCES Contests(id)
+        ON DELETE SET NULL,
+    FOREIGN KEY (approve_by) REFERENCES Users(id)
         ON DELETE SET NULL
-        ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS McqTasks (
@@ -120,7 +144,7 @@ CREATE TABLE IF NOT EXISTS user_team (
         ON UPDATE CASCADE,
     FOREIGN KEY (team_id) REFERENCES Teams(id)
         ON DELETE SET NULL
-        ON UPDATE CASCADE
+        ON UPDATE CASCADE -- is it valid to update the user id? 
 );
 
 CREATE TABLE IF NOT EXISTS administrates (
@@ -150,4 +174,96 @@ CREATE TABLE IF NOT EXISTS joinAs (
     FOREIGN KEY (community_id) REFERENCES Community(id)
         ON DELETE SET NULL
         ON UPDATE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS Submissions (
+    id SERIAL PRIMARY KEY,
+    score INT,
+    status VARCHAR(50),
+    content TEXT,
+    task_id INT NOT NULL,
+    approved_by INT, 
+    approved_at TIMESTAMPTZ DEFAULT NULL,
+    FOREIGN KEY (task_id) REFERENCES Tasks(id)
+        ON DELETE CASCADE,
+    FOREIGN KEY (approved_by) REFERENCES Users(id)
+        ON DELETE SET NULL
+);
+
+
+CREATE TABLE IF NOT EXISTS SingleSubmissions (
+    submission_id INT PRIMARY KEY,
+    individual_id INT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (submission_id) REFERENCES Submissions(id)
+        ON DELETE CASCADE,
+    FOREIGN KEY (individual_id) REFERENCES Users(id)
+        ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS TeamSubmissions (
+    submission_id INT PRIMARY KEY,
+    team_id INT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (submission_id) REFERENCES Submissions (id)
+        ON DELETE CASCADE,
+    FOREIGN KEY (team_id) REFERENCES Teams(id)
+        ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS Posts (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    user_id INT NOT NULL, 
+    comm_id INT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES Users(id)  
+        ON DELETE CASCADE, -- on update is not logical where i can not change the user id after it has been set
+    FOREIGN KEY (comm_id) REFERENCES Community(id)
+        ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS PostContent (
+    id SERIAL PRIMARY KEY,
+    post_id INT NOT NULL, 
+    content_type VARCHAR(50),
+    content TEXT,
+    FOREIGN KEY (post_id) REFERENCES Posts(id)
+        ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS PostLikes (
+    user_id INT NOT NULL,
+    post_id INT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP, --may be removed if not updated in UI
+    PRIMARY KEY (user_id, post_id),
+    FOREIGN KEY (user_id) REFERENCES Users(id)
+        ON DELETE CASCADE,
+    FOREIGN KEY (post_id) REFERENCES Posts(id)
+        ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS PostComments (
+    comment_id SERIAL PRIMARY KEY, 
+    user_id INT NOT NULL, 
+    post_id INT NOT NULL, 
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP, -- can be deleted
+    FOREIGN KEY (user_id) REFERENCES Users (id)
+        ON DELETE CASCADE,
+    FOREIGN KEY (post_id) REFERENCES Posts (id)
+        ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS User_rewards (
+    user_id INT NOT NULL, 
+    reward_id INT NOT NULL, 
+    awarded_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (user_id, reward_id),
+    FOREIGN KEY (user_id) REFERENCES Users (id)
+        ON DELETE CASCADE, 
+    FOREIGN KEY (reward_id) REFERENCES Rewards (id)
+        ON DELETE CASCADE
 );
