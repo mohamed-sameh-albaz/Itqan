@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { Container, Row, Col, Form, Button, Card } from 'react-bootstrap';
-import NavigationBar from './components/Navbar';
-import Footer from './components/Footer';
-import './App.css'; // Import the CSS file
+import NavigationBar from '../components/MyNavbar';
+import Footer from '../components/Footer';
 
 function Auth() {
   const [isLogin, setIsLogin] = useState(true);

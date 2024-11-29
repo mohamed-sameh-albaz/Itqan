@@ -1,9 +1,9 @@
 import React from 'react';
 import { Navbar, Nav, Container, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import './Navbar.css';
+import './MyNavbar.css';
 
-function NavigationBar() {
+function MyNavigationBar() {
   return (
     <Navbar className="navbar-custom" variant="dark" expand="lg">
       <Container>
@@ -23,4 +23,4 @@ function NavigationBar() {
   );
 }
 
-export default NavigationBar;
+export default MyNavigationBar;

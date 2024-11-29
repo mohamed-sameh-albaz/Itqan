@@ -1,6 +1,6 @@
 import React from 'react';
 import { Container } from 'react-bootstrap';
-import './Navbar.css'; // Ensure this import is correct
+import './MyNavbar.css'; // Ensure this import is correct
 
 function Footer() {
   return (

@@ -1,10 +1,10 @@
 import React from 'react';
 import { Container, Row, Col, Button, Card } from 'react-bootstrap';
-import NavigationBar from './components/Navbar';
-import Footer from './components/Footer';
-import backgroundImage from './assets/home-background.png'; // Adjust the path and filename accordingly
+import NavigationBar from '../components/MyNavbar';
+import Footer from '../components/Footer';
+import backgroundImage from '../assets/home-background.png'; // Adjust the path and filename accordingly
 
-function Home() {
+function Landing() {
   return (
     <Container fluid className="p-0">
       <NavigationBar />
@@ -113,4 +113,4 @@ function Home() {
   );
 }
 
-export default Home;
+export default Landing;
