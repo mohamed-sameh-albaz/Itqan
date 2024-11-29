@@ -9,11 +9,12 @@ const createTableScript = fs.readFileSync(
 
 const setupDatabase = async () => {
   const client = await pool.connect();
+  // console.log(createTableScript); // testing
   try {
     await client.query(createTableScript);
     console.log("Tables created successfully!");
   } catch (err) {
-    console.error("Error during table creation:", err);
+    console.error("Error during table creation:", err.message);
   } finally {
     client.release();
   }
