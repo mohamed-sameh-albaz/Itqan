@@ -29,6 +29,54 @@ const addContest = async (contest) => {
   }
 };
 
+const getContestsByStatus = async ({ community_id, group_id, status, limit }) => {
+  const client = await db.connect();
+  try {
+    let query = `SELECT * FROM contests WHERE `;
+    const params = [];
+
+    if (community_id) {
+      query += `group_id IN (SELECT id FROM Groups WHERE comm_id = $1) AND `;
+      params.push(community_id);
+    } else if (group_id) {
+      query += `group_id = $1 AND `;
+      params.push(group_id);
+    }
+
+    switch (status) {
+      case 'upcoming':
+        query += `start_date > NOW() `;
+        break;
+      case 'running':
+        query += `start_date <= NOW() AND end_date >= NOW() `;
+        break;
+      case 'pending':
+        query += `end_date < NOW() AND status = 'pending' `;
+        break;
+      case 'finished':
+        query += `end_date < NOW() AND status = 'finished' `;
+        break;
+      default:
+        throw new Error("Invalid status");
+    }
+
+    query += `ORDER BY start_date ASC`;
+
+    if (limit) {
+      query += ` LIMIT $${params.length + 1}`;
+      params.push(limit);
+    }
+
+    const { rows } = await db.query(query, params);
+    return rows;
+  } catch (err) {
+    console.error(`Error retrieving contests by status: ${err.message}`);
+    throw new Error("Database error: Unable to retrieve contests by status");
+  } finally {
+    client.release();
+  }
+};
+
 const updateContestById = async (id, contest) => {
   const client = await db.connect();
   try {
@@ -57,4 +105,4 @@ const deleteContestById = async (id) => {
   }
 };
 
-module.exports = { getAllContests, addContest, updateContestById, deleteContestById };
+module.exports = { getAllContests, addContest, getContestsByStatus, updateContestById, deleteContestById };

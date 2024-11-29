@@ -1,4 +1,4 @@
-const { getAllContests, addContest } = require("../models/contestModel");
+const { getAllContests, addContest, getContestsByStatus } = require("../models/contestModel");
 const { addTask, addMcqTask } = require("../models/taskModel");
 
 exports.getContests = async (req, res) => {
@@ -45,6 +45,20 @@ exports.deleteContest = async (req, res) => {
   try {
     await deleteContestById(req.params.id);
     res.status(204).send();
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.getContestsByStatus = async (req, res) => {
+  const { community_id, group_id, status, limit } = req.body;
+
+  try {
+    const contests = await getContestsByStatus({ community_id, group_id, status, limit });
+    if (contests.length === 0) {
+      return res.status(404).json({ message: "No contests found" });
+    }
+    res.status(200).json(contests);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
