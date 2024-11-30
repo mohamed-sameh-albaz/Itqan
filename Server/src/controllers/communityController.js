@@ -18,10 +18,10 @@ exports.createCommunity = async (req, res) => {
 };
 
 exports.joinCommunity = async (req, res) => {
-  const { userId, communityId, roleId } = req.body;
+  const { userId, communityName, roleId } = req.body;
 
   try {
-    const joinAs = await addJoinAs({ userId, roleId, communityId, approved: false });
+    const joinAs = await addJoinAs({ userId, roleId, communityName, approved: false });
     res.status(201).json({ joinAs });
   } catch (err) {
     res.status(500).json({ error: err.message });

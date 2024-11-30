@@ -150,16 +150,16 @@ CREATE TABLE IF NOT EXISTS user_team (
 CREATE TABLE IF NOT EXISTS joinAs (
     user_id INT,
     role_id INT,
-    community_id INT,
+    community_name VARCHAR(255),
     approved BOOLEAN,
-    PRIMARY KEY (user_id, role_id, community_id),
+    PRIMARY KEY (user_id, role_id, community_name),
     FOREIGN KEY (user_id) REFERENCES Users(id)
         ON DELETE SET NULL
         ON UPDATE CASCADE,
     FOREIGN KEY (role_id) REFERENCES Roles(id)
         ON DELETE SET NULL
         ON UPDATE CASCADE,
-    FOREIGN KEY (community_id) REFERENCES Community(id)
+    FOREIGN KEY (community_name) REFERENCES Community(name)
         ON DELETE SET NULL
         ON UPDATE CASCADE
 );
