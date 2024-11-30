@@ -1,27 +1,18 @@
-.navbar {
-    height: 100px;
+.community-navbar {
+    width: 100%;
+    height: 80px;
+
     background: linear-gradient(to bottom, #333399, #FF00CC);
+    color: white;
 
     padding:8px 32px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-
-    /* max-width: 600px;
-    margin: 0 auto; */
-}
-
-.navbar .navbar-main{
-    width: 100%;
-    flex-grow: 1;
 
     display: flex;
-    align-items: center;
-
     justify-content: space-between;
+    align-items: center;
 }
 
-.navbar .navbar-main span {
+.community-navbar span {
     color: white;
     font-size: 1.125rem;
     text-shadow: 
@@ -31,18 +22,31 @@
      1px  1px 0 #000;
 }
 
-.navbar .navbar-main .level-view{
+.community-navbar .items{
+    display: flex;
+
+    justify-content: end;
+    align-items: center;
+}
+
+.community-navbar a{
+    padding: 0 16px;
+}
+
+
+.community-navbar .items .level-view{
     width: 100px;
     background-color: white;
+    color:black;
     border-radius: 5px;
 
     position: relative;
-
+    margin-left: 16px;
     border: 1px black solid;
     /* box-shadow: inset 0px 0px 10px rgba(0, 0, 0, 1); */
 }
 
-.navbar .navbar-main .level-view .level-indecator{
+.community-navbar .items .level-view .level-indecator{
     width: 35px;
     height: 35px;
     
@@ -62,36 +66,10 @@
     color: black;
 }
 
-.profile-container {
-    height: 50%;
-    display: flex;
+.community-navbar .items img {
+    width: 50px;
+    height: 50px;
 
     align-items: center;
-}
-
-.profile-pic {
-    width: 100px;
-    height: 100px;
-
-    border-radius: 50%;
-    border: 2px solid white;
-
-    position: relative;
-
-    transform: translateY(25%);
-}
-
-.profile-name {
-    margin-left: 20px;
-    font-size: 1.2rem;
-    color: white;
-    align-self: flex-end;
-}
-
-.profile-container img {
-  transition: filter 0.1s ease;
-}
-
-.profile-container img:hover {
-  filter: grayscale(100%);
+    margin-left: 16px;
 }
