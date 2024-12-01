@@ -3,7 +3,7 @@ import './HomeNavBar.css'; // Create a CSS file for the component if needed
 
 const HomeNavBar = () => {
   return (
-    <nav className="navbar">
+    <nav className="home-navbar">
       <div className="navbar-main">
         <span>اتـــقــــــــــــــــان</span>
         <div className="level-view">
