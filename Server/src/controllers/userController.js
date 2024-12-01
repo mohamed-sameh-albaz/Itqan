@@ -72,7 +72,7 @@ exports.promoteToAdmin = async (req, res) => {
   const { userId } = req.params;
   const { communityName } = req.body; // userId needed Params to promote and communityName for check
   try {
-    const result = await userModel.promoteUser(userId, communityName);
+    const result = await userModel.promoteUser({ userId, communityName });
     if (result.status) {
       return res.status(200).json({
         status: "success",
@@ -93,3 +93,27 @@ exports.promoteToAdmin = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+exports.createTeam = async (req, res) => {
+  const { userId } = req.params;
+  const { name, photo, communityName } = req.body;
+  try {
+    const newTeam = await userModel.createTeam({ userId, name, photo, communityName });
+    res.status(201).json({ Team: newTeam });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.leaveTeam = async (req, res) => {
+  const { userId } = req.params;
+  const { teamId } = req.body;
+  console.log(userId, teamId);
+  try {
+    const leftTeam = await userModel.leaveTeam({ userId, teamId});
+    console.log(leftTeam);
+    res.status(201).json(leftTeam);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}

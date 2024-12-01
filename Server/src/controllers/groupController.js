@@ -2,10 +2,10 @@ const { addGroup } = require("../models/groupModel");
 const { addRegisterTo } = require("../models/registersToModel");
 
 exports.createGroup = async (req, res) => {
-  const { description, title, photo, comm_id } = req.body;
+  const { description, title, photo, community_name } = req.body;
 
   try {
-    const newGroup = await addGroup({ description, title, photo, comm_id });
+    const newGroup = await addGroup({ description, title, photo, community_name });
     res.status(201).json({ group: newGroup });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -13,7 +13,7 @@ exports.createGroup = async (req, res) => {
 };
 
 exports.joinGroup = async (req, res) => {
-  const { userId, groupId } = req.body;
+  const { userId, groupId } = req.body; // how user will join without know the group name??
 
   try {
     const registerTo = await addRegisterTo({ userId, groupId });
