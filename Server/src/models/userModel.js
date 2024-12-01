@@ -146,7 +146,7 @@ exports.leaveTeam = async (userTeam) => {
       DELETE FROM user_team
       WHERE user_id = $1 AND team_id = $2
       RETURNING *;
-      `;
+    `;
     const deleteVals = [userTeam.userId, userTeam.teamId];
     const { rows } = await db.query(query, deleteVals);
     if (!rows.length) {
@@ -156,8 +156,7 @@ exports.leaveTeam = async (userTeam) => {
       SELECT user_id FROM user_team
       WHERE team_id = $1;
     `;
-    const {rows : otherMembers} = await db.query(getOtherMembersQuery, [userTeam.teamId]);
-    console.log(userTeam.userId, otherMembers);
+    const { rows: otherMembers } = await db.query(getOtherMembersQuery, [userTeam.teamId]);
     return {
       leavingMember: userTeam.userId,
       otherMembers,

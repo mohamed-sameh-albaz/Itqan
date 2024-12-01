@@ -108,12 +108,10 @@ exports.createTeam = async (req, res) => {
 exports.leaveTeam = async (req, res) => {
   const { userId } = req.params;
   const { teamId } = req.body;
-  console.log(userId, teamId);
   try {
-    const leftTeam = await userModel.leaveTeam({ userId, teamId});
-    console.log(leftTeam);
+    const leftTeam = await userModel.leaveTeam({ userId, teamId });
     res.status(201).json(leftTeam);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
-}
+};
