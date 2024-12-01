@@ -1,5 +1,6 @@
 const express = require("express");
 const dotenv = require("dotenv");
+const cors = require("cors");
 const userRoutes = require("./src/routes/userRoutes");
 const contestRoutes = require("./src/routes/contestRoutes");
 const communityRoutes = require("./src/routes/communityRoutes");
@@ -10,11 +11,12 @@ const teamRoutes = require("./src/routes/teamRoutes");
 dotenv.config();
 
 const app = express();
+app.use(cors()); // Enable CORS
 app.use(express.json());
 app.use("/api/users", userRoutes);
 app.use("/api/contests", contestRoutes);
 app.use("/api/communities", communityRoutes);
-app.use("/api/groups", groupRoutes); // Add this line
+app.use("/api/groups", groupRoutes);
 app.use("/api/teams", teamRoutes);
 
 const PORT = process.env.PORT || 3001;
