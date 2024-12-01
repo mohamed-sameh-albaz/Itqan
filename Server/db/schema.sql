@@ -42,11 +42,11 @@ CREATE TABLE IF NOT EXISTS Groups (
     description TEXT,
     title VARCHAR(255) NOT NULL,
     photo VARCHAR(255),
-    comm_id INT,
-    level_id INT NOT NULL, -- group should have min allowed level or set default to 0
+    community_name VARCHAR(255),
+    level_id INT, -- group should have min allowed level or set default to 0 ?
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (comm_id) REFERENCES Community(id)
+    FOREIGN KEY (community_name) REFERENCES Community(name)
         ON DELETE SET NULL
         ON UPDATE CASCADE,
     FOREIGN KEY (level_id) REFERENCES Levels (id) 
@@ -57,8 +57,12 @@ CREATE TABLE IF NOT EXISTS Groups (
 CREATE TABLE IF NOT EXISTS Teams (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
+    photo VARCHAR(255),
+    community_name VARCHAR(255) NOT NULL,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (community_name) REFERENCES Community(name)
+        ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS Contests (
@@ -150,16 +154,16 @@ CREATE TABLE IF NOT EXISTS user_team (
 CREATE TABLE IF NOT EXISTS joinAs (
     user_id INT,
     role_id INT,
-    community_id INT,
+    community_name VARCHAR(255),
     approved BOOLEAN,
-    PRIMARY KEY (user_id, role_id, community_id),
+    PRIMARY KEY (user_id, role_id, community_name),
     FOREIGN KEY (user_id) REFERENCES Users(id)
         ON DELETE SET NULL
         ON UPDATE CASCADE,
     FOREIGN KEY (role_id) REFERENCES Roles(id)
         ON DELETE SET NULL
         ON UPDATE CASCADE,
-    FOREIGN KEY (community_id) REFERENCES Community(id)
+    FOREIGN KEY (community_name) REFERENCES Community(name)
         ON DELETE SET NULL
         ON UPDATE CASCADE
 );
@@ -167,6 +171,8 @@ CREATE TABLE IF NOT EXISTS joinAs (
 CREATE TABLE IF NOT EXISTS registers_to (
     user_id INT,
     group_id INT,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (user_id, group_id),
     FOREIGN KEY (user_id) REFERENCES Users(id)
         ON DELETE SET NULL

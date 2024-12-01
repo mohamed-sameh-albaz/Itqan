@@ -4,8 +4,8 @@ const addGroup = async (group) => {
   const client = await db.connect();
   try {
     const { rows } = await db.query(
-      `INSERT INTO Groups (description, title, photo, comm_id) VALUES ($1, $2, $3, $4) RETURNING *`,
-      [group.description, group.title, group.photo, group.comm_id]
+      `INSERT INTO Groups (description, title, photo, community_name) VALUES ($1, $2, $3, $4) RETURNING *`,
+      [group.description, group.title, group.photo, group.community_name]
     );
     return rows[0];
   } catch (err) {
@@ -16,12 +16,12 @@ const addGroup = async (group) => {
   }
 };
 
-const getGroupsByCommunity = async (comm_id) => {
+const getGroupsByCommunity = async (community_name) => {
   const client = await db.connect();
   try {
     const { rows } = await db.query(
-      `SELECT * FROM Groups WHERE comm_id = $1`,
-      [comm_id]
+      `SELECT * FROM Groups WHERE community_name = $1`,
+      [community_name]
     );
     return rows;
   } catch (err) {

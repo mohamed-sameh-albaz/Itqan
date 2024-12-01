@@ -7,10 +7,9 @@ exports.createCommunity = async (req, res) => {
 
   try {
     const newCommunity = await addCommunity({ name, color, description });
-    const communityId = newCommunity.id;
+    const communityName = newCommunity.name;
 
-    await addJoinAs({ userId, roleId: 1, communityId, approved: true });
-
+    await addJoinAs({ userId, roleId: 1, communityName, approved: true });
     res.status(201).json({ community: newCommunity });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -18,10 +17,10 @@ exports.createCommunity = async (req, res) => {
 };
 
 exports.joinCommunity = async (req, res) => {
-  const { userId, communityId, roleId } = req.body;
+  const { userId, communityName, roleId } = req.body;
 
   try {
-    const joinAs = await addJoinAs({ userId, roleId, communityId, approved: false });
+    const joinAs = await addJoinAs({ userId, roleId, communityName, approved: false });
     res.status(201).json({ joinAs });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -49,10 +48,10 @@ exports.getUserCommunities = async (req, res) => {
 };
 
 exports.getGroupsByCommunity = async (req, res) => {
-  const { comm_id } = req.body;
+  const { community_name } = req.body;
 
   try {
-    const groups = await getGroupsByCommunity(comm_id);
+    const groups = await getGroupsByCommunity(community_name);
     res.status(200).json(groups);
   } catch (err) {
     res.status(500).json({ error: err.message });
