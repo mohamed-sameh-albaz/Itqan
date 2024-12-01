@@ -1,0 +1,38 @@
+
+.content {
+    padding: 20px;
+    position: relative;
+}
+
+.all-btn {
+    width: 100px;
+    height: 30px;
+
+    position: absolute;
+    right: 0;
+    top: 0;
+    
+    background-color: #CFCFCF;
+    border-radius: 0px 0px 0px 10px;
+    cursor: pointer;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    user-select: none;
+}
+
+.all-btn:hover {
+    background-color: rgba(207, 207, 207, 0.7);
+}
+
+h2 {
+    margin-bottom: 20px;
+}
+
+.community-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+}

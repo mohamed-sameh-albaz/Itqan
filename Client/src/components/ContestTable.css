@@ -1,0 +1,29 @@
+table {
+    margin: 0 auto;
+    text-align: left;
+
+    border-radius: 10px;
+    overflow: hidden;
+
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    width: 100%;
+}
+
+
+table thead th {
+    background-color: #FF00CC;
+    color: white;
+    font-weight: normal;
+    padding: 12px 14px;
+}
+table tbody td {
+    padding: 12px 14px;
+}
+
+table tbody td a {
+    color: blue;
+}
+
+table tbody tr:nth-of-type(even) {
+    background-color: rgba(0, 0, 0, 0.1);
+}

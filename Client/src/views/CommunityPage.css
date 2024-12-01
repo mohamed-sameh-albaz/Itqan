@@ -1,0 +1,59 @@
+.content h3{
+    display: flex;
+}
+
+
+
+.content .row {
+    margin-top: 32px;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+}
+.groups-section {
+    flex: 1;    
+}
+
+.team-section{
+    width: fit-content;
+}
+
+.content .groups-grid {
+    /* background-color: red; */
+    display: grid;
+
+    grid-template-columns: repeat(auto-fit, minmax(200px, 4fr));
+    gap: 8px;
+}
+
+
+.team-card{
+    width: 200px;
+    
+    background-color: white;
+    padding: 8px;
+
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+}
+
+.team-card .header{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.team-card .members{
+    display: flex;
+}
+
+.team-card img {
+    width: 30px;
+    height: 30px;
+    margin: 8px 8px 8px 0;
+    border: 1px solid black;
+    border-radius: 50%;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}

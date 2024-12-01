@@ -1,0 +1,66 @@
+.community-card {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  width: 200px;
+  height: 200px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+
+  user-select: none;
+}
+
+.community-card:hover {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.0);
+}
+
+.card-header {
+  padding: 10px;
+  height: 30%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Align title and circle in a row */
+}
+
+.card-header h3 {
+  font-size: 1rem;
+  margin: 0;
+  flex-grow: 1;
+  text-align: left;
+}
+
+.circle {
+  width: 30px;
+  height: 30px;
+  background-color: #D94141; /* Semi-dark red */
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-body {
+  flex-grow: 1;
+}
+
+.card-foot {
+  border-top: 2px solid black;
+  align-self: flex-end;
+  padding: 0 10px;
+  width: 100%;
+  height: 20%;
+}
+
+.contest-info {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.contest-name,
+.time-left {
+  font-size: 14px;
+  font-weight: bold;
+}
