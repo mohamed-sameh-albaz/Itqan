@@ -1,6 +1,6 @@
 const db = require("../config/db");
 
-const addCommunity = async (community) => {
+exports.addCommunity = async (community) => {
   const client = await db.connect();
   try {
     const { rows } = await db.query(
@@ -16,7 +16,7 @@ const addCommunity = async (community) => {
   }
 };
 
-const getAllCommunities = async () => {
+exports.getAllCommunities = async () => {
   const client = await db.connect();
   try {
     const { rows } = await db.query("SELECT * FROM Community");
@@ -29,7 +29,7 @@ const getAllCommunities = async () => {
   }
 };
 
-const getUserCommunities = async (userId) => {
+exports.getUserCommunities = async (userId) => {
   const client = await db.connect();
   try {
     const { rows } = await db.query(
@@ -49,7 +49,7 @@ const getUserCommunities = async (userId) => {
   }
 };
 
-const searchCommunitiesByName = async (name) => {
+exports.searchCommunitiesByName = async (name) => {
   const client = await db.connect();
   try {
     const { rows } = await db.query(
@@ -65,4 +65,47 @@ const searchCommunitiesByName = async (name) => {
   }
 };
 
-module.exports = { addCommunity, getAllCommunities, getUserCommunities, searchCommunitiesByName };
+exports.promoteUser = async (promoteParams) => {
+  const client = await db.connect();
+  try {
+    const getUserQuery = `
+      SELECT id FROM Users WHERE email = $1;
+    `;
+    const userRes = await db.query(getUserQuery, [promoteParams.userEmail]);
+    if (!userRes.rows.length) {
+      throw new Error('User not found, you may enter Invalid email');
+    }
+    const userId = userRes.rows[0].id;
+    const checkCommunityQuery = `
+      SELECT * FROM JoinAs
+      WHERE user_id = $1 AND community_name = $2;  
+    `;
+    const adminRoleQuery = `
+      SELECT id FROM Roles WHERE name = 'admin';
+    `;
+    const { rows: adminRoleId } = await db.query(adminRoleQuery);
+    const valsForUpdate = [ userId, promoteParams.communityName];
+    let { rows: communityRes } = await db.query(checkCommunityQuery, valsForUpdate);
+    if (!communityRes.length) {
+      throw new Error("User is not part of this community");
+    }
+    if (communityRes[0].role_id === adminRoleId[0].id) {
+      throw new Error("User is already Admin in this community");
+    }
+    const updateQuery = `
+      UPDATE JoinAs
+      SET role_id = $3 ,Approved = $4
+      WHERE user_id = $1 AND community_name = $2
+      RETURNING *;
+    `;
+    valsForUpdate.push(adminRoleId[0].id);
+    valsForUpdate.push(true); // Approved
+    const {rows: updateRoleRes} = await db.query(updateQuery, valsForUpdate);
+    return updateRoleRes[0];
+  } catch (err) {
+    console.error(err);
+    throw new Error(err.message);
+  } finally {
+    client.release();
+  }
+};
