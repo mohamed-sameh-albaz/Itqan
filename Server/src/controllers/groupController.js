@@ -1,4 +1,4 @@
-const { addGroup } = require("../models/groupModel");
+const { addGroup, deleteGroup } = require("../models/groupModel");
 const { addRegisterTo } = require("../models/registersToModel");
 
 exports.createGroup = async (req, res) => {
@@ -22,3 +22,15 @@ exports.joinGroup = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+// DELETE group/:groupId
+exports.deleteGroup = async (req, res) => {
+  const {groupId} = req.params;
+  const {userId} = req.body;
+  try{
+    const deletedGroup = await deleteGroup({groupId, userId});
+    res.status(201).json({deletedGroup});
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}
