@@ -6,6 +6,10 @@ import './App.css';
 import HomePage from './views/HomePage';
 import CommunityPage from './views/CommunityPage';
 import GroupPage from './views/GroupPage';
+import ContestPage from './views/ContestPage';
+import TeamEditorBlock from './components/TeamEditorBlock';
+import TeamEditor from "./views/TeamEditor";
+import Dropdown from "./components/test"
 
 function App() {
   return (
@@ -14,9 +18,13 @@ function App() {
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/auth" element={<Auth />} />
-          <Route path="/home" element={<HomePage/>} />
-          <Route path="/community" element={<CommunityPage/>} />
-          <Route path="/group" element={<GroupPage/>} />
+          <Route path="/home" element={<HomePage />} />
+          <Route path="/community" element={<CommunityPage />} />
+          <Route path="/group" element={<GroupPage />} />
+          <Route path="/contest" element={<ContestPage />} />
+          <Route path="/teameb" element={<TeamEditorBlock />} />
+          <Route path="/teame" element={<TeamEditor />} />
+          <Route path="/test" element={<Dropdown />} />
         </Routes>
       </div>
     </Router>

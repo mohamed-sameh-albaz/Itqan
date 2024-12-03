@@ -1,0 +1,15 @@
+.Exit{
+    border-radius: 10px;
+    width:250px;
+    font-size: large;
+    height:50px;
+    position:fixed;
+    bottom: 65px;
+    left: calc((68%)/2);
+    align-self: center;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+.Exit:hover{
+transform: scale(1.2,1.2);
+}

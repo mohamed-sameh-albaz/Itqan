@@ -1,0 +1,49 @@
+.TE_all{
+    background-color: lightgray;
+    width: 600px;
+    height:350px;
+    border-radius: 20px;
+    display:flex;
+    flex-direction: column;
+    position: absolute;
+    top: calc((100% - 350px) / 2);
+    left: calc((100% - 500px) / 2);
+    align-items: center;
+}
+.TE_all .des{
+     font-size: 20px;
+  font-weight: bold;
+    font-family: lalezar;
+    align-self: start;
+    margin-left: 30px;
+    margin-top: 30px;
+}
+.TE_all .TeamName{
+    width:100%;
+    font-size: 20px;
+  font-weight: bold;
+margin-top: 30px;
+height:20%;
+}
+.TE_all .TeamName .name{
+    width:50%;
+    margin-left: 10px;
+    height:50%;
+    border-radius: 7px;
+}
+
+.TE_all .send{
+    font-size: 20px;
+    font-weight: bold;
+    height:12%;
+    margin-top: 30px;
+    margin-left:30px;
+    border-radius: 10px;
+    width:30%;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.TE_all .send:hover{
+    transform: scale(1.2,1.2);
+}
