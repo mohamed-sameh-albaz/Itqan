@@ -59,7 +59,7 @@ exports.loginUser = async (req, res) => {
   try {
     const user = await userModel.findUserByEmail(credentials.name);
     if (user && (await bcrypt.compare(credentials.pass, user.password))) {
-      res.status(200).json({ message: "Login successful" });
+      res.status(200).json({ message: "Login successful", user });
     } else {
       res.status(401).json({ error: "Invalid email or password" });
     }
