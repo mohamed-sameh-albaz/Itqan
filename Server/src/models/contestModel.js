@@ -29,15 +29,15 @@ const addContest = async (contest) => {
   }
 };
 
-const getContestsByStatus = async ({ community_id, group_id, status, limit }) => {
+const getContestsByStatus = async ({ community_name, group_id, status, limit }) => {
   const client = await db.connect();
   try {
     let query = `SELECT * FROM contests WHERE `;
     const params = [];
 
-    if (community_id) {
-      query += `group_id IN (SELECT id FROM Groups WHERE comm_id = $1) AND `;
-      params.push(community_id);
+    if (community_name) {
+      query += `group_id IN (SELECT id FROM Groups WHERE community_name = $1) AND `;
+      params.push(community_name);
     } else if (group_id) {
       query += `group_id = $1 AND `;
       params.push(group_id);

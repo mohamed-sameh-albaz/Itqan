@@ -51,10 +51,10 @@ exports.deleteContest = async (req, res) => {
 };
 
 exports.getContestsByStatus = async (req, res) => {
-  const { community_id, group_id, status, limit } = req.body;
+  const { community_name, group_id, status, limit } = req.body;
 
   try {
-    const contests = await getContestsByStatus({ community_id, group_id, status, limit });
+    const contests = await getContestsByStatus({ community_name, group_id, status, limit });
     if (contests.length === 0) {
       return res.status(404).json({ message: "No contests found" });
     }
