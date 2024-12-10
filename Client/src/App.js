@@ -7,9 +7,8 @@ import HomePage from './views/HomePage';
 import CommunityPage from './views/CommunityPage';
 import GroupPage from './views/GroupPage';
 import ContestPage from './views/ContestPage';
-import TeamEditorBlock from './components/TeamEditorBlock';
 import TeamEditor from "./views/TeamEditor";
-import Dropdown from "./components/test"
+import TeamsPage from './views/TeamsPage';
 
 function App() {
   return (
@@ -22,9 +21,8 @@ function App() {
           <Route path="/community" element={<CommunityPage />} />
           <Route path="/group" element={<GroupPage />} />
           <Route path="/contest" element={<ContestPage />} />
-          <Route path="/teameb" element={<TeamEditorBlock />} />
           <Route path="/teame" element={<TeamEditor />} />
-          <Route path="/test" element={<Dropdown />} />
+          <Route path="/teams" element={<TeamsPage />} />
         </Routes>
       </div>
     </Router>

@@ -1,17 +1,22 @@
 
 import React, { useState } from "react"
 import "./ContestScreen.css"
-const ContestScreen = () =>
+const ContestScreen = (props) =>
 {
-     const [activeIndex, setActiveIndex] = useState(null); // Track the clicked button index
-
+  const [activeIndex, setActiveIndex] = useState(null); // Track the clicked button index
+  const [buttons, addQuestion] = useState(props.buttons);  
+  let allow_read = props.allow_read;
+     let user = "leader";
      const handleClick = (index) => {
        setActiveIndex(index);
-     };
- 
-  const buttons = ["Question","A", "B", "C", "D", "E", "F", "G", "H"];
+     }; 
 
-    return (
+//  let buttons = props.buttons//["Question","A", "B", "C", "D", "E", "F", "G", "H"];
+  const addques = () => {
+    const char = String.fromCharCode(buttons.length+64);
+    addQuestion((prevButtons)=>[...prevButtons,char])
+  };
+  return (
       
         <div className="CS_all">
           <div className="Qlist">
@@ -44,9 +49,9 @@ const ContestScreen = () =>
                 <label htmlFor="title" className="LABEL">
                   Title :
                 </label>
-                <input type="text" readOnly className="title" />
+              <input type="text" readOnly={allow_read} className="title" />
               </div>
-              <textarea type="text" readOnly className="content" />
+            <textarea type="text" readOnly={allow_read} className="content" />
             </div>
             <div className="ANS">
               <label htmlFor="ans" className="Ans">
@@ -54,7 +59,12 @@ const ContestScreen = () =>
               </label>
               <textarea type="text" className="ans" rows="5" />
             </div>
-          </div>
+        </div>
+        {user === "leader" &&
+          <div className="forLeader">
+        <button className="addQ" onClick={()=>addques()}>add Question</button>
+        
+        </div>}
         </div>
     
     );
