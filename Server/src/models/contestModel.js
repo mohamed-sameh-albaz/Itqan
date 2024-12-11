@@ -105,4 +105,28 @@ const deleteContestById = async (id) => {
   }
 };
 
-module.exports = { getAllContests, addContest, getContestsByStatus, updateContestById, deleteContestById };
+const getWrittenTasks = async(contestId) => {
+  const client = await db.connect();
+  try{
+    const getNotApprovedquery = `
+    SELECT s.*
+    FROM Submissions s, Tasks t, Contests c
+    WHERE t.contest_id = $1 
+      AND c.id = t.contest_id 
+      AND s.approved_by IS NULL
+      AND t.id NOT IN (
+        SELECT mcq.id FROM McqTasks mcq
+      ); 
+    `;
+    console.log(contestId);
+    const { rows: getNotApprovedRes } = await db.query(getNotApprovedquery, [contestId]);
+    console.log(getNotApprovedRes);
+    return getNotApprovedRes;
+  } catch(err) {
+    console.log("Database error: Unable to retrieve tasks in this contest");
+    throw new Error("Database error: Unable to retrieve tasks in this contest");
+  } finally{
+    client.release();
+  }
+}
+module.exports = { getAllContests, addContest, getContestsByStatus, updateContestById, deleteContestById, getWrittenTasks };

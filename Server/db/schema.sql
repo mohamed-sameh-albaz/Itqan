@@ -85,7 +85,6 @@ CREATE TABLE IF NOT EXISTS Contests (
 CREATE TABLE IF NOT EXISTS Tasks ( -- default written
     id SERIAL PRIMARY KEY,
     contest_id INT,
-    approve_by INT,
     description TEXT,
     title VARCHAR(255),
     points INT,
@@ -94,8 +93,6 @@ CREATE TABLE IF NOT EXISTS Tasks ( -- default written
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (contest_id) REFERENCES Contests(id)
-        ON DELETE SET NULL,
-    FOREIGN KEY (approve_by) REFERENCES Users(id)
         ON DELETE SET NULL
 );
 
@@ -198,7 +195,7 @@ CREATE TABLE IF NOT EXISTS Submissions (
 
 
 CREATE TABLE IF NOT EXISTS SingleSubmissions (
-    submission_id INT PRIMARY KEY,
+    submission_id SERIAL PRIMARY KEY,
     individual_id INT NOT NULL,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (submission_id) REFERENCES Submissions(id)
@@ -208,7 +205,7 @@ CREATE TABLE IF NOT EXISTS SingleSubmissions (
 );
 
 CREATE TABLE IF NOT EXISTS TeamSubmissions (
-    submission_id INT PRIMARY KEY,
+    submission_id SERIAL PRIMARY KEY,
     team_id INT NOT NULL,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (submission_id) REFERENCES Submissions (id)

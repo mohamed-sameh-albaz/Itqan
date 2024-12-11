@@ -96,3 +96,23 @@ exports.leaveTeam = async (userTeam) => {
     client.release();
   }
 };
+
+exports.approveSubmission = async ({ userId, submissionId, score }) => {
+  const client = await db.connect();
+  try {
+    const query = `
+      UPDATE Submissions  
+      SET approved_by = $1, score = $2
+      where id = $3
+      RETURNING *;
+    `;
+    const { rows } = await db.query(query, [userId, score, submissionId]);
+    console.log(rows);
+    return rows;
+  } catch(err) {  
+    console.error(err);
+    throw new Error(err.message);
+  } finally {
+    client.release();
+  }
+}

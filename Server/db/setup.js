@@ -24,8 +24,10 @@ const setupDatabase = async () => {
 // ============== testing ==============
 const test = async (client) => {
   const query = `
-  INSERT INTO Roles (name, description, color)
-  VALUES ('admin', 'Administrator with full access', '#FF0000'),
+  -- Insert roles
+    INSERT INTO Roles (name, description, color)
+    VALUES 
+    ('admin', 'Administrator with full access', '#FF0000'),
     ('leader', 'Moderator with limited admin privileges', '#FFA500'),
     ('member', 'Regular member of the community', '#0000FF');
     -- Insert a new user and retrieve the user ID
@@ -55,9 +57,56 @@ const test = async (client) => {
     FROM NewUser, AdminRole, NewCommunity;
 
     -- Insert a new group in the community
-    INSERT INTO Groups (description, title, photo, community_name)
-    VALUES 
-    ('The leading group in the Innovation Hub.', 'Leadership Group', 'group_pic.jpg', 'Innovation Hub');
+    WITH NewGroup AS (
+      INSERT INTO Groups (description, title, photo, community_name)
+      VALUES 
+      ('The leading group in the Innovation Hub.', 'Leadership Group', 'group_pic.jpg', 'Innovation Hub')
+      RETURNING id
+    )
+
+    -- Insert a contest for the group
+    , NewContest AS (
+      INSERT INTO Contests (description, type, difficulty, name, start_date, end_date, status, group_id)
+      SELECT 
+        'Solve tech puzzles and challenges', 
+        'Individual', 
+        'Hard', 
+        'Tech Puzzle Contest', 
+        '2024-12-15 09:00:00', 
+        '2024-12-20 18:00:00', 
+        'Active', 
+        NewGroup.id
+      FROM NewGroup
+      RETURNING id
+    )
+
+    -- Insert tasks for the contest
+    INSERT INTO Tasks (contest_id, approve_by, description, title, points, type, image)
+    SELECT
+      NewContest.id, 
+      NULL, 
+      'Solve a complex algorithm problem', 
+      'Algorithm Challenge', 
+      100, 
+      'Coding', 
+      'task1.png'
+    FROM NewContest
+    UNION ALL
+    SELECT
+      NewContest.id, 
+      NULL, 
+      'Fix bugs in the code snippet', 
+      'Debugging Challenge', 
+      80, 
+      'Coding', 
+      'task2.png'
+    FROM NewContest;
+
+    -- Register the user to the group conducting the contest
+    INSERT INTO registers_to (user_id, group_id)
+    SELECT 
+      (SELECT id FROM NewUser), 
+      (SELECT id FROM NewGroup);
   `;
   await client.query(query);
   console.log("testing Vals created successfully!");
