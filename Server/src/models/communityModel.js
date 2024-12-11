@@ -1,6 +1,6 @@
 const db = require("../config/db");
 
-exports.addCommunity = async (community) => {
+const addCommunity = async (community) => {
   const client = await db.connect();
   try {
     const { rows } = await db.query(
@@ -16,7 +16,7 @@ exports.addCommunity = async (community) => {
   }
 };
 
-exports.getAllCommunities = async () => {
+const getAllCommunities = async () => {
   const client = await db.connect();
   try {
     const { rows } = await db.query("SELECT * FROM Community");
@@ -29,7 +29,7 @@ exports.getAllCommunities = async () => {
   }
 };
 
-exports.getUserCommunities = async (userId) => {
+const getUserCommunities = async (userId) => {
   const client = await db.connect();
   try {
     const { rows } = await db.query(
@@ -49,7 +49,7 @@ exports.getUserCommunities = async (userId) => {
   }
 };
 
-exports.searchCommunitiesByName = async (name) => {
+const searchCommunitiesByName = async (name) => {
   const client = await db.connect();
   try {
     const { rows } = await db.query(
@@ -65,7 +65,7 @@ exports.searchCommunitiesByName = async (name) => {
   }
 };
 
-exports.promoteUser = async (promoteParams) => {
+const promoteUser = async (promoteParams) => {
   const client = await db.connect();
   try {
     const getUserQuery = `
@@ -109,3 +109,5 @@ exports.promoteUser = async (promoteParams) => {
     client.release();
   }
 };
+
+module.exports = { addCommunity, getAllCommunities, getUserCommunities, searchCommunitiesByName, promoteUser };

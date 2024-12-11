@@ -1,14 +1,14 @@
 const express = require("express");
-const communityController = require("../controllers/communityController");
+const { createCommunity, joinCommunity, getAllCommunities, getUserCommunities, getGroupsByCommunity, searchCommunitiesByName, promoteUser } = require("../controllers/communityController");
 
 const router = express.Router();
 
-router.post("/", communityController.createCommunity);
-router.post("/join", communityController.joinCommunity);
-router.get("/", communityController.getAllCommunities);
-router.get("/user/:userId", communityController.getUserCommunities);
-router.post("/groups", communityController.getGroupsByCommunity);
-router.get("/search", communityController.searchCommunitiesByName); // Add this line
-router.patch('/:communityName/promote', communityController.promoteUser);
+router.post("/", createCommunity);
+router.post("/join", joinCommunity);
+router.get("/", getAllCommunities);
+router.get("/user/:userId", getUserCommunities);
+router.post("/groups", getGroupsByCommunity);
+router.get("/search", searchCommunitiesByName); // Add this line
+router.patch('/:communityName/promote', promoteUser);
 
 module.exports = router;
