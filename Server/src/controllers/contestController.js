@@ -25,7 +25,7 @@ exports.createContestWithTasks = async (req, res) => {
     });
 
     await Promise.all(taskPromises);
-
+    
     res.status(201).json({ contest: newContest, tasks });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -51,7 +51,7 @@ exports.deleteContest = async (req, res) => {
 };
 
 exports.getContestsByStatus = async (req, res) => {
-  const { community_name, group_id, status, limit } = req.body;
+  const { community_name, group_id, status, limit } = req.query; // Fetch query parameters
 
   try {
     const contests = await getContestsByStatus({ community_name, group_id, status, limit });
