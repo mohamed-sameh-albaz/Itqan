@@ -16,11 +16,18 @@ const addCommunity = async (community) => {
   }
 };
 
-const getAllCommunities = async () => {
+const getAllCommunities = async (limit, offset) => {
   const client = await db.connect();
   try {
-    const { rows } = await db.query("SELECT * FROM Community");
-    return rows;
+    const { rows: communities } = await db.query(
+      `SELECT * FROM Community LIMIT $1 OFFSET $2`,
+      [limit, offset]
+    );
+    const { rows: countRows } = await db.query(
+      `SELECT COUNT(*) FROM Community`
+    );
+    const totalCount = parseInt(countRows[0].count, 10);
+    return { communities, totalCount };
   } catch (err) {
     console.error(`Error retrieving communities: ${err.message}`);
     throw new Error("Database error: Unable to retrieve communities");
@@ -29,18 +36,25 @@ const getAllCommunities = async () => {
   }
 };
 
-const getUserCommunities = async (userId) => {
+const getUserCommunities = async (userId, limit, offset) => {
   const client = await db.connect();
   try {
-    const { rows } = await db.query(
+    const { rows: userCommunities } = await db.query(
       `SELECT c.*, ja.role_id, r.name as role_name
        FROM Community c
        JOIN joinAs ja ON c.name = ja.community_name
        JOIN Roles r ON ja.role_id = r.id
+       WHERE ja.user_id = $1 LIMIT $2 OFFSET $3`,
+      [userId, limit, offset]
+    );
+    const { rows: countRows } = await db.query(
+      `SELECT COUNT(*) FROM Community c
+       JOIN joinAs ja ON c.name = ja.community_name
        WHERE ja.user_id = $1`,
       [userId]
     );
-    return rows;
+    const totalCount = parseInt(countRows[0].count, 10);
+    return { userCommunities, totalCount };
   } catch (err) {
     console.error(`Error retrieving user communities: ${err.message}`);
     throw new Error("Database error: Unable to retrieve user communities");
@@ -49,14 +63,19 @@ const getUserCommunities = async (userId) => {
   }
 };
 
-const searchCommunitiesByName = async (name) => {
+const searchCommunitiesByName = async (name, limit, offset) => {
   const client = await db.connect();
   try {
-    const { rows } = await db.query(
-      `SELECT * FROM Community WHERE name ILIKE $1`,
+    const { rows: communities } = await db.query(
+      `SELECT * FROM Community WHERE name ILIKE $1 LIMIT $2 OFFSET $3`,
+      [`%${name}%`, limit, offset]
+    );
+    const { rows: countRows } = await db.query(
+      `SELECT COUNT(*) FROM Community WHERE name ILIKE $1`,
       [`%${name}%`]
     );
-    return rows;
+    const totalCount = parseInt(countRows[0].count, 10);
+    return { communities, totalCount };
   } catch (err) {
     console.error(`Error searching communities: ${err.message}`);
     throw new Error("Database error: Unable to search communities");
