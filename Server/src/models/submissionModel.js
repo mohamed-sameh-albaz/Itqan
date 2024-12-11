@@ -18,24 +18,9 @@ exports.submitTask = async (submissionParams) => {
     
     const contestStatus = contestRes[0].status;
     // check that the contest is running
-    if(contestStatus !== "active") {
-      throw new Error("the contest is finished you cannot submit");
+    if(contestStatus !== "running") {
+      // throw new Error("the contest is finished you cannot submit");
     }
-
-    // check if the user have regiestered to the group that conducts the contest
-    const userGroupQuery = `
-      SELECT r.user_id, r.group_id 
-      FROM Registers_to AS r, contests AS c
-      WHERE r.user_id = $1 AND r.group_id = c.group_id AND c.id = $2; 
-    `;
-    const { rows: userGroupRes } = await db.query(userGroupQuery, [
-      submissionParams.userId,
-      submissionParams.contestId,
-    ]);
-    if (!userGroupRes.length) {
-      throw new Error("User is not in the contest's group");
-    }
-
     // verify if the task belongs to the specified contest
     const taskQuery = `
       SELECT id 
@@ -49,30 +34,66 @@ exports.submitTask = async (submissionParams) => {
     if (!taskRes.length) {
       throw new Error("Task not found in this contest.");
     }
-
-    // submit
+    // contestType= "single";
+    console.log(contestType);
+    // team submissions must be handled
     const submissionQuery = `
-      INSERT INTO Submissions (task_id, content)
-      VALUES ($1, $2)
+      INSERT INTO Submissions (task_id, content, status)
+      VALUES ($1, $2, 'Pending')
       RETURNING *;
       `;
     const { rows: submissionRes } = await db.query(submissionQuery, [
       submissionParams.taskId,
       submissionParams.submittedData,
     ]);
+    console.log(submissionRes);///////////
+    console.log(contestType);///////////
+    if(contestType === "team") {
+      console.log(3333);
+      const teamSubmissionQuery = `
+        INSERT INTO TeamSubmissions (submission_id, team_id)
+        VALUES ($1, $2)
+        RETURNING *;
+      `;
+      console.log(submissionParams.teamId);
+      const { rows: teamSubRes } = await db.query(teamSubmissionQuery, [
+        submissionRes[0].id,
+        submissionParams.teamId,
+      ]);
+      console.log("333333",teamSubRes);
+    } else {
+      // check if the user have regiestered to the group that conducts the contest
+      const userGroupQuery = `
+        SELECT r.user_id, r.group_id
+        FROM Registers_to AS r
+        INNER JOIN Contests AS c ON r.group_id = c.group_id
+        WHERE r.user_id = $1 AND c.id = $2;
+      `;
+      const { rows: userGroupRes } = await db.query(userGroupQuery, [
+        submissionParams.userId,
+        submissionParams.contestId,
+      ]);
+      console.log(userGroupRes);
+      if (!userGroupRes.length) {
+        throw new Error("User is not in the contest's group");
+      }
+      
+      const singleSubmissionQuery = `
+        INSERT INTO SingleSubmissions (submission_id, individual_id)
+        VALUES ($1, $2)
+        RETURNING *;
+      `;
+      const { rows: singleSubRes } = await db.query(singleSubmissionQuery, [
+        submissionRes[0].id,
+        submissionParams.userId,
+      ]);
+      console.log(singleSubRes);
+    }
 
-    // team submissions must be handled
-    
-    const singleSubmissionQuery = `
-      INSERT INTO SingleSubmissions (individual_id)
-      VALUES ($1)
-      RETURNING *;
-    `;
-    const { rows: singleSubRes } = await db.query(singleSubmissionQuery, [
-      submissionParams.userId,
-    ]);
+
+    // submit
     // console.log(singleSubRes);
-    return { submissionRes, singleSubRes };
+    return { submissionRes };
   } catch (err) {
     console.error(`Error adding submission: ${err.message}`);
     throw new Error(`${err.message}`);

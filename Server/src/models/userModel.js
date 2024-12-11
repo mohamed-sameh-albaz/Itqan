@@ -102,12 +102,16 @@ exports.approveSubmission = async ({ userId, submissionId, score }) => {
   try {
     const query = `
       UPDATE Submissions  
-      SET approved_by = $1, score = $2
-      where id = $3
+      SET approved_by = $1,
+        score = $2,
+        approved_at = CURRENT_TIMESTAMP,
+        status = 'Approved'
+      WHERE id = $3
       RETURNING *;
     `;
+    console.log({ userId, submissionId, score });
     const { rows } = await db.query(query, [userId, score, submissionId]);
-    console.log(rows);
+    // console.log(rows);
     return rows;
   } catch(err) {  
     console.error(err);

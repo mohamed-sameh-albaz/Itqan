@@ -110,21 +110,25 @@ const getWrittenTasks = async(contestId) => {
   try{
     const getNotApprovedquery = `
     SELECT s.*
-    FROM Submissions s, Tasks t, Contests c
-    WHERE t.contest_id = $1 
-      AND c.id = t.contest_id 
+    FROM Submissions s
+    JOIN Tasks t ON t.id = s.task_id
+    JOIN Contests c ON c.id = t.contest_id
+    WHERE t.contest_id = $1
       AND s.approved_by IS NULL
-      AND t.id NOT IN (
-        SELECT mcq.id FROM McqTasks mcq
-      ); 
+      AND NOT EXISTS (
+        SELECT 1
+        FROM McqTasks mcq
+        WHERE mcq.id = t.id
+      )
+    ORDER BY s.created_at DESC;
     `;
     console.log(contestId);
     const { rows: getNotApprovedRes } = await db.query(getNotApprovedquery, [contestId]);
-    console.log(getNotApprovedRes);
+    console.log(333333333333,getNotApprovedRes);
     return getNotApprovedRes;
   } catch(err) {
-    console.log("Database error: Unable to retrieve tasks in this contest");
-    throw new Error("Database error: Unable to retrieve tasks in this contest");
+    console.log(err.message);
+    throw new Error(err.message);
   } finally{
     client.release();
   }
