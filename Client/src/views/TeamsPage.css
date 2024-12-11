@@ -1,0 +1,11 @@
+.TB_all{
+    display:inline; 
+}
+
+.TB_all .teamtable
+{
+   display:inline-block;
+   width:50%;
+   overflow:scroll;
+   scrollbar-width: none;
+}

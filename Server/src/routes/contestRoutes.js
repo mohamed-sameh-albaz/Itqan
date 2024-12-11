@@ -7,6 +7,6 @@ router.get("/", getContests);
 router.post("/", createContestWithTasks);
 router.put("/:id", updateContest);
 router.delete("/:id", deleteContest);
-router.post("/status", getContestsByStatus); // Add this line
+router.get("/status", getContestsByStatus);
 
 module.exports = router;

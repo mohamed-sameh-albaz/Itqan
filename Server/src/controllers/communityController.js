@@ -28,42 +28,48 @@ exports.joinCommunity = async (req, res) => {
 };
 
 exports.getAllCommunities = async (req, res) => {
+  const { page = 1, limit = 10 } = req.query;
+
   try {
-    const communities = await getAllCommunities();
-    res.status(200).json(communities);
+    const offset = (page - 1) * limit;
+    const { communities, totalCount } = await getAllCommunities(limit, offset);
+    res.status(200).json({ communities, totalCount });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
 exports.getUserCommunities = async (req, res) => {
-  const { userId } = req.params;
+  const { userId, page = 1, limit = 10 } = req.query;
 
   try {
-    const userCommunities = await getUserCommunities(userId);
-    res.status(200).json(userCommunities);
+    const offset = (page - 1) * limit;
+    const { userCommunities, totalCount } = await getUserCommunities(userId, limit, offset);
+    res.status(200).json({ userCommunities, totalCount });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
 exports.getGroupsByCommunity = async (req, res) => {
-  const { community_name } = req.body;
+  const { community_name, page = 1, limit = 10 } = req.query;
 
   try {
-    const groups = await getGroupsByCommunity(community_name);
-    res.status(200).json(groups);
+    const offset = (page - 1) * limit;
+    const { groups, totalCount } = await getGroupsByCommunity(community_name, limit, offset);
+    res.status(200).json({ groups, totalCount });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
 exports.searchCommunitiesByName = async (req, res) => {
-  const { name } = req.query;
+  const { name, page = 1, limit = 10 } = req.query;
 
   try {
-    const communities = await searchCommunitiesByName(name);
-    res.status(200).json(communities);
+    const offset = (page - 1) * limit;
+    const { communities, totalCount } = await searchCommunitiesByName(name, limit, offset);
+    res.status(200).json({ communities, totalCount });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

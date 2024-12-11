@@ -6,8 +6,8 @@ const router = express.Router();
 router.post("/", createCommunity);
 router.post("/join", joinCommunity);
 router.get("/", getAllCommunities);
-router.get("/user/:userId", getUserCommunities);
-router.post("/groups", getGroupsByCommunity);
-router.get("/search", searchCommunitiesByName); // Add this line
+router.get("/user", getUserCommunities);
+router.get("/groups", getGroupsByCommunity);
+router.get("/search", searchCommunitiesByName);
 
 module.exports = router;

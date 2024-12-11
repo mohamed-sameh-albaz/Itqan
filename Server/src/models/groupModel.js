@@ -16,14 +16,19 @@ const addGroup = async (group) => {
   }
 };
 
-const getGroupsByCommunity = async (community_name) => {
+const getGroupsByCommunity = async (community_name, limit, offset) => {
   const client = await db.connect();
   try {
-    const { rows } = await db.query(
-      `SELECT * FROM Groups WHERE community_name = $1`,
+    const { rows: groups } = await db.query(
+      `SELECT * FROM Groups WHERE community_name = $1 LIMIT $2 OFFSET $3`,
+      [community_name, limit, offset]
+    );
+    const { rows: countRows } = await db.query(
+      `SELECT COUNT(*) FROM Groups WHERE community_name = $1`,
       [community_name]
     );
-    return rows;
+    const totalCount = parseInt(countRows[0].count, 10);
+    return { groups, totalCount };
   } catch (err) {
     console.error(`Error retrieving groups: ${err.message}`);
     throw new Error("Database error: Unable to retrieve groups");
