@@ -37,7 +37,7 @@ exports.getAllCommunities = async (req, res) => {
 };
 
 exports.getUserCommunities = async (req, res) => {
-  const { userId } = req.params;
+  const { userId } = req.query;
 
   try {
     const userCommunities = await getUserCommunities(userId);
@@ -48,8 +48,7 @@ exports.getUserCommunities = async (req, res) => {
 };
 
 exports.getGroupsByCommunity = async (req, res) => {
-  const { community_name } = req.body;
-
+  const { community_name } = req.query;
   try {
     const groups = await getGroupsByCommunity(community_name);
     res.status(200).json(groups);
