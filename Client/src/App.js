@@ -10,6 +10,8 @@ import ContestPage from './views/ContestPage';
 import TeamEditorBlock from './components/TeamEditorBlock';
 import TeamEditor from "./views/TeamEditor";
 import Dropdown from "./components/test"
+import ProfilePage from './views/ProfilePage';
+import PostsPage from './views/PostsPage';
 
 function App() {
   return (
@@ -25,6 +27,8 @@ function App() {
           <Route path="/teameb" element={<TeamEditorBlock />} />
           <Route path="/teame" element={<TeamEditor />} />
           <Route path="/test" element={<Dropdown />} />
+          <Route path="/profile/:name" element={<ProfilePage/>} /> 
+          <Route path="/posts/:name" element={<PostsPage/>} /> 
         </Routes>
       </div>
     </Router>
