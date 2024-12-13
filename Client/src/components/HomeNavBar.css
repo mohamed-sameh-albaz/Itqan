@@ -1,6 +1,6 @@
 .home-navbar {
     height: 100px;
-    background: linear-gradient(to bottom, #000B58, #0556a7);
+    background: linear-gradient(to bottom, var(--primary-color), var(--lighter-primary-color));
 
     padding:8px 32px;
     display: flex;

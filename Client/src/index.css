@@ -13,7 +13,8 @@ code {
 }
 
 :root {
-  --primary-color: #006A67;
+  --primary-color: #000B58;
+  --lighter-primary-color: #0556a7;
   --accent-color: #FFF4B7;
   --secondary-color: #FFF4B7;
   --bg-color: #F4F4F4;

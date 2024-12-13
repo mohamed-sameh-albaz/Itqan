@@ -20,7 +20,7 @@ function App() {
           <Route path="/" element={<Landing />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/home" element={<HomePage />} />
-          <Route path="/community" element={<CommunityPage />} />
+          <Route path="/community/:name" element={<CommunityPage />} />
           <Route path="/group" element={<GroupPage />} />
           <Route path="/contest" element={<ContestPage />} />
           <Route path="/teame" element={<TeamEditor />} />

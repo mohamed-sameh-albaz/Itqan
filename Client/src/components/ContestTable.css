@@ -11,7 +11,7 @@ table {
 
 
 table thead th {
-    background-color: #FF00CC;
+    background-color: var(--primary-color);
     color: white;
     font-weight: normal;
     padding: 12px 14px;
