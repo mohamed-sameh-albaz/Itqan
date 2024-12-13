@@ -16,12 +16,12 @@ const addCommunity = async (community) => {
   }
 };
 
-const getAllCommunities = async (limit, offset) => {
+const getAllCommunities = async (userId, limit, offset) => {
   const client = await db.connect();
   try {
     const { rows: communities } = await db.query(
-      `SELECT * FROM Community LIMIT $1 OFFSET $2`,
-      [limit, offset]
+      `SELECT c.*,r.id as role_id, r.name as role_name,r.color as role_color FROM ( community c left outer join joinas ja on (ja.community_name = c.name AND ja.user_id = $1) left outer join roles r on r.id = ja.role_id) LIMIT $2 OFFSET $3`,
+      [userId, limit, offset]
     );
     const { rows: countRows } = await db.query(
       `SELECT COUNT(*) FROM Community`

@@ -30,7 +30,7 @@ exports.joinCommunity = async (req, res) => {
   const { userId, communityName, roleId } = req.body;
 
   try {
-    const joinAs = await addJoinAs({ userId, roleId, communityName, approved: false });
+    const joinAs = await addJoinAs({ userId, roleId, communityName, approved: true });
     res.status(201).json({
       status: "success",
       data: { joinAs }
@@ -48,11 +48,11 @@ exports.joinCommunity = async (req, res) => {
 };
 
 exports.getAllCommunities = async (req, res) => {
-  const { page = 1, limit = 10 } = req.query;
+  const { userId, page = 1, limit = 10 } = req.query;
 
   try {
     const offset = (page - 1) * limit;
-    const { communities, totalCount } = await getAllCommunities(limit, offset);
+    const { communities, totalCount } = await getAllCommunities(userId, limit, offset);
     res.status(200).json({
       status: "success",
       data: { communities },
