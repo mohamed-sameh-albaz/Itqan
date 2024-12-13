@@ -27,6 +27,7 @@ async function requestAPI(endPoint, method = 'get', { params = {}, body = {} } =
     } catch (error) {
         console.log('Error requesting api:', error);
         if (error.response) {
+            requestResult = error.response.data;
             statusCode = error.response.status;
         }
         //throw error; // Re-throw the error to handle it in the calling function

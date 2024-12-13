@@ -2,7 +2,7 @@ import React from 'react';
 import { Navbar, Nav, Container, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import './MyNavbar.css';
-
+// import 'bootstrap/dist/css/bootstrap.min.css';
 function MyNavigationBar() {
   return (
     <Navbar className="navbar-custom" variant="dark" expand="lg">

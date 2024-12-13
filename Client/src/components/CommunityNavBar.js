@@ -1,8 +1,10 @@
+import { useNavigate } from 'react-router-dom';
 import './CommunityNavBar.css'
 
 const CommunityNavBar = () => {
+    const nav = useNavigate();
     return ( <div className="community-navbar">
-        <span>اتـــقــــــــــــــــان</span>
+        <span className='cursor-pointer' onClick={()=>nav('/home')}>اتـــقــــــــــــــــان</span>
 
         <div className="items">
             <a>Leader Board</a>

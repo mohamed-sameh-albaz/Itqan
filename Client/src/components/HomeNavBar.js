@@ -1,7 +1,10 @@
 import React from 'react';
 import './HomeNavBar.css'; // Create a CSS file for the component if needed
+import { useNavigate } from 'react-router-dom';
 
 const HomeNavBar = ({userName}) => {
+  const user = JSON.parse(localStorage.getItem("user"));
+  const nav = useNavigate();
   return (
     <nav className="home-navbar">
       <div className="navbar-main">
@@ -16,6 +19,7 @@ const HomeNavBar = ({userName}) => {
           src="https://avatar.iran.liara.run/public/boy"
           alt="Profile"
           className="profile-pic"
+          onClick={() => nav(`/profile/${user.id}`)}
         />
         <span className="profile-name">Welcome back, {userName}</span>
       </div>
