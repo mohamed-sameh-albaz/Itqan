@@ -40,7 +40,7 @@ const getUserCommunities = async (userId, limit, offset) => {
   const client = await db.connect();
   try {
     const { rows: userCommunities } = await db.query(
-      `SELECT c.*, ja.role_id, r.name as role_name
+      `SELECT c.*, ja.role_id, r.name as role_name, r.color as role_color
        FROM Community c
        JOIN joinAs ja ON c.name = ja.community_name
        JOIN Roles r ON ja.role_id = r.id
