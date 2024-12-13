@@ -2,7 +2,7 @@
     width: 100%;
     height: 80px;
 
-    background: linear-gradient(to bottom, var(primary-color), var(accent-color));
+    background: linear-gradient(to bottom, var(--primary-color), var(--lighter-primary-color));
     color: white;
 
     padding:8px 32px;

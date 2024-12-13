@@ -1,17 +1,23 @@
+import { useParams } from 'react-router-dom';
 import CommunityCard from '../components/CommunityCard'
 import CommunityNavBar from '../components/CommunityNavBar';
 import ContestTable from '../components/ContestTable';
 import './CommunityPage.css'
+import {useAPI} from '../hooks/useAPI';
 
 const CommunityPage = () => {
-    const groups = [
-        "Logic Design",
-        "Algorithm Design",
-        "Numerical Analysis",
-        "Logic Design",
-        "Algorithm Design",
-        "Numerical Analysis"
-      ];
+    const parms = useParams();
+
+    const [groups, isLoadingGroups] = useAPI('/communities/groups', 'get', {params: {community_name: parms.name}});
+
+    // const groups = [
+    //     "Logic Design",
+    //     "Algorithm Design",
+    //     "Numerical Analysis",
+    //     "Logic Design",
+    //     "Algorithm Design",
+    //     "Numerical Analysis"
+    //   ];
 
     const contets = [
         {name: "Eco Systems", startDate: "11/28/2024 12: pm", duration: "3 days left",},
@@ -32,7 +38,7 @@ const CommunityPage = () => {
                 <div className='groups-section'>
                     <h3>You Groups</h3>
                     <div className="groups-grid">
-                        {groups.map((e,index)=><CommunityCard contestName={e}/>)}
+                        {(isLoadingGroups? [] : groups.groups).map((e,index)=><CommunityCard title={e.title}/>)}
                     </div>
                 </div>
 
