@@ -10,9 +10,19 @@ exports.createCommunity = async (req, res) => {
     const communityName = newCommunity.name;
 
     await addJoinAs({ userId, roleId: 1, communityName, approved: true });
-    res.status(201).json({ community: newCommunity });
+    res.status(201).json({
+      status: "success",
+      data: { community: newCommunity }
+    });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({
+      status: "error",
+      message: "Validation failed",
+      details: {
+        field: "community",
+        error: err.message
+      }
+    });
   }
 };
 
@@ -21,9 +31,19 @@ exports.joinCommunity = async (req, res) => {
 
   try {
     const joinAs = await addJoinAs({ userId, roleId, communityName, approved: false });
-    res.status(201).json({ joinAs });
+    res.status(201).json({
+      status: "success",
+      data: { joinAs }
+    });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({
+      status: "error",
+      message: "Validation failed",
+      details: {
+        field: "joinAs",
+        error: err.message
+      }
+    });
   }
 };
 
@@ -33,9 +53,26 @@ exports.getAllCommunities = async (req, res) => {
   try {
     const offset = (page - 1) * limit;
     const { communities, totalCount } = await getAllCommunities(limit, offset);
-    res.status(200).json({ communities, totalCount });
+    res.status(200).json({
+      status: "success",
+      data: { communities },
+      pagination: {
+        from: offset + 1,
+        to: offset + communities.length,
+        current_page: page,
+        total: totalCount,
+        per_page: limit
+      }
+    });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({
+      status: "error",
+      message: "Validation failed",
+      details: {
+        field: "communities",
+        error: err.message
+      }
+    });
   }
 };
 
@@ -45,9 +82,26 @@ exports.getUserCommunities = async (req, res) => {
   try {
     const offset = (page - 1) * limit;
     const { userCommunities, totalCount } = await getUserCommunities(userId, limit, offset);
-    res.status(200).json({ userCommunities, totalCount });
+    res.status(200).json({
+      status: "success",
+      data: { communities: userCommunities },
+      pagination: {
+        from: offset + 1,
+        to: offset + userCommunities.length,
+        current_page: page,
+        total: totalCount,
+        per_page: limit
+      }
+    });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({
+      status: "error",
+      message: "Validation failed",
+      details: {
+        field: "userCommunities",
+        error: err.message
+      }
+    });
   }
 };
 
@@ -57,9 +111,26 @@ exports.getGroupsByCommunity = async (req, res) => {
   try {
     const offset = (page - 1) * limit;
     const { groups, totalCount } = await getGroupsByCommunity(community_name, limit, offset);
-    res.status(200).json({ groups, totalCount });
+    res.status(200).json({
+      status: "success",
+      data: { groups },
+      pagination: {
+        from: offset + 1,
+        to: offset + groups.length,
+        current_page: page,
+        total: totalCount,
+        per_page: limit
+      }
+    });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({
+      status: "error",
+      message: "Validation failed",
+      details: {
+        field: "groups",
+        error: err.message
+      }
+    });
   }
 };
 
@@ -69,8 +140,25 @@ exports.searchCommunitiesByName = async (req, res) => {
   try {
     const offset = (page - 1) * limit;
     const { communities, totalCount } = await searchCommunitiesByName(name, limit, offset);
-    res.status(200).json({ communities, totalCount });
+    res.status(200).json({
+      status: "success",
+      data: { communities },
+      pagination: {
+        from: offset + 1,
+        to: offset + communities.length,
+        current_page: page,
+        total: totalCount,
+        per_page: limit
+      }
+    });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({
+      status: "error",
+      message: "Validation failed",
+      details: {
+        field: "communities",
+        error: err.message
+      }
+    });
   }
 };

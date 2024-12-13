@@ -1,12 +1,22 @@
-const { getAllContests, addContest, getContestsByStatus } = require("../models/contestModel");
+const { getAllContests, addContest, getContestsByStatus, updateContestById, deleteContestById } = require("../models/contestModel");
 const { addTask, addMcqTask } = require("../models/taskModel");
 
 exports.getContests = async (req, res) => {
   try {
     const contests = await getAllContests();
-    res.status(200).json(contests);
+    res.status(200).json({
+      status: "success",
+      data: { contests }
+    });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({
+      status: "error",
+      message: "Validation failed",
+      details: {
+        field: "contests",
+        error: err.message
+      }
+    });
   }
 };
 
@@ -25,19 +35,39 @@ exports.createContestWithTasks = async (req, res) => {
     });
 
     await Promise.all(taskPromises);
-    
-    res.status(201).json({ contest: newContest, tasks });
+
+    res.status(201).json({
+      status: "success",
+      data: { contest: newContest, tasks }
+    });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({
+      status: "error",
+      message: "Validation failed",
+      details: {
+        field: "contest",
+        error: err.message
+      }
+    });
   }
 };
 
 exports.updateContest = async (req, res) => {
   try {
     const contest = await updateContestById(req.params.id, req.body);
-    res.status(200).json(contest);
+    res.status(200).json({
+      status: "success",
+      data: { contest }
+    });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({
+      status: "error",
+      message: "Validation failed",
+      details: {
+        field: "contest",
+        error: err.message
+      }
+    });
   }
 };
 
@@ -46,20 +76,34 @@ exports.deleteContest = async (req, res) => {
     await deleteContestById(req.params.id);
     res.status(204).send();
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({
+      status: "error",
+      message: "Validation failed",
+      details: {
+        field: "contest",
+        error: err.message
+      }
+    });
   }
 };
 
 exports.getContestsByStatus = async (req, res) => {
-  const { community_name, group_id, status, limit } = req.query; // Fetch query parameters
+  const { community_name, group_id, status, limit } = req.query;
 
   try {
     const contests = await getContestsByStatus({ community_name, group_id, status, limit });
-    if (contests.length === 0) {
-      return res.status(404).json({ message: "No contests found" });
-    }
-    res.status(200).json(contests);
+    res.status(200).json({
+      status: "success",
+      data: { contests: contests.length ? contests : [] }
+    });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({
+      status: "error",
+      message: "Validation failed",
+      details: {
+        field: "contests",
+        error: err.message
+      }
+    });
   }
 };
