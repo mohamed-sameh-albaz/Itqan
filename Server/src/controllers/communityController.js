@@ -1,4 +1,4 @@
-const { addCommunity, getAllCommunities, getUserCommunities, searchCommunitiesByName } = require("../models/communityModel");
+const { addCommunity, getAllCommunities, getUserCommunities, searchCommunitiesByName, getUsersByCommunityName } = require("../models/communityModel");
 const { addJoinAs } = require("../models/joinAsModel");
 const { getGroupsByCommunity } = require("../models/groupModel");
 
@@ -157,6 +157,35 @@ exports.searchCommunitiesByName = async (req, res) => {
       message: "Server Error",
       details: {
         field: "communities",
+        error: err.message
+      }
+    });
+  }
+};
+
+exports.getUsersByCommunityName = async (req, res) => {
+  const { community_name, page = 1, limit = 10 } = req.query;
+
+  try {
+    const offset = (page - 1) * limit;
+    const { users, totalCount } = await getUsersByCommunityName(community_name, limit, offset);
+    res.status(200).json({
+      status: "success",
+      data: { users },
+      pagination: {
+        from: offset + 1,
+        to: offset + users.length,
+        current_page: page,
+        total: totalCount,
+        per_page: limit
+      }
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: "error",
+      message: "Server Error",
+      details: {
+        field: "users",
         error: err.message
       }
     });
