@@ -88,16 +88,17 @@ const getUsersByCommunityName = async (community_name, limit, offset) => {
   const client = await db.connect();
   try {
     const { rows: users } = await db.query(
-      `SELECT u.id, u.email, u.fname, u.lname, u.bio, u.photo
-       FROM Users u
-       JOIN joinAs ja ON u.id = ja.user_id
-       WHERE ja.community_name = $1 LIMIT $2 OFFSET $3`,
+      `SELECT u.id, u.email, u.fname, u.lname, u.bio, u.photo, r.id AS role_id, r.color AS role_color
+      FROM Users u
+      JOIN joinAs ja ON u.id = ja.user_id
+      JOIN Roles r ON ja.role_id = r.id
+      WHERE ja.community_name = $1 LIMIT $2 OFFSET $3`,
       [community_name, limit, offset]
     );
     const { rows: countRows } = await db.query(
       `SELECT COUNT(*) FROM Users u
-       JOIN joinAs ja ON u.id = ja.user_id
-       WHERE ja.community_name = $1`,
+      JOIN joinAs ja ON u.id = ja.user_id
+      WHERE ja.community_name = $1`,
       [community_name]
     );
     const totalCount = parseInt(countRows[0].count, 10);
