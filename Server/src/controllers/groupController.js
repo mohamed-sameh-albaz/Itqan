@@ -13,7 +13,7 @@ exports.createGroup = async (req, res) => {
   } catch (err) {
     res.status(500).json({
       status: "error",
-      message: "Validation failed",
+      message: "Server Error",
       details: {
         field: "group",
         error: err.message
@@ -34,7 +34,7 @@ exports.joinGroup = async (req, res) => {
   } catch (err) {
     res.status(500).json({
       status: "error",
-      message: "Validation failed",
+      message: "Server Error",
       details: {
         field: "registerTo",
         error: err.message
