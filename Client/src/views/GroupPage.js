@@ -1,5 +1,6 @@
 import CommunityNavBar from '../components/CommunityNavBar'
 import ContestTable from '../components/ContestTable';
+import { Button } from "@material-tailwind/react";
 
 import './GroupPage.css'
 const GroupPage = () => {
@@ -11,7 +12,6 @@ const GroupPage = () => {
 
     return ( <div>
         <CommunityNavBar/>
-
         <div className="content">
             <h3>Upcomming Contests:</h3>
             <ContestTable contests={contets}/>

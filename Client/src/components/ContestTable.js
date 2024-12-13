@@ -1,7 +1,9 @@
 import './ContestTable.css'
 
 const ContestTable = ({contests}) => {
-    return ( <table>
+    return ( 
+    <div className='contest-table'>
+    <table>
         <thead>
             <tr>
                 <th>Name</th>
@@ -20,7 +22,7 @@ const ContestTable = ({contests}) => {
         </tbody>
 
 
-    </table> );
+    </table>     </div>);
 }
  
 export default ContestTable;

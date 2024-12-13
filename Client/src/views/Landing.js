@@ -3,7 +3,7 @@ import { Container, Row, Col, Button, Card } from 'react-bootstrap';
 import NavigationBar from '../components/MyNavbar';
 import Footer from '../components/Footer';
 import backgroundImage from '../assets/home-background.png'; // Adjust the path and filename accordingly
-
+// import 'bootstrap/dist/css/bootstrap.min.css';
 function Landing() {
   return (
     <Container fluid className="p-0">
