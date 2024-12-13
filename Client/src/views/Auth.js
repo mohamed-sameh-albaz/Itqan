@@ -16,22 +16,46 @@ function Auth() {
 
   async function login(e) {
     e.preventDefault();
-    localStorage.setItem('email', document.getElementById('formBasicEmail').value);
-    localStorage.setItem('password', document.getElementById('formBasicPassword').value);
-    
-    const {data, status} = await requestAPI('/users/login', 'post');
-    
-    if(status == HttpStatusCode.Ok){
-      localStorage.setItem('user', JSON.stringify(data.user));
-      nav('/home');
-    }else if (status == HttpStatusCode.Unauthorized) {
-      alert("Invalid email or password");
-      localStorage.removeItem('email');
-      localStorage.removeItem('password');
-    } else {
-      alert("Something went wrong please try again");
-      localStorage.removeItem('email');
-      localStorage.removeItem('password');
+
+    if(isLogin){
+      localStorage.setItem('email', document.getElementById('formBasicEmail').value);
+      localStorage.setItem('password', document.getElementById('formBasicPassword').value);
+      
+      const {data, status} = await requestAPI('/users/login', 'post');
+      
+      if(status == HttpStatusCode.Ok){
+        localStorage.setItem('user', JSON.stringify(data.data.user));
+        nav('/home');
+      }else if (status == HttpStatusCode.Unauthorized) {
+        alert("Invalid email or password");
+        localStorage.removeItem('email');
+        localStorage.removeItem('password');
+      } else {
+        alert("Something went wrong please try again");
+        localStorage.removeItem('email');
+        localStorage.removeItem('password');
+      }
+
+    }else{
+      const firstname = document.getElementById('formFirstName').value;
+      const lastname = document.getElementById('formLastName').value;
+      const email = document.getElementById('formBasicEmail').value;   
+      const password = document.getElementById('formBasicPassword').value;
+      const bio = document.getElementById('formBio').value; 
+
+      const {data, status} = await requestAPI('/users', 'post', {body: {firstname, lastname, email, password, bio}});
+
+      if(status > 199 && status < 300){
+        localStorage.setItem('user', JSON.stringify(data.data.user));
+        localStorage.setItem('email', email);
+        localStorage.setItem('password', password);
+        nav('/home');
+      } else{
+        console.log(data)
+        alert("Error: "+ data.details[0].error);
+        localStorage.removeItem('email');
+        localStorage.removeItem('password');
+      }
     }
   }
 
