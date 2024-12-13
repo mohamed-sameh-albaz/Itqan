@@ -10,8 +10,8 @@ router.post("/", createContestWithTasks);
 router.put("/:id", updateContest);
 router.delete("/:id", deleteContest);
 router.post("/status", getContestsByStatus); // Add this line
-router.post("/:contestId/tasks/:taskId/submissions", submitTask);
-router.get("/:contestId/tasks/written", getWrittenTasks);
-router.patch("/:contestId/tasks/written/:taskId", approveSubmission);
+router.route("/:contestId/tasks/:taskId/submissions").post(submitTask);
+router.route("/:contestId/tasks/written").get(getWrittenTasks);
+router.route("/:contestId/tasks/written/:taskId").patch(approveSubmission);
 
 module.exports = router;

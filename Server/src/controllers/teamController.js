@@ -1,62 +1,82 @@
-const teamModel = require("../models/teamModel");
-const { leaveTeam }= require("../models/userModel");
-// POST teams/new/:userId
+const { createTeam, getUserCommTeam, getTeamUsers, addToTeam, getTeamUsersCount, deleteTeam } = require("../models/teamModel");
+const { leaveTeam, findUserByEmail }= require("../models/userModel");
+const httpStatusText = require ("../utils/httpStatusText");
+const { getUserCommunities } = require('../models/communityModel');
+
+// POST teams/new/
 exports.createTeam = async (req, res) => {
-  const { userId } = req.params;
-  const { name, photo, communityName } = req.body;
+  const { userId, name, photo, communityName } = req.body;
   try {
-    const newTeamParams = { userId, name, photo, communityName };
-    const newTeam = await teamModel.createTeam(newTeamParams);
-    console.log(newTeam);
-    res.status(201).json({
-      message: "Team created successfully",
-      Team: newTeam,
-    });
+    const userTeam = await getUserCommTeam(userId, communityName);
+    if(userTeam.length) {
+      return res.status(404).json({status: httpStatusText.FAIL, data: { newTeam: null }});
+    } else {
+      const newTeam = await createTeam( userId, name, photo, communityName );
+      const addUserToTeam = await addToTeam(userId, newTeam.id);
+      if(!newTeam) {
+        return res.status(404).json({status: httpStatusText.FAIL, data: { newTeam: null }});
+      }
+      const users = await getTeamUsers(newTeam.id);
+      return res.status(201).json({status: httpStatusText.SUCCESS, data: { team: newTeam, team_users: users }});
+    }
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    return res.status(500).json({status: httpStatusText.ERROR, error: err.message});
   }
 };
 
-// DELETE teams/:userId
+// DELETE /teams
 exports.leaveTeam = async (req, res) => {
-  const { userId } = req.params;
-  const { teamId } = req.body;
+  const { userId, teamId } = req.body;
   try {
-    const removedUserParams = { userId, teamId };
-    const removedUser = await leaveTeam(removedUserParams);
-    res.status(201).json({
-      message: "User has successfully left the team",
-      team: removedUser,
-    });
+    const user = await leaveTeam( userId, teamId );
+    const users = await getTeamUsers(teamId);
+    if(!users.length) {
+      const team = await deleteTeam(teamId);
+    }
+    return res.status(201).json({status: httpStatusText.SUCCESS, data: { team_users: users }});
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(400).json({status: httpStatusText.ERROR, error: err.message});
   }
 };
 
-// POST /teams/:teamId/invite
+// POST /teams/invite
 exports.inviteUserToTeam = async (req, res) => {
-  const {teamId} = req.params;
-  const {userEmail, communityName} = req.body;
+  const {userEmail, communityName, teamId} = req.body;
   try{
-    const inviteUserParams = {teamId, userEmail, communityName};
-    // console.log(inviteUserParams);
-    const team = await teamModel.inviteUserToTeam(inviteUserParams);
-    res.status(201).json({
-      message: "User successfully invited to the team",
-      team,
-    });
+    const invitedUser = await findUserByEmail(userEmail);
+    if(!invitedUser) {
+      return res.status(404).json({status: httpStatusText.FAIL, data: { invitedUser: null }});
+    }
+    // check user is in the community update after pull
+
+    const invitedUserTeam = await getUserCommTeam(invitedUser.id, communityName);
+    if(!invitedUserTeam.length) {
+      const teamUsersCount = await getTeamUsersCount(teamId);
+      if(+teamUsersCount >= 3) {
+        return res.status(400).json({status: httpStatusText.FAIL, data: null, msg: "team is full"});
+      }
+      const team = await addToTeam(invitedUser.id, teamId);
+      const users = await getTeamUsers(teamId);
+      res.status(201).json({status: httpStatusText.SUCCESS, data: { team_users: users }});
+    } else {
+      res.status(400).json({status: httpStatusText.FAIL, data: null, msg: "invited user is already in a team"});
+    }
   } catch(err) {
-    res.status(500).json({error: err.message});
+    res.status(400).json({status: httpStatusText.ERROR, error: err.message});
   }
 }
-// GET teams/:userId
-exports.getAllUserTeams = async (req, res) => {
-  const { userId } = req.params;
-  const { communityName } = req.body;
-  const userTeamsParams = { userId, communityName };
+
+// GET /teams?user_id&community_name
+exports.getUserTeam = async (req, res) => {
+  const { user_id, community_name } = req.query;
   try {
-    const teams = await teamModel.getUserAllTeams(userTeamsParams);
-    res.status(200).json(teams);
+    const team = await getUserCommTeam(user_id, community_name);
+    if(team.length) {
+      const teamMembers = await getTeamUsers(team[0].id);
+      res.status(200).json({team, team_users: teamMembers});
+    } else {
+      res.status(200).json({team, team_users: null});
+    }
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

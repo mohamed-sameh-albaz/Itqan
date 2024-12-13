@@ -51,44 +51,16 @@ exports.findUserByEmail = async (email) => {
   }
 };
 
-exports.leaveTeam = async (userTeam) => {
+exports.leaveTeam = async (userId, teamId) => {
   const client = await db.connect();
   try {
-    const existingTeamQuery = `
-      SELECT ut.user_id
-      FROM user_team AS ut
-      WHERE ut.user_id = $1 AND ut.team_id = $2;
-    `;
-    const existingTeamParams = [userTeam.userId, userTeam.teamId];
-    const { rows: existingTeamRes } = await db.query(
-      existingTeamQuery,
-      existingTeamParams
-    );
-    if (existingTeamRes.length === 0) {
-      throw new Error("User is not part of this team.");
-    }
-    const deleteUserQuery = `
+    const query = `
       DELETE FROM user_team
       WHERE user_id = $1 AND team_id = $2
       RETURNING *;
     `;
-    const deleteUserParams = [userTeam.userId, userTeam.teamId];
-    const { rows: deletedUser } = await db.query(
-      deleteUserQuery,
-      deleteUserParams
-    );
-    console.log(deletedUser);
-    const getOtherMembersQuery = `
-      SELECT user_id FROM user_team
-      WHERE team_id = $1;
-    `;
-    const { rows: otherMembers } = await db.query(getOtherMembersQuery, [
-      userTeam.teamId,
-    ]);
-    return {
-      leavingMember: userTeam.userId,
-      otherMembers,
-    };
+    const { rows } = await db.query(query, [userId, teamId]);
+    return rows;
   } catch (err) {
     console.error(`Error leaving team: ${err.message}`);
     throw new Error(err.message);

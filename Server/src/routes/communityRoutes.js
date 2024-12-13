@@ -9,6 +9,6 @@ router.get("/", getAllCommunities);
 router.get("/user/:userId", getUserCommunities);
 router.post("/groups", getGroupsByCommunity);
 router.get("/search", searchCommunitiesByName); // Add this line
-router.patch('/:communityName/promote', promoteUser);
+router.route('/users/promote').patch(promoteUser);
 
 module.exports = router;

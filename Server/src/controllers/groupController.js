@@ -1,5 +1,6 @@
 const { addGroup, deleteGroup } = require("../models/groupModel");
 const { addRegisterTo } = require("../models/registersToModel");
+const httpStatusText = require ("../utils/httpStatusText");
 
 exports.createGroup = async (req, res) => {
   const { description, title, photo, community_name } = req.body;
@@ -13,7 +14,7 @@ exports.createGroup = async (req, res) => {
 };
 
 exports.joinGroup = async (req, res) => {
-  const { userId, groupId } = req.body; // how user will join without know the group name??
+  const { userId, groupId } = req.body;
 
   try {
     const registerTo = await addRegisterTo({ userId, groupId });
@@ -25,12 +26,14 @@ exports.joinGroup = async (req, res) => {
 
 // DELETE group/:groupId
 exports.deleteGroup = async (req, res) => {
-  const {groupId} = req.params;
-  const {userId} = req.body;
+  const {groupId} = req.query;
   try{
-    const deletedGroup = await deleteGroup({groupId, userId});
-    res.status(201).json({deletedGroup});
+    const deletedGroup = await deleteGroup( +groupId );
+    if(!deletedGroup) {
+      return res.status(404).json({status: httpStatusText.FAIL, data: { deletedGroup: null }});
+    }
+    return res.status(201).json({status: httpStatusText.SUCCESS, data: { deletedGroup }});
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    return res.status(500).json({status: httpStatusText.ERROR, error: err.message});
   }
 }

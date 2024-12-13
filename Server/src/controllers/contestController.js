@@ -1,5 +1,6 @@
 const { getAllContests, addContest, getContestsByStatus, getWrittenTasks } = require("../models/contestModel");
 const { addTask, addMcqTask } = require("../models/taskModel");
+const httpStatusText = require ("../utils/httpStatusText");
 
 exports.getContests = async (req, res) => {
   try {
@@ -64,16 +65,13 @@ exports.getContestsByStatus = async (req, res) => {
   }
 };
 
-// get contests/:contestId/tasks/written
+// get contests/tasks/written?contest_id
 exports.getWrittenTasks = async (req, res) => {
   const { contestId } = req.params;
   try{
     const tasks = await getWrittenTasks(+contestId);
-    if(tasks.length === 0) {
-      return res.status(404).json({message: "All written tasks is approved"});
-    }
-    res.status(200).json(tasks);
+    return res.status(200).json({status: httpStatusText.SUCCESS, data: { tasks }});
   } catch(err) {
-    res.status(500).json({error: err.message});
+    return res.status(400).json({status: httpStatusText.ERROR, error: err.message});
   } 
 }

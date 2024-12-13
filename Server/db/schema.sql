@@ -153,7 +153,7 @@ CREATE TABLE IF NOT EXISTS joinAs (
     role_id INT,
     community_name VARCHAR(255),
     approved BOOLEAN,
-    PRIMARY KEY (user_id, role_id, community_name),
+    PRIMARY KEY (user_id, community_name),
     FOREIGN KEY (user_id) REFERENCES Users(id)
         ON DELETE SET NULL
         ON UPDATE CASCADE,

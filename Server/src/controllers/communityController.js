@@ -1,6 +1,7 @@
 const { addCommunity, getAllCommunities, getUserCommunities, searchCommunitiesByName, promoteUser }= require("../models/communityModel");
 const  { addJoinAs } = require("../models/joinAsModel");
 const { getGroupsByCommunity } = require("../models/groupModel");
+const httpStatusText = require("../utils/httpStatusText");
 
 exports.createCommunity = async (req, res) => {
   const { name, color, description, userId, roleId } = req.body;
@@ -69,19 +70,14 @@ exports.searchCommunitiesByName = async (req, res) => {
   }
 };
 
-// PATCH /communities/:communityName/promote
+// PATCH /communities/Users/promote?communityName
 exports.promoteUser = async (req, res) => {
-  const {userEmail, newRole} = req.body;
-  let {communityName} = req.params;
-  communityName = communityName.replace(/-/g, ' ');
+  const {userId, communityName} = req.body;
   try{
-    const promotedUser = await promoteUser({userEmail, newRole, communityName});
-    res.status(200).json({
-      message: `User with email: ${userEmail} successfully promoted`,
-      data: promotedUser,
-    });
+    const promotedUser = await promoteUser( +userId, communityName);
+    return res.status(200).json({status: httpStatusText.SUCCESS, data: { user: promotedUser }});
   }catch(err) {
     console.error(err.message);
-    res.status(500).json({error: err.message});
+    return res.status(400).json({status: httpStatusText.ERROR, error: err.message});
   }
 };
