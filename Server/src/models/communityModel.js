@@ -84,4 +84,30 @@ const searchCommunitiesByName = async (name, limit, offset) => {
   }
 };
 
-module.exports = { addCommunity, getAllCommunities, getUserCommunities, searchCommunitiesByName };
+const getUsersByCommunityName = async (community_name, limit, offset) => {
+  const client = await db.connect();
+  try {
+    const { rows: users } = await db.query(
+      `SELECT u.id, u.email, u.fname, u.lname, u.bio, u.photo
+       FROM Users u
+       JOIN joinAs ja ON u.id = ja.user_id
+       WHERE ja.community_name = $1 LIMIT $2 OFFSET $3`,
+      [community_name, limit, offset]
+    );
+    const { rows: countRows } = await db.query(
+      `SELECT COUNT(*) FROM Users u
+       JOIN joinAs ja ON u.id = ja.user_id
+       WHERE ja.community_name = $1`,
+      [community_name]
+    );
+    const totalCount = parseInt(countRows[0].count, 10);
+    return { users, totalCount };
+  } catch (err) {
+    console.error(`Error retrieving users by community name: ${err.message}`);
+    throw new Error("Database error: Unable to retrieve users by community name");
+  } finally {
+    client.release();
+  }
+};
+
+module.exports = { addCommunity, getAllCommunities, getUserCommunities, searchCommunitiesByName, getUsersByCommunityName };
