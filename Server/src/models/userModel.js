@@ -168,3 +168,48 @@ exports.leaveTeam = async (userTeam) => {
     client.release();
   }
 };
+
+exports.updateUser = async (user) => {
+  const client = await db.connect();
+  try {
+    const { rows } = await db.query(
+      `UPDATE users SET
+        fname = $1,
+        lname = $2,
+        email = $3,
+        bio = $4,
+        password = COALESCE($5, password),
+        photo = $6,
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = $7
+      RETURNING *`,
+      [
+        user.firstname,
+        user.lastname,
+        user.email,
+        user.bio,
+        user.password,
+        user.photo,
+        user.userId
+      ]
+    );
+    return rows[0];
+  } catch (err) {
+    console.error(`Error updating user: ${err.message}`);
+    throw new Error("Database error: Unable to update user");
+  } finally {
+    client.release();
+  }
+};
+
+exports.deleteUser = async (userId) => {
+  const client = await db.connect();
+  try {
+    await db.query("DELETE FROM users WHERE id = $1", [userId]);
+  } catch (err) {
+    console.error(`Error deleting user: ${err.message}`);
+    throw new Error("Database error: Unable to delete user");
+  } finally {
+    client.release();
+  }
+};

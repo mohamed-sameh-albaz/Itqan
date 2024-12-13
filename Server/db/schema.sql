@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS Groups (
     title VARCHAR(255) NOT NULL,
     photo VARCHAR(255),
     community_name VARCHAR(255),
-    level_id INT, -- group should have min allowed level or set default to 0 ?
+    level_id INT DEFAULT(1),
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (community_name) REFERENCES Community(name)
@@ -63,6 +63,7 @@ CREATE TABLE IF NOT EXISTS Teams (
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (community_name) REFERENCES Community(name)
         ON DELETE CASCADE
+        ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS Contests (
@@ -74,7 +75,7 @@ CREATE TABLE IF NOT EXISTS Contests (
     start_date TIMESTAMPTZ,
     end_date TIMESTAMPTZ,
     status VARCHAR(255),
-    group_id INT NOT NULL, -- contest should be in a specific group
+    group_id INT NOT NULL,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (group_id) REFERENCES Groups(id)
@@ -82,10 +83,9 @@ CREATE TABLE IF NOT EXISTS Contests (
         ON UPDATE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS Tasks ( -- default written
+CREATE TABLE IF NOT EXISTS Tasks (
     id SERIAL PRIMARY KEY,
     contest_id INT,
-    approve_by INT,
     description TEXT,
     title VARCHAR(255),
     points INT,
@@ -94,9 +94,7 @@ CREATE TABLE IF NOT EXISTS Tasks ( -- default written
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (contest_id) REFERENCES Contests(id)
-        ON DELETE SET NULL,
-    FOREIGN KEY (approve_by) REFERENCES Users(id)
-        ON DELETE SET NULL
+        ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS McqTasks (
@@ -108,7 +106,7 @@ CREATE TABLE IF NOT EXISTS McqTasks (
     right_answer CHAR(1),
     PRIMARY KEY (id),
     FOREIGN KEY (id) REFERENCES Tasks(id)
-        ON DELETE SET NULL
+        ON DELETE CASCADE
         ON UPDATE CASCADE
 );
 
@@ -144,11 +142,11 @@ CREATE TABLE IF NOT EXISTS user_team (
     team_id INT,
     PRIMARY KEY (user_id, team_id),
     FOREIGN KEY (user_id) REFERENCES Users(id)
-        ON DELETE SET NULL
+        ON DELETE CASCADE
         ON UPDATE CASCADE,
     FOREIGN KEY (team_id) REFERENCES Teams(id)
-        ON DELETE SET NULL
-        ON UPDATE CASCADE -- is it valid to update the user id? 
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS joinAs (
@@ -156,15 +154,15 @@ CREATE TABLE IF NOT EXISTS joinAs (
     role_id INT,
     community_name VARCHAR(255),
     approved BOOLEAN,
-    PRIMARY KEY (user_id, role_id, community_name),
+    PRIMARY KEY (user_id, community_name),
     FOREIGN KEY (user_id) REFERENCES Users(id)
-        ON DELETE SET NULL
+        ON DELETE CASCADE
         ON UPDATE CASCADE,
     FOREIGN KEY (role_id) REFERENCES Roles(id)
         ON DELETE SET NULL
         ON UPDATE CASCADE,
     FOREIGN KEY (community_name) REFERENCES Community(name)
-        ON DELETE SET NULL
+        ON DELETE CASCADE
         ON UPDATE CASCADE
 );
 
@@ -175,10 +173,10 @@ CREATE TABLE IF NOT EXISTS registers_to (
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (user_id, group_id),
     FOREIGN KEY (user_id) REFERENCES Users(id)
-        ON DELETE SET NULL
+        ON DELETE CASCADE
         ON UPDATE CASCADE,
     FOREIGN KEY (group_id) REFERENCES Groups(id)
-        ON DELETE SET NULL
+        ON DELETE CASCADE
         ON UPDATE CASCADE
 );
 
@@ -225,7 +223,7 @@ CREATE TABLE IF NOT EXISTS Posts (
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES Users(id)  
-        ON DELETE CASCADE, -- on update is not logical where i can not change the user id after it has been set
+        ON DELETE CASCADE,
     FOREIGN KEY (comm_id) REFERENCES Community(id)
         ON DELETE CASCADE
 );

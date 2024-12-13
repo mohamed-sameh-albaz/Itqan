@@ -191,3 +191,59 @@ exports.leaveTeam = async (req, res) => {
     });
   }
 };
+
+exports.updateUser = async (req, res) => {
+  const { userId, firstname, lastname, email, bio, password, photo } = req.body;
+
+  try {
+    let hashedPassword;
+    if (password && password.trim() !== "") {
+      hashedPassword = await bcrypt.hash(password, 10);
+    }
+
+    const updatedUser = await userModel.updateUser({
+      userId,
+      firstname,
+      lastname,
+      email,
+      bio,
+      password: hashedPassword,
+      photo
+    });
+
+    res.status(200).json({
+      status: "success",
+      data: { user: updatedUser }
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: "error",
+      message: "Server Error",
+      details: {
+        field: "user",
+        error: err.message
+      }
+    });
+  }
+};
+
+exports.deleteUser = async (req, res) => {
+  const { userId } = req.body;
+
+  try {
+    await userModel.deleteUser(userId);
+    res.status(200).json({
+      status: "success",
+      message: `User with ID ${userId} has been deleted`
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: "error",
+      message: "Server Error",
+      details: {
+        field: "user",
+        error: err.message
+      }
+    });
+  }
+};
