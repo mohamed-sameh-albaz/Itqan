@@ -110,4 +110,22 @@ const getUsersByCommunityName = async (community_name, limit, offset) => {
   }
 };
 
-module.exports = { addCommunity, getAllCommunities, getUserCommunities, searchCommunitiesByName, getUsersByCommunityName };
+const promoteUser = async (userId, communityName) => {
+  const client = await db.connect();
+  try {
+    const query = `
+      UPDATE JoinAs
+      SET role_id = 1, Approved = true
+      WHERE user_id = $1 AND community_name = $2
+      RETURNING *;
+    `;
+    const { rows } = await db.query(query, [userId, communityName]);
+    return rows[0];
+  } catch (err) {
+    throw new Error(err.message);
+  } finally {
+    client.release();
+  }
+};
+
+module.exports = { addCommunity, getAllCommunities, getUserCommunities, searchCommunitiesByName, getUsersByCommunityName, promoteUser };

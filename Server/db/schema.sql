@@ -188,6 +188,8 @@ CREATE TABLE IF NOT EXISTS Submissions (
     task_id INT NOT NULL,
     approved_by INT, 
     approved_at TIMESTAMPTZ DEFAULT NULL,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (task_id) REFERENCES Tasks(id)
         ON DELETE CASCADE,
     FOREIGN KEY (approved_by) REFERENCES Users(id)
@@ -196,9 +198,10 @@ CREATE TABLE IF NOT EXISTS Submissions (
 
 
 CREATE TABLE IF NOT EXISTS SingleSubmissions (
-    submission_id INT PRIMARY KEY,
+    submission_id INT NOT NULL,
     individual_id INT NOT NULL,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (submission_id, individual_id),
     FOREIGN KEY (submission_id) REFERENCES Submissions(id)
         ON DELETE CASCADE,
     FOREIGN KEY (individual_id) REFERENCES Users(id)
@@ -206,10 +209,11 @@ CREATE TABLE IF NOT EXISTS SingleSubmissions (
 );
 
 CREATE TABLE IF NOT EXISTS TeamSubmissions (
-    submission_id INT PRIMARY KEY,
+    submission_id INT NOT NULL,
     team_id INT NOT NULL,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (submission_id) REFERENCES Submissions (id)
+    PRIMARY KEY (submission_id, team_id),
+    FOREIGN KEY (submission_id) REFERENCES Submissions(id)
         ON DELETE CASCADE,
     FOREIGN KEY (team_id) REFERENCES Teams(id)
         ON DELETE CASCADE

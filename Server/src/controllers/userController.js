@@ -118,77 +118,13 @@ exports.loginUser = async (req, res) => {
   }
 };
 
-exports.promoteToAdmin = async (req, res) => {
-  const { userId } = req.params;
-  const { communityName } = req.body; // userId needed Params to promote and communityName for check
+exports.approveSubmission = async(req, res) => {
+  const { userId, submissionId, score } = req.body;
   try {
-    const result = await userModel.promoteUser({ userId, communityName });
-    if (result.status) {
-      return res.status(200).json({
-        status: "success",
-        message: result.message,
-        data: {
-          user: {
-            user_id: userId,
-            community_id: communityId,
-            role_id: 1, // admin role
-            updated_at: new Date().toISOString(),
-          },
-        },
-      });
-    }
-    throw new Error(result.message);
-  } catch (err) {
-    res.status(500).json({
-      status: "error",
-      message: "Server Error",
-      details: {
-        field: "promotion",
-        error: err.message
-      }
-    });
-  }
-};
-
-exports.createTeam = async (req, res) => {
-  const { userId } = req.params;
-  const { name, photo, communityName } = req.body;
-  try {
-    const newTeam = await userModel.createTeam({ userId, name, photo, communityName });
-    res.status(201).json({
-      status: "success",
-      data: { team: newTeam }
-    });
-  } catch (err) {
-    res.status(500).json({
-      status: "error",
-      message: "Server Error",
-      details: {
-        field: "team",
-        error: err.message
-      }
-    });
-  }
-};
-
-exports.leaveTeam = async (req, res) => {
-  const { userId } = req.params;
-  const { teamId } = req.body;
-  try {
-    const leftTeam = await userModel.leaveTeam({ userId, teamId });
-    res.status(200).json({
-      status: "success",
-      data: { leftTeam }
-    });
-  } catch (err) {
-    res.status(500).json({
-      status: "error",
-      message: "Server Error",
-      details: {
-        field: "team",
-        error: err.message
-      }
-    });
+    const approvedSub = await userModel.approveSubmission({ userId, submissionId, score });
+    res.status(200).json(approvedSub);
+  } catch(err) {
+    res.status(500).json({error: err.message});
   }
 };
 

@@ -37,4 +37,22 @@ const getGroupsByCommunity = async (community_name, limit, offset) => {
   }
 };
 
-module.exports = { addGroup, getGroupsByCommunity };
+// delete group => make sure user that deletes is admin or leader then delete all users in this group all contests related to this group remove all delete it from the community group relation
+const deleteGroup = async (groupId) => {
+  const client = await db.connect();
+  try {
+    const query = `
+    DELETE FROM Groups
+    WHERE id = $1
+    RETURNING *;
+    `;
+    const { rows } = await db.query(query, [groupId]);
+    return rows[0];
+  } catch (err) {
+    console.error(`Error in deleteGroup model: ${err.message}`);
+    throw new Error("Database error while deleting group.");
+  } finally {
+    client.release();
+  }
+};
+module.exports = { addGroup, getGroupsByCommunity, deleteGroup };

@@ -1,6 +1,7 @@
-const { addCommunity, getAllCommunities, getUserCommunities, searchCommunitiesByName, getUsersByCommunityName } = require("../models/communityModel");
+const { addCommunity, getAllCommunities, getUserCommunities, searchCommunitiesByName, getUsersByCommunityName, promoteUser } = require("../models/communityModel");
 const { addJoinAs } = require("../models/joinAsModel");
 const { getGroupsByCommunity } = require("../models/groupModel");
+const httpStatusText = require("../utils/httpStatusText");
 
 exports.createCommunity = async (req, res) => {
   const { name, color, description, userId, roleId } = req.body;
@@ -189,5 +190,17 @@ exports.getUsersByCommunityName = async (req, res) => {
         error: err.message
       }
     });
+  }
+};
+
+// PATCH /communities/Users/promote?communityName
+exports.promoteUser = async (req, res) => {
+  const {userId, communityName} = req.body;
+  try{
+    const promotedUser = await promoteUser( +userId, communityName);
+    return res.status(200).json({status: httpStatusText.SUCCESS, data: { user: promotedUser }});
+  }catch(err) {
+    console.error(err.message);
+    return res.status(400).json({status: httpStatusText.ERROR, error: err.message});
   }
 };

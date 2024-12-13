@@ -1,5 +1,6 @@
-const { getAllContests, addContest, getContestsByStatus, updateContestById, deleteContestById } = require("../models/contestModel");
+const { getAllContests, addContest, getContestsByStatus, updateContestById, deleteContestById, getWrittenTasks } = require("../models/contestModel");
 const { addTask, addMcqTask, updateTaskById, deleteTaskById } = require("../models/taskModel");
+const httpStatusText = require ("../utils/httpStatusText");
 
 exports.getContests = async (req, res) => {
   try {
@@ -210,3 +211,14 @@ exports.deleteTaskById = async (req, res) => {
     });
   }
 };
+
+// get contests/tasks/written?contest_id
+exports.getWrittenTasks = async (req, res) => {
+  const { contestId } = req.params;
+  try{
+    const tasks = await getWrittenTasks(+contestId);
+    return res.status(200).json({status: httpStatusText.SUCCESS, data: { tasks }});
+  } catch(err) {
+    return res.status(400).json({status: httpStatusText.ERROR, error: err.message});
+  } 
+}
