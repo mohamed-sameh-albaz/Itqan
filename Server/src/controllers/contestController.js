@@ -11,7 +11,7 @@ exports.getContests = async (req, res) => {
   } catch (err) {
     res.status(500).json({
       status: "error",
-      message: "Validation failed",
+      message: "Server Error",
       details: {
         field: "contests",
         error: err.message
@@ -43,7 +43,7 @@ exports.createContestWithTasks = async (req, res) => {
   } catch (err) {
     res.status(500).json({
       status: "error",
-      message: "Validation failed",
+      message: "Server Error",
       details: {
         field: "contest",
         error: err.message
@@ -62,7 +62,7 @@ exports.updateContest = async (req, res) => {
   } catch (err) {
     res.status(500).json({
       status: "error",
-      message: "Validation failed",
+      message: "Server Error",
       details: {
         field: "contest",
         error: err.message
@@ -78,7 +78,7 @@ exports.deleteContest = async (req, res) => {
   } catch (err) {
     res.status(500).json({
       status: "error",
-      message: "Validation failed",
+      message: "Server Error",
       details: {
         field: "contest",
         error: err.message
@@ -99,7 +99,7 @@ exports.getContestsByStatus = async (req, res) => {
   } catch (err) {
     res.status(500).json({
       status: "error",
-      message: "Validation failed",
+      message: "Server Error",
       details: {
         field: "contests",
         error: err.message

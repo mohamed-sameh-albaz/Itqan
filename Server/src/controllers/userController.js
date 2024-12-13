@@ -66,7 +66,7 @@ exports.createUser = [
     } catch (err) {
       res.status(500).json({
         status: "error",
-        message: "Validation failed",
+        message: "Server Error",
         details: {
           field: "user",
           error: err.message
@@ -109,7 +109,7 @@ exports.loginUser = async (req, res) => {
   } catch (err) {
     res.status(500).json({
       status: "error",
-      message: "Validation failed",
+      message: "Server Error",
       details: {
         field: "server",
         error: err.message
@@ -141,7 +141,7 @@ exports.promoteToAdmin = async (req, res) => {
   } catch (err) {
     res.status(500).json({
       status: "error",
-      message: "Validation failed",
+      message: "Server Error",
       details: {
         field: "promotion",
         error: err.message
@@ -162,7 +162,7 @@ exports.createTeam = async (req, res) => {
   } catch (err) {
     res.status(500).json({
       status: "error",
-      message: "Validation failed",
+      message: "Server Error",
       details: {
         field: "team",
         error: err.message
@@ -183,7 +183,7 @@ exports.leaveTeam = async (req, res) => {
   } catch (err) {
     res.status(500).json({
       status: "error",
-      message: "Validation failed",
+      message: "Server Error",
       details: {
         field: "team",
         error: err.message

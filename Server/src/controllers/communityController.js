@@ -17,7 +17,7 @@ exports.createCommunity = async (req, res) => {
   } catch (err) {
     res.status(500).json({
       status: "error",
-      message: "Validation failed",
+      message: "Server error",
       details: {
         field: "community",
         error: err.message
@@ -38,7 +38,7 @@ exports.joinCommunity = async (req, res) => {
   } catch (err) {
     res.status(500).json({
       status: "error",
-      message: "Validation failed",
+      message: "Server Error",
       details: {
         field: "joinAs",
         error: err.message
@@ -67,7 +67,7 @@ exports.getAllCommunities = async (req, res) => {
   } catch (err) {
     res.status(500).json({
       status: "error",
-      message: "Validation failed",
+      message: "Server Error",
       details: {
         field: "communities",
         error: err.message
@@ -96,7 +96,7 @@ exports.getUserCommunities = async (req, res) => {
   } catch (err) {
     res.status(500).json({
       status: "error",
-      message: "Validation failed",
+      message: "Server Error",
       details: {
         field: "userCommunities",
         error: err.message
@@ -125,7 +125,7 @@ exports.getGroupsByCommunity = async (req, res) => {
   } catch (err) {
     res.status(500).json({
       status: "error",
-      message: "Validation failed",
+      message: "Server Error",
       details: {
         field: "groups",
         error: err.message
@@ -154,7 +154,7 @@ exports.searchCommunitiesByName = async (req, res) => {
   } catch (err) {
     res.status(500).json({
       status: "error",
-      message: "Validation failed",
+      message: "Server Error",
       details: {
         field: "communities",
         error: err.message

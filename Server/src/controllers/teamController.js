@@ -14,7 +14,7 @@ exports.getAllUserTeams = async (req, res) => {
   } catch (err) {
     res.status(500).json({
       status: "error",
-      message: "Validation failed",
+      message: "Server Error",
       details: {
         field: "teams",
         error: err.message
