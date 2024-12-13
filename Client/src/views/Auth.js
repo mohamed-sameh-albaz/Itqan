@@ -2,13 +2,38 @@ import React, { useState } from 'react';
 import { Container, Row, Col, Form, Button, Card } from 'react-bootstrap';
 import NavigationBar from '../components/MyNavbar';
 import Footer from '../components/Footer';
+import {requestAPI} from '../hooks/useAPI';
+import { useNavigate } from 'react-router-dom';
+import { HttpStatusCode } from 'axios';
 
 function Auth() {
   const [isLogin, setIsLogin] = useState(true);
+  const nav = useNavigate();
 
   const toggleForm = () => {
     setIsLogin(!isLogin);
   };
+
+  async function login(e) {
+    e.preventDefault();
+    localStorage.setItem('email', document.getElementById('formBasicEmail').value);
+    localStorage.setItem('password', document.getElementById('formBasicPassword').value);
+    
+    const {data, status} = await requestAPI('/users/login', 'post');
+    
+    if(status == HttpStatusCode.Ok){
+      localStorage.setItem('user', JSON.stringify(data.user));
+      nav('/home');
+    }else if (status == HttpStatusCode.Unauthorized) {
+      alert("Invalid email or password");
+      localStorage.removeItem('email');
+      localStorage.removeItem('password');
+    } else {
+      alert("Something went wrong please try again");
+      localStorage.removeItem('email');
+      localStorage.removeItem('password');
+    }
+  }
 
   return (
     <Container fluid className="p-0 container-fluid">
@@ -20,7 +45,7 @@ function Auth() {
               <Card className="shadow-lg p-3 mb-5 bg-white rounded">
                 <Card.Body>
                   <h2 className="text-center mb-4">{isLogin ? 'Login' : 'Register'}</h2>
-                  <Form>
+                  <Form onSubmit={login}>
                     {!isLogin && (
                       <>
                         <Row>
@@ -53,7 +78,7 @@ function Auth() {
                         <Form.Control as="textarea" rows={3} placeholder="Tell us about yourself" />
                       </Form.Group>
                     )}
-                    <Button variant="primary" type="submit" className="w-50 m-3">
+                    <Button variant="primary" type="submit" className="w-50 m-3" >
                       {isLogin ? 'Login' : 'Register'}
                     </Button>
                   </Form>

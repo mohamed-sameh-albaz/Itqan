@@ -1,11 +1,11 @@
 .community-card {
-  border: 1px solid #ccc;
+  /* border: 1px solid #ccc; */
   border-radius: 8px;
   display: flex;
   flex-direction: column;
   width: 200px;
   height: 200px;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
   cursor: pointer;
   user-select: none;
 }

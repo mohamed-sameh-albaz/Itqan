@@ -1,7 +1,7 @@
 import React from 'react';
 import './HomeNavBar.css'; // Create a CSS file for the component if needed
 
-const HomeNavBar = () => {
+const HomeNavBar = ({userName}) => {
   return (
     <nav className="home-navbar">
       <div className="navbar-main">
@@ -17,7 +17,7 @@ const HomeNavBar = () => {
           alt="Profile"
           className="profile-pic"
         />
-        <span className="profile-name">Welcome back, John Doe</span>
+        <span className="profile-name">Welcome back, {userName}</span>
       </div>
       {/* Other nav items */}
     </nav>
