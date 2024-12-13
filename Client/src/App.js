@@ -9,6 +9,7 @@ import GroupPage from './views/GroupPage';
 import ContestPage from './views/ContestPage';
 import TeamEditor from "./views/TeamEditor";
 import TeamsPage from './views/TeamsPage';
+import AddPostPage from './views/AddPostPage'; // Import the new component
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
           <Route path="/contest" element={<ContestPage />} />
           <Route path="/teame" element={<TeamEditor />} />
           <Route path="/teams" element={<TeamsPage />} />
+          <Route path="/add-post" element={<AddPostPage />} /> {/* Add the new route */}
         </Routes>
       </div>
     </Router>

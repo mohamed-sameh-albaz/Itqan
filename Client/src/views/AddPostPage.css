@@ -1,0 +1,17 @@
+/* AddPostPage.css */
+.container {
+  margin-top: 50px;
+}
+
+.card {
+  padding: 20px;
+}
+
+.form-label {
+  font-weight: bold;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  border-color: #007bff;
+}
