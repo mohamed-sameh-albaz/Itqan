@@ -1,12 +1,13 @@
 const express = require("express");
-const { getContests, createContestWithTasks, updateContest, deleteContest, getContestsByStatus, editContest, deleteContestById, editTaskById, deleteTaskById, getWrittenTasks } = require("../controllers/contestController");
+const { getContests, createContest, createTask, updateContest, deleteContest, getContestsByStatus, editContest, deleteContestById, editTaskById, deleteTaskById, getWrittenTasks } = require("../controllers/contestController");
 const { submitTask } = require("../controllers/submissionController");
 const { approveSubmission } = require("../controllers/userController");
 
 const router = express.Router();
 
 router.get("/", getContests);
-router.post("/", createContestWithTasks);
+router.post("/", createContest);
+router.post("/task", createTask);
 router.put("/:id", updateContest);
 router.delete("/:id", deleteContest);
 router.get("/status", getContestsByStatus);

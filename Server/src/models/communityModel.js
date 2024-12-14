@@ -129,4 +129,32 @@ const promoteUser = async (userId, communityName,  roleId) => {
   }
 };
 
-module.exports = { addCommunity, getAllCommunities, getUserCommunities, searchCommunitiesByName, getUsersByCommunityName, promoteUser };
+const updateCommunityById = async (communityId, community) => {
+  const client = await db.connect();
+  try {
+    const { rows } = await db.query(
+      `UPDATE Community SET name = $1, color = $2, description = $3, updated_at = CURRENT_TIMESTAMP WHERE id = $4 RETURNING *`,
+      [community.name, community.color, community.description, communityId]
+    );
+    return rows[0];
+  } catch (err) {
+    console.error(`Error updating community: ${err.message}`);
+    throw new Error("Database error: Unable to update community");
+  } finally {
+    client.release();
+  }
+};
+
+const removeCommunityById = async (communityId) => {
+  const client = await db.connect();
+  try {
+    await db.query("DELETE FROM Community WHERE id = $1", [communityId]);
+  } catch (err) {
+    console.error(`Error deleting community: ${err.message}`);
+    throw new Error("Database error: Unable to delete community");
+  } finally {
+    client.release();
+  }
+};
+
+module.exports = { addCommunity, getAllCommunities, getUserCommunities, searchCommunitiesByName, getUsersByCommunityName, promoteUser, updateCommunityById, removeCommunityById };
