@@ -5,6 +5,7 @@ const {
   addToTeam,
   getTeamUsersCount,
   deleteTeam,
+  editTeam,
 } = require("../models/teamModel");
 const { leaveTeam, findUserByEmail } = require("../models/userModel");
 const httpStatusText = require("../utils/httpStatusText");
@@ -160,6 +161,52 @@ exports.getUserTeam = async (req, res) => {
       message: "Server Error",
       details: {
         field: "get user team in community",
+        error: err.message,
+      },
+    });
+  }
+};
+
+// delete /teams:teamId
+exports.deleteTeam = async (req, res) => {
+  const { teamId } = req.params;
+  try {
+    const teamMembers = await getTeamUsers(teamId);
+    for (let i = 0; i < teamMembers.length; ++i) {
+      const deletedUser = await leaveTeam(teamMembers[i].id, teamId);
+    }
+    const deletedTeam = await deleteTeam(teamId);
+    return res.status(200).json({ status: httpStatusText.SUCCESS, data: null });
+  } catch (err) {
+    res.status(500).json({
+      status: httpStatusText.ERROR,
+      message: "Server Error",
+      details: {
+        field: "delete team",
+        error: err.message,
+      },
+    });
+  }
+};
+
+// put /teams
+exports.editTeam = async (req, res) => {
+  const { teamId, name, photo } = req.body;
+  try {
+    const updatedTeam = await editTeam(teamId, name, photo);
+    const teamMembers = await getTeamUsers(teamId);
+    return res
+      .status(200)
+      .json({
+        status: httpStatusText.SUCCESS,
+        data: { team: updatedTeam, team_users: teamMembers },
+      });
+  } catch (err) {
+    res.status(500).json({
+      status: httpStatusText.ERROR,
+      message: "Server Error",
+      details: {
+        field: "delete team",
         error: err.message,
       },
     });
