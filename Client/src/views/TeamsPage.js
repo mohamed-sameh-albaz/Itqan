@@ -43,7 +43,7 @@
 
 import CommunityNavBar from "../components/CommunityNavBar";
 import TeamTable from "../components/TeamTable";
-import team_av2 from "../assets/team_av2.jpg"
+import team_av2 from "../assets/team_av3.jpg"
 import "./TeamsPage.css"
 
 const TeamsPage = () => {
