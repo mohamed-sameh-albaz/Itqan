@@ -18,31 +18,48 @@ exports.createTeam = async (req, res) => {
     const userTeam = await getUserCommTeam(userId, communityName);
     if (userTeam.length) {
       return res
-        .status(400)
+        .status(404)
         .json({
           status: httpStatusText.FAIL,
-          message: "User is already in a team, failed to create new team",
+          message: "You are already in a team",
           data: { newTeam: null },
         });
     } else {
-      const newTeam = await createTeam(userId, name, photo, communityName);
-      const addUserToTeam = await addToTeam(userId, newTeam.id);
-      if (!newTeam) {
+      const message = [];
+      const results = await Promise.all(
+        teamUsers.map(async (userId) => {
+          const addedUserTeam = await getUserCommTeam(userId, communityName);
+          if (addedUserTeam.length) {
+            message.push({
+              user_id: userId,
+              msg: "user is already in a team",
+            });
+            return null;
+          }
+          return userId;
+        })
+      );
+      const newUsers = results.filter(Boolean);
+      if (newUsers.length) {
+        const newTeam = await createTeam(name, photo, communityName);
+        newUsers.push(userId);
+        for (let i = 0; i < newUsers.length; ++i) {
+          const addedUserToTeam = await addToTeam(newUsers[i], newTeam.id);
+        }
+        const users = await getTeamUsers(newTeam.id);
+        return res.status(201).json({
+          status: httpStatusText.SUCCESS,
+          data: { team: newTeam, team_users: users, message },
+        });
+      } else {
         return res
           .status(400)
           .json({
             status: httpStatusText.FAIL,
-            message: "Faild to create new team",
+            message,
             data: { newTeam: null },
           });
       }
-      const users = await getTeamUsers(newTeam.id);
-      return res
-        .status(201)
-        .json({
-          status: httpStatusText.SUCCESS,
-          data: { team: newTeam, team_users: users },
-        });
     }
   } catch (err) {
     return res.status(500).json({
