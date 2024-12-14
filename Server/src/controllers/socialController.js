@@ -4,6 +4,7 @@ const {
   getUserPosts,
   editPost,
   deletePost,
+  getPostComments,
 } = require("../models/socialModel");
 const httpStatusText = require("../utils/httpStatusText");
 
@@ -33,6 +34,12 @@ exports.getPosts = async (req, res) => {
   try {
     const offset = (page - 1) * limit;
     const { posts, totalCount } = await getPosts(communityId, limit, offset);
+    console.log(posts);
+    const postsObj = [];
+    for(let i = 0; i < posts.length; ++i) {
+      const postsComments = await getPostComments(posts[i].id, communityId);
+      posts[i].comments = postsComments;
+    }
     res.status(200).json({
       status: httpStatusText.SUCCESS,
       data: { posts },
