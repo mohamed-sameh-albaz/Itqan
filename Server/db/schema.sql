@@ -257,6 +257,7 @@ CREATE TABLE IF NOT EXISTS PostComments (
     comment_id SERIAL PRIMARY KEY, 
     user_id INT NOT NULL, 
     post_id INT NOT NULL, 
+    content text NOT NULL,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP, -- can be deleted
     FOREIGN KEY (user_id) REFERENCES Users (id)

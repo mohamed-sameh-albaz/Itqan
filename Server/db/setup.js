@@ -62,9 +62,9 @@ const test = async (client) => {
   const query = `
     -- Insert dummy users
     INSERT INTO Users (email, password, fname, lname, bio, points, photo) VALUES
-    ('user1@example.com', 'hashed_password1', 'User', 'One', 'Bio of User One', 100, 'photo1.jpg'),
-    ('user2@example.com', 'hashed_password2', 'User', 'Two', 'Bio of User Two', 200, 'photo2.jpg'),
-    ('user3@example.com', 'hashed_password3', 'User', 'Three', 'Bio of User Three', 300, 'photo3.jpg');
+    ('user1@example.com', '$2b$10$8CH9VMZAzOJVJAKHrPTAD.QFkOC3WL3RXRn/C6umyWlhXThL6XC8u', 'User', 'One', 'Bio of User One', 100, 'photo1.jpg'),
+    ('user2@example.com', '$2b$10$8CH9VMZAzOJVJAKHrPTAD.QFkOC3WL3RXRn/C6umyWlhXThL6XC8u', 'User', 'Two', 'Bio of User Two', 200, 'photo2.jpg'),
+    ('user3@example.com', '$2b$10$8CH9VMZAzOJVJAKHrPTAD.QFkOC3WL3RXRn/C6umyWlhXThL6XC8u', 'User', 'Three', 'Bio of User Three', 300, 'photo3.jpg');
 
     -- Insert dummy communities
     INSERT INTO Community (name, color, description) VALUES
@@ -165,7 +165,41 @@ const test = async (client) => {
             INSERT INTO Levels (name, reward_id, pointsThreshold) 
             VALUES (format('level %s', i), reward_id, i * 100);
         END LOOP;
-    END $$;`
+    END $$;
+    -- Insert dummy data into Posts table
+    INSERT INTO Posts (title, user_id, comm_id, text_content)
+    VALUES 
+    ('Post Title 1', 1, 1, 'This is the content of post 1.'),
+    ('Post Title 2', 2, 2, 'This is the content of post 2.'),
+    ('Post Title 3', 3, 3, 'This is the content of post 3.'),
+    ('Post Title 4', 3, 3, 'This is the content of post 4.');
+
+    -- Insert dummy data into PostContent table
+    INSERT INTO PostContent (post_id, content)
+    VALUES 
+    (1, 'Additional content for post 1.'),
+    (2, 'Additional content for post 2.'),
+    (3, 'Additional content for post 3.'),
+    (4, 'Additional content for post 4.');
+    DO $$
+    DECLARE
+        post_id INT;
+        comment_id INT;
+    BEGIN
+        FOR post_id IN 1..4 LOOP
+            FOR comment_id IN 1..11 LOOP
+                INSERT INTO PostComments (user_id, post_id,created_at, updated_at, content)
+                VALUES (
+                    (SELECT id FROM Users ORDER BY RANDOM() LIMIT 1), -- Random user_id
+                    post_id,
+                    NOW() - (comment_id * INTERVAL '1 day'),
+                    NOW() - (comment_id * INTERVAL '1 day'),
+                    'conting'
+                );
+            END LOOP;
+        END LOOP;
+    END $$;
+    ;`
   await client.query(query);
   console.log("testing Vals created successfully!");
 };

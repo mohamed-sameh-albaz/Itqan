@@ -29,11 +29,11 @@ exports.getPosts = async (communityId, limit, offset) => {
   const client = await db.connect();
   try {
     const postsQuery = `
-      SELECT p.*, pc.content, u.fname, u.lname, u.photo, r.color, pco.comment_id
+      SELECT p.*, pc.content, u.fname, u.lname, u.photo, r.color
       FROM Posts AS p
       JOIN Users AS u ON u.id = p.user_id
-      JOIN joinAs AS ja ON ja.user_id = p.user_id
-      LEFT JOIN PostComments AS pco ON pco.post_id = p.id
+      JOIN Community AS comm ON comm.id = p.comm_id
+      JOIN joinAs AS ja ON ja.user_id = p.user_id AND ja.community_name = comm.name
       JOIN Roles AS r ON r.id = ja.role_id
       JOIN PostContent AS pc ON pc.post_id = p.id
       WHERE p.comm_id = $1
@@ -59,11 +59,36 @@ exports.getPosts = async (communityId, limit, offset) => {
   }
 };
 
+exports.getPostComments = async (post_id, communityId) => {
+  const client = await db.connect();
+  try {
+    const query = `
+      SELECT pc.*, u.fname, u.lname, r.color
+      FROM PostComments AS pc
+      JOIN Users AS u ON u.id = pc.user_id  
+      JOIN Posts AS p ON p.id = pc.post_id
+      JOIN Community AS comm ON comm.id = p.comm_id
+      JOIN joinAs AS ja ON ja.user_id = p.user_id AND ja.community_name = comm.name
+      JOIN Roles AS r ON r.id = ja.role_id
+      WHERE post_id = $1
+      ORDER BY created_at DESC
+      LIMIT 10;
+    `;
+    const { rows: comments } = await db.query(query, [post_id]);
+    return comments ;
+  } catch (err) {
+    console.error(`Error retreving comments: ${err.message}`);
+    throw new Error(err.message);
+  } finally {
+    client.release();
+  }
+}
+
 exports.getUserPosts = async (userId, communityId, limit, offset) => {
   const client = await db.connect();
   try {
     const postsQuery = `
-      SELECT p.*, pc.content_type, pc.content 
+      SELECT p.*, pc.content 
       FROM Posts AS p
       JOIN PostContent AS pc ON pc.post_id = p.id
       WHERE p.comm_id = $1 AND p.user_id = $2
