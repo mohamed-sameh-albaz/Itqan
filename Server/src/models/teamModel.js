@@ -1,6 +1,6 @@
 const db = require("../config/db");
 
-exports.createTeam = async (userId, name, photo, communityName) => {
+exports.createTeam = async (name, photo, communityName) => {
   const client = await db.connect();
   try {
     const query = `
