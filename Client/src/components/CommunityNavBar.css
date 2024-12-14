@@ -10,6 +10,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+
+    box-shadow: 0 0px 20px rgba(0, 0, 0, 0.4);
 }
 
 .community-navbar span {

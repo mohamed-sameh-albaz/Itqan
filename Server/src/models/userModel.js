@@ -51,95 +51,7 @@ exports.findUserByEmail = async (email) => {
   }
 };
 
-exports.promoteUser = async (userId, communityName) => {
-  const client = await db.connect();
-  try {
-    const getUsersQuery = `
-    SELECT * FROM JoinAs
-    WHERE user_id = $1 AND community_name = $2;  
-    `;
-    const adminRoleQuery = `
-    SELECT id FROM Roles WHERE name = 'admin';
-    `;
-
-    let adminRoleId = await db.query(adminRoleQuery);
-    adminRoleId = adminRoleId.rows[0].id;
-
-    const valsForUpdate = [userId * 1, communityName];
-    let { rows } = await db.query(getUsersQuery, valsForUpdate);
-    if (!rows.length) {
-      throw new Error("User not found in this community");
-    }
-    if (rows[0].role_id === adminRoleId) {
-      throw new Error("User already has the Admin role");
-    }
-    const updateQuery = `
-    UPDATE JoinAs
-    SET role_id = $3
-    WHERE user_id = $1 AND community_name = $2;
-    `;
-    valsForUpdate.push(adminRoleId);
-    console.log(valsForUpdate);
-    rows = await db.query(updateQuery, valsForUpdate);
-    return {
-      status: true,
-      message: `User Promoted to Admin in ${communityName}`,
-    };
-  } catch (err) {
-    console.error(`Error retrieving JoinAs: ${err.message}`);
-    return {
-      status: false,
-      message: err.message,
-    };
-  } finally {
-    client.release();
-  }
-};
-
-exports.createTeam = async (teamParams) => {
-  const client = await db.connect();
-  try {
-    // check for user is in this community
-    const checkUserQuery = `
-      SELECT u.id, j.community_name 
-      FROM Users AS u, JoinAs as j
-      WHERE id = $1 AND community_name = $2;
-    `;
-    const checkUserRes = await db.query(checkUserQuery, [
-      teamParams.userId,
-      teamParams.communityName,
-    ]);
-    if (!checkUserRes.rows.length) {
-      throw new Error("User not found in this community");
-    }
-    console.log([teamParams.userId, teamParams.communityName], checkUserRes);
-    const createTeamQuery = `
-      INSERT INTO Teams (name, photo, community_name)
-      VALUES ($1, $2, $3) RETURNING *;
-    `;
-    const newTeamParams = [
-      teamParams.name,
-      teamParams.photo,
-      teamParams.communityName,
-    ];
-    const { rows } = await db.query(createTeamQuery, newTeamParams);
-    const teamId = rows[0].id;
-    const addTeamOwnerQuery = `
-      INSERT INTO user_team(user_id, team_id)
-      VALUES ($1, $2) RETURNING *;
-    `;
-    const teamOwnerParams = [teamParams.userId, teamId];
-    const teamOwnerRes = await db.query(addTeamOwnerQuery, teamOwnerParams);
-    return rows[0];
-  } catch (err) {
-    console.error(`Error creating team: ${err.message}`);
-    throw new Error("Unable to add new team");
-  } finally {
-    client.release();
-  }
-};
-
-exports.leaveTeam = async (userTeam) => {
+exports.leaveTeam = async (userId, teamId) => {
   const client = await db.connect();
   try {
     const query = `
@@ -147,24 +59,80 @@ exports.leaveTeam = async (userTeam) => {
       WHERE user_id = $1 AND team_id = $2
       RETURNING *;
     `;
-    const deleteVals = [userTeam.userId, userTeam.teamId];
-    const { rows } = await db.query(query, deleteVals);
-    if (!rows.length) {
-      throw new Error("User is not part of this team");
-    }
-    const getOtherMembersQuery = `
-      SELECT user_id FROM user_team
-      WHERE team_id = $1;
-    `;
-    const { rows: otherMembers } = await db.query(getOtherMembersQuery, [userTeam.teamId]);
-    return {
-      leavingMember: userTeam.userId,
-      otherMembers,
-    };
+    const { rows } = await db.query(query, [userId, teamId]);
+    return rows;
   } catch (err) {
     console.error(`Error leaving team: ${err.message}`);
-    throw new Error("Unable to leave team");
+    throw new Error(err.message);
   } finally {
     client.release();
   }
 };
+
+exports.updateUser = async (user) => {
+  const client = await db.connect();
+  try {
+    const { rows } = await db.query(
+      `UPDATE users SET
+        fname = $1,
+        lname = $2,
+        email = $3,
+        bio = $4,
+        password = COALESCE($5, password),
+        photo = $6,
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = $7
+      RETURNING *`,
+      [
+        user.firstname,
+        user.lastname,
+        user.email,
+        user.bio,
+        user.password,
+        user.photo,
+        user.userId
+      ]
+    );
+    return rows[0];
+  } catch (err) {
+    console.error(`Error updating user: ${err.message}`);
+    throw new Error("Database error: Unable to update user");
+  } finally {
+    client.release();
+  }
+};
+
+exports.deleteUser = async (userId) => {
+  const client = await db.connect();
+  try {
+    await db.query("DELETE FROM users WHERE id = $1", [userId]);
+  } catch (err) {
+    console.error(`Error deleting user: ${err.message}`);
+    throw new Error("Database error: Unable to delete user");
+  } finally {
+    client.release();
+  }
+};
+exports.approveSubmission = async ({ userId, submissionId, score }) => {
+  const client = await db.connect();
+  try {
+    const query = `
+      UPDATE Submissions  
+      SET approved_by = $1,
+        score = $2,
+        approved_at = CURRENT_TIMESTAMP,
+        status = 'Approved'
+      WHERE id = $3
+      RETURNING *;
+    `;
+    console.log({ userId, submissionId, score });
+    const { rows } = await db.query(query, [userId, score, submissionId]);
+    // console.log(rows);
+    return rows;
+  } catch(err) {  
+    console.error(err);
+    throw new Error(err.message);
+  } finally {
+    client.release();
+  }
+}

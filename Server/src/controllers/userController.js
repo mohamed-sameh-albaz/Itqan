@@ -118,74 +118,66 @@ exports.loginUser = async (req, res) => {
   }
 };
 
-exports.promoteToAdmin = async (req, res) => {
-  const { userId } = req.params;
-  const { communityName } = req.body; // userId needed Params to promote and communityName for check
+exports.approveSubmission = async(req, res) => {
+  const { userId, submissionId, score } = req.body;
   try {
-    const result = await userModel.promoteUser({ userId, communityName });
-    if (result.status) {
-      return res.status(200).json({
-        status: "success",
-        message: result.message,
-        data: {
-          user: {
-            user_id: userId,
-            community_id: communityId,
-            role_id: 1, // admin role
-            updated_at: new Date().toISOString(),
-          },
-        },
-      });
+    const approvedSub = await userModel.approveSubmission({ userId, submissionId, score });
+    res.status(200).json(approvedSub);
+  } catch(err) {
+    res.status(500).json({error: err.message});
+  }
+};
+
+exports.updateUser = async (req, res) => {
+  const { userId, firstname, lastname, email, bio, password, photo } = req.body;
+
+  try {
+    let hashedPassword;
+    if (password && password.trim() !== "") {
+      hashedPassword = await bcrypt.hash(password, 10);
     }
-    throw new Error(result.message);
-  } catch (err) {
-    res.status(500).json({
-      status: "error",
-      message: "Server Error",
-      details: {
-        field: "promotion",
-        error: err.message
-      }
-    });
-  }
-};
 
-exports.createTeam = async (req, res) => {
-  const { userId } = req.params;
-  const { name, photo, communityName } = req.body;
-  try {
-    const newTeam = await userModel.createTeam({ userId, name, photo, communityName });
-    res.status(201).json({
-      status: "success",
-      data: { team: newTeam }
+    const updatedUser = await userModel.updateUser({
+      userId,
+      firstname,
+      lastname,
+      email,
+      bio,
+      password: hashedPassword,
+      photo
     });
-  } catch (err) {
-    res.status(500).json({
-      status: "error",
-      message: "Server Error",
-      details: {
-        field: "team",
-        error: err.message
-      }
-    });
-  }
-};
 
-exports.leaveTeam = async (req, res) => {
-  const { userId } = req.params;
-  const { teamId } = req.body;
-  try {
-    const leftTeam = await userModel.leaveTeam({ userId, teamId });
     res.status(200).json({
       status: "success",
-      data: { leftTeam }
+      data: { user: updatedUser }
     });
   } catch (err) {
     res.status(500).json({
       status: "error",
       message: "Server Error",
       details: {
-        field: "team",
+        field: "user",
+        error: err.message
+      }
+    });
+  }
+};
+
+exports.deleteUser = async (req, res) => {
+  const { userId } = req.body;
+
+  try {
+    await userModel.deleteUser(userId);
+    res.status(200).json({
+      status: "success",
+      message: `User with ID ${userId} has been deleted`
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: "error",
+      message: "Server Error",
+      details: {
+        field: "user",
         error: err.message
       }
     });
