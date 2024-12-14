@@ -1,17 +1,5 @@
-const {
-  getAllContests,
-  addContest,
-  getContestsByStatus,
-  updateContestById,
-  deleteContestById,
-  getWrittenTasks,
-} = require("../models/contestModel");
-const {
-  addTask,
-  addMcqTask,
-  updateTaskById,
-  deleteTaskById,
-} = require("../models/taskModel");
+const { getAllContests, addContest, getContestsByStatus, updateContestById, deleteContestById, getWrittenTasks } = require("../models/contestModel");
+const { addTask, addMcqTask, updateTaskById, deleteTaskById } = require("../models/taskModel");
 const httpStatusText = require("../utils/httpStatusText");
 
 exports.getContests = async (req, res) => {
@@ -33,25 +21,24 @@ exports.getContests = async (req, res) => {
   }
 };
 
-exports.createContestWithTasks = async (req, res) => {
-  const { contest, tasks } = req.body;
+exports.createContest = async (req, res) => {
+  const { description, type, difficulty, name, start_date, end_date, status, group_id } = req.body;
 
   try {
-    const newContest = await addContest(contest);
-    const contestId = newContest.id;
-
-    const taskPromises = tasks.map(async (task) => {
-      const newTask = await addTask({ ...task, contest_id: contestId });
-      if (task.type === "mcq") {
-        await addMcqTask({ ...task.mcqData, id: newTask.id });
-      }
+    const newContest = await addContest({
+      description,
+      type,
+      difficulty,
+      name,
+      start_date,
+      end_date,
+      status,
+      group_id
     });
-
-    await Promise.all(taskPromises);
 
     res.status(201).json({
       status: "success",
-      data: { contest: newContest, tasks },
+      data: { contest: newContest },
     });
   } catch (err) {
     res.status(500).json({
@@ -59,6 +46,39 @@ exports.createContestWithTasks = async (req, res) => {
       message: "Server Error",
       details: {
         field: "contest",
+        error: err.message,
+      },
+    });
+  }
+};
+
+exports.createTask = async (req, res) => {
+  const { description, title, points, type, image, mcqData, contest_id } = req.body;
+
+  try {
+    const newTask = await addTask({
+      description,
+      title,
+      points,
+      type,
+      image,
+      contest_id
+    });
+
+    if (type === "mcq" && mcqData) {
+      await addMcqTask({ ...mcqData, id: newTask.id });
+    }
+
+    res.status(201).json({
+      status: "success",
+      data: { task: newTask },
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: "error",
+      message: "Server Error",
+      details: {
+        field: "task",
         error: err.message,
       },
     });
