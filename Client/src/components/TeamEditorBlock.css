@@ -1,14 +1,15 @@
 .TE_all{
-    background-color: lightgray;
+    background-color:var(--active-color);
     width: 600px;
     height:350px;
     border-radius: 20px;
     display:flex;
     flex-direction: column;
-    position: absolute;
-    top: calc((100% - 350px) / 2);
-    left: calc((100% - 500px) / 2);
+    margin:auto;
     align-items: center;
+    border: 1px solid #ccc;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+
 }
 .TE_all .des{
      font-size: 20px;
@@ -17,18 +18,20 @@
     align-self: start;
     margin-left: 30px;
     margin-top: 30px;
+   
 }
 .TE_all .TeamName{
     width:100%;
     font-size: 20px;
   font-weight: bold;
 margin-top: 30px;
-height:20%;
+height:30%;
+
 }
 .TE_all .TeamName .name{
     width:50%;
     margin-left: 10px;
-    height:50%;
+    height:70%;
     border-radius: 7px;
 }
 
@@ -36,28 +39,32 @@ height:20%;
     width:100%;
     font-size: 20px;
   font-weight: bold;
-margin-top: 30px;
-height:20%;
+margin-top: 20px;
+height:30%;
+
 }
-.TE_all .TeamMate .name{
+.TE_all .TeamMate .TMname,.TMname2{
     width:50%;
     margin-left: 10px;
-    height:50%;
+    height:70%;
     border-radius: 7px;
 }
 
+
 .TE_all .send{
     font-size: 20px;
-    font-weight: bold;
     height:12%;
-    margin-top: 30px;
+    margin-top: 20px;
+    margin-bottom: 20px;
     margin-left:30px;
     border-radius: 10px;
     width:30%;
     cursor: pointer;
     transition: transform 0.3s ease;
+    background-color: var(--button-color);
+    color: white;
 }
 
 .TE_all .send:hover{
-    transform: scale(1.2,1.2);
+    transform: scale(1.1,1.1);
 }
