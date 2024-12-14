@@ -13,7 +13,7 @@ const { getUserCommunities } = require("../models/communityModel");
 
 // POST teams/new/
 exports.createTeam = async (req, res) => {
-  const { userId, name, photo, communityName } = req.body;
+  const { userId, name, photo, communityName, teamUsers } = req.body;
   try {
     const userTeam = await getUserCommTeam(userId, communityName);
     if (userTeam.length) {
