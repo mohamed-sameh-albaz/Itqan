@@ -1,11 +1,4 @@
-const {
-  addCommunity,
-  getAllCommunities,
-  getUserCommunities,
-  searchCommunitiesByName,
-  getUsersByCommunityName,
-  promoteUser,
-} = require("../models/communityModel");
+const { addCommunity, getAllCommunities, getUserCommunities, searchCommunitiesByName, getUsersByCommunityName, promoteUser, updateCommunityById, removeCommunityById } = require("../models/communityModel");
 const { addJoinAs } = require("../models/joinAsModel");
 const { getGroupsByCommunity } = require("../models/groupModel");
 const httpStatusText = require("../utils/httpStatusText");
@@ -240,6 +233,54 @@ exports.promoteUser = async (req, res) => {
       message: "Server Error",
       details: {
         field: "Promote user",
+        error: err.message,
+      },
+    });
+  }
+};
+
+exports.editCommunity = async (req, res) => {
+  const { communityId } = req.params;
+  const { name, color, description } = req.body;
+
+  try {
+    const updatedCommunity = await updateCommunityById(communityId, {
+      name,
+      color,
+      description,
+    });
+
+    res.status(200).json({
+      status: "success",
+      data: { community: updatedCommunity },
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: "error",
+      message: "Server Error",
+      details: {
+        field: "community",
+        error: err.message,
+      },
+    });
+  }
+};
+
+exports.deleteCommunity = async (req, res) => {
+  const { communityId } = req.params;
+
+  try {
+    await removeCommunityById(communityId);
+    res.status(200).json({
+      status: "success",
+      message: `Community with ID ${communityId} has been deleted`,
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: "error",
+      message: "Server Error",
+      details: {
+        field: "community",
         error: err.message,
       },
     });

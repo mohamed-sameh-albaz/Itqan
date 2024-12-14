@@ -55,4 +55,21 @@ const deleteGroup = async (groupId) => {
     client.release();
   }
 };
-module.exports = { addGroup, getGroupsByCommunity, deleteGroup };
+
+const updateGroupById = async (groupId, group) => {
+  const client = await db.connect();
+  try {
+    const { rows } = await db.query(
+      `UPDATE Groups SET description = $1, title = $2, photo = $3, community_name = $4, updated_at = CURRENT_TIMESTAMP WHERE id = $5 RETURNING *`,
+      [group.description, group.title, group.photo, group.community_name, groupId]
+    );
+    return rows[0];
+  } catch (err) {
+    console.error(`Error updating group: ${err.message}`);
+    throw new Error("Database error: Unable to update group");
+  } finally {
+    client.release();
+  }
+};
+
+module.exports = { addGroup, getGroupsByCommunity, deleteGroup, updateGroupById };

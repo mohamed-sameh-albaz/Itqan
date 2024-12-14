@@ -1,4 +1,4 @@
-const { addGroup, deleteGroup } = require("../models/groupModel");
+const { addGroup, deleteGroup, updateGroupById } = require("../models/groupModel");
 const { addRegisterTo } = require("../models/registersToModel");
 const httpStatusText = require("../utils/httpStatusText");
 
@@ -69,6 +69,34 @@ exports.deleteGroup = async (req, res) => {
       message: "Server Error",
       details: {
         field: "delete group",
+        error: err.message,
+      },
+    });
+  }
+};
+
+exports.editGroup = async (req, res) => {
+  const { groupId } = req.params;
+  const { description, title, photo, community_name } = req.body;
+
+  try {
+    const updatedGroup = await updateGroupById(groupId, {
+      description,
+      title,
+      photo,
+      community_name,
+    });
+
+    res.status(200).json({
+      status: "success",
+      data: { group: updatedGroup },
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: "error",
+      message: "Server Error",
+      details: {
+        field: "group",
         error: err.message,
       },
     });
