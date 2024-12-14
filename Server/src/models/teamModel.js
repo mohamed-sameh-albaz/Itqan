@@ -58,7 +58,7 @@ exports.getUserCommTeam = async (user_id, community_name) => {
 
 exports.getTeamUsersCount = async (teamId) => {
   const client = await db.connect();
-  try{
+  try {
     const query = `
       SELECT COUNT(*)
       FROM user_team
@@ -72,7 +72,7 @@ exports.getTeamUsersCount = async (teamId) => {
   } finally {
     client.release();
   }
-}
+};
 exports.getTeamUsers = async (teamId) => {
   const client = await db.connect();
   try {
@@ -90,7 +90,7 @@ exports.getTeamUsers = async (teamId) => {
   } finally {
     client.release();
   }
-}
+};
 
 exports.deleteTeam = async (teamId) => {
   const client = await db.connect();
@@ -108,4 +108,22 @@ exports.deleteTeam = async (teamId) => {
   } finally {
     client.release();
   }
-}
+};
+exports.editTeam = async (teamId, name, photo) => {
+  const client = await db.connect();
+  try {
+    const query = `
+      UPDATE Teams 
+      SET name = $1, photo = $2
+      WHERE id = $3
+      RETURNING *;
+    `;
+    const { rows } = await db.query(query, [name, photo, teamId]);
+    return rows[0];
+  } catch (err) {
+    console.error(`Error editing team: ${err.message}`);
+    throw new Error("Database error: Unable to edit team");
+  } finally {
+    client.release();
+  }
+};
