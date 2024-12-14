@@ -224,6 +224,7 @@ CREATE TABLE IF NOT EXISTS Posts (
     title VARCHAR(255) NOT NULL,
     user_id INT NOT NULL, 
     comm_id INT NOT NULL,
+    text_content TEXT,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES Users(id)  
@@ -235,7 +236,6 @@ CREATE TABLE IF NOT EXISTS Posts (
 CREATE TABLE IF NOT EXISTS PostContent (
     id SERIAL PRIMARY KEY,
     post_id INT NOT NULL, 
-    content_type VARCHAR(50),
     content TEXT,
     FOREIGN KEY (post_id) REFERENCES Posts(id)
         ON DELETE CASCADE
@@ -245,7 +245,7 @@ CREATE TABLE IF NOT EXISTS PostLikes (
     user_id INT NOT NULL,
     post_id INT NOT NULL,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP, --may be removed if not updated in UI
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (user_id, post_id),
     FOREIGN KEY (user_id) REFERENCES Users(id)
         ON DELETE CASCADE,
