@@ -1,4 +1,11 @@
-const { addCommunity, getAllCommunities, getUserCommunities, searchCommunitiesByName, getUsersByCommunityName, promoteUser } = require("../models/communityModel");
+const {
+  addCommunity,
+  getAllCommunities,
+  getUserCommunities,
+  searchCommunitiesByName,
+  getUsersByCommunityName,
+  promoteUser,
+} = require("../models/communityModel");
 const { addJoinAs } = require("../models/joinAsModel");
 const { getGroupsByCommunity } = require("../models/groupModel");
 const httpStatusText = require("../utils/httpStatusText");
@@ -13,7 +20,7 @@ exports.createCommunity = async (req, res) => {
     await addJoinAs({ userId, roleId: 1, communityName, approved: true });
     res.status(201).json({
       status: "success",
-      data: { community: newCommunity }
+      data: { community: newCommunity },
     });
   } catch (err) {
     res.status(500).json({
@@ -21,8 +28,8 @@ exports.createCommunity = async (req, res) => {
       message: "Server error",
       details: {
         field: "community",
-        error: err.message
-      }
+        error: err.message,
+      },
     });
   }
 };
@@ -31,10 +38,15 @@ exports.joinCommunity = async (req, res) => {
   const { userId, communityName, roleId } = req.body;
 
   try {
-    const joinAs = await addJoinAs({ userId, roleId, communityName, approved: true });
+    const joinAs = await addJoinAs({
+      userId,
+      roleId,
+      communityName,
+      approved: true,
+    });
     res.status(201).json({
       status: "success",
-      data: { joinAs }
+      data: { joinAs },
     });
   } catch (err) {
     res.status(500).json({
@@ -42,8 +54,8 @@ exports.joinCommunity = async (req, res) => {
       message: "Server Error",
       details: {
         field: "joinAs",
-        error: err.message
-      }
+        error: err.message,
+      },
     });
   }
 };
@@ -53,7 +65,11 @@ exports.getAllCommunities = async (req, res) => {
 
   try {
     const offset = (page - 1) * limit;
-    const { communities, totalCount } = await getAllCommunities(userId, limit, offset);
+    const { communities, totalCount } = await getAllCommunities(
+      userId,
+      limit,
+      offset
+    );
     res.status(200).json({
       status: "success",
       data: { communities },
@@ -62,8 +78,8 @@ exports.getAllCommunities = async (req, res) => {
         to: offset + communities.length,
         current_page: page,
         total: totalCount,
-        per_page: limit
-      }
+        per_page: limit,
+      },
     });
   } catch (err) {
     res.status(500).json({
@@ -71,8 +87,8 @@ exports.getAllCommunities = async (req, res) => {
       message: "Server Error",
       details: {
         field: "communities",
-        error: err.message
-      }
+        error: err.message,
+      },
     });
   }
 };
@@ -82,7 +98,11 @@ exports.getUserCommunities = async (req, res) => {
 
   try {
     const offset = (page - 1) * limit;
-    const { userCommunities, totalCount } = await getUserCommunities(userId, limit, offset);
+    const { userCommunities, totalCount } = await getUserCommunities(
+      userId,
+      limit,
+      offset
+    );
     res.status(200).json({
       status: "success",
       data: { communities: userCommunities },
@@ -91,8 +111,8 @@ exports.getUserCommunities = async (req, res) => {
         to: offset + userCommunities.length,
         current_page: page,
         total: totalCount,
-        per_page: limit
-      }
+        per_page: limit,
+      },
     });
   } catch (err) {
     res.status(500).json({
@@ -100,8 +120,8 @@ exports.getUserCommunities = async (req, res) => {
       message: "Server Error",
       details: {
         field: "userCommunities",
-        error: err.message
-      }
+        error: err.message,
+      },
     });
   }
 };
@@ -111,7 +131,11 @@ exports.getGroupsByCommunity = async (req, res) => {
 
   try {
     const offset = (page - 1) * limit;
-    const { groups, totalCount } = await getGroupsByCommunity(community_name, limit, offset);
+    const { groups, totalCount } = await getGroupsByCommunity(
+      community_name,
+      limit,
+      offset
+    );
     res.status(200).json({
       status: "success",
       data: { groups },
@@ -120,8 +144,8 @@ exports.getGroupsByCommunity = async (req, res) => {
         to: offset + groups.length,
         current_page: page,
         total: totalCount,
-        per_page: limit
-      }
+        per_page: limit,
+      },
     });
   } catch (err) {
     res.status(500).json({
@@ -129,8 +153,8 @@ exports.getGroupsByCommunity = async (req, res) => {
       message: "Server Error",
       details: {
         field: "groups",
-        error: err.message
-      }
+        error: err.message,
+      },
     });
   }
 };
@@ -140,7 +164,11 @@ exports.searchCommunitiesByName = async (req, res) => {
 
   try {
     const offset = (page - 1) * limit;
-    const { communities, totalCount } = await searchCommunitiesByName(name, limit, offset);
+    const { communities, totalCount } = await searchCommunitiesByName(
+      name,
+      limit,
+      offset
+    );
     res.status(200).json({
       status: "success",
       data: { communities },
@@ -149,8 +177,8 @@ exports.searchCommunitiesByName = async (req, res) => {
         to: offset + communities.length,
         current_page: page,
         total: totalCount,
-        per_page: limit
-      }
+        per_page: limit,
+      },
     });
   } catch (err) {
     res.status(500).json({
@@ -158,8 +186,8 @@ exports.searchCommunitiesByName = async (req, res) => {
       message: "Server Error",
       details: {
         field: "communities",
-        error: err.message
-      }
+        error: err.message,
+      },
     });
   }
 };
@@ -169,7 +197,11 @@ exports.getUsersByCommunityName = async (req, res) => {
 
   try {
     const offset = (page - 1) * limit;
-    const { users, totalCount } = await getUsersByCommunityName(community_name, limit, offset);
+    const { users, totalCount } = await getUsersByCommunityName(
+      community_name,
+      limit,
+      offset
+    );
     res.status(200).json({
       status: "success",
       data: { users },
@@ -178,8 +210,8 @@ exports.getUsersByCommunityName = async (req, res) => {
         to: offset + users.length,
         current_page: page,
         total: totalCount,
-        per_page: limit
-      }
+        per_page: limit,
+      },
     });
   } catch (err) {
     res.status(500).json({
@@ -187,20 +219,29 @@ exports.getUsersByCommunityName = async (req, res) => {
       message: "Server Error",
       details: {
         field: "users",
-        error: err.message
-      }
+        error: err.message,
+      },
     });
   }
 };
 
 // PATCH /communities/Users/promote?communityName
 exports.promoteUser = async (req, res) => {
-  const {userId, communityName} = req.body;
-  try{
-    const promotedUser = await promoteUser( +userId, communityName);
-    return res.status(200).json({status: httpStatusText.SUCCESS, data: { user: promotedUser }});
-  }catch(err) {
-    console.error(err.message);
-    return res.status(400).json({status: httpStatusText.ERROR, error: err.message});
+  const { userId, communityName } = req.body;
+  try {
+    const promotedUser = await promoteUser(+userId, communityName);
+    return res
+      .status(200)
+      .json({ status: httpStatusText.SUCCESS, data: { user: promotedUser } });
+  } catch (err) {
+    console.error("promote user: ", err.message);
+    return res.status(400).json({
+      status: httpStatusText.ERROR,
+      message: "Server Error",
+      details: {
+        field: "Promote user",
+        error: err.message,
+      },
+    });
   }
 };

@@ -1,13 +1,25 @@
-const { getAllContests, addContest, getContestsByStatus, updateContestById, deleteContestById, getWrittenTasks } = require("../models/contestModel");
-const { addTask, addMcqTask, updateTaskById, deleteTaskById } = require("../models/taskModel");
-const httpStatusText = require ("../utils/httpStatusText");
+const {
+  getAllContests,
+  addContest,
+  getContestsByStatus,
+  updateContestById,
+  deleteContestById,
+  getWrittenTasks,
+} = require("../models/contestModel");
+const {
+  addTask,
+  addMcqTask,
+  updateTaskById,
+  deleteTaskById,
+} = require("../models/taskModel");
+const httpStatusText = require("../utils/httpStatusText");
 
 exports.getContests = async (req, res) => {
   try {
     const contests = await getAllContests();
     res.status(200).json({
       status: "success",
-      data: { contests }
+      data: { contests },
     });
   } catch (err) {
     res.status(500).json({
@@ -15,8 +27,8 @@ exports.getContests = async (req, res) => {
       message: "Server Error",
       details: {
         field: "contests",
-        error: err.message
-      }
+        error: err.message,
+      },
     });
   }
 };
@@ -28,9 +40,9 @@ exports.createContestWithTasks = async (req, res) => {
     const newContest = await addContest(contest);
     const contestId = newContest.id;
 
-    const taskPromises = tasks.map(async task => {
+    const taskPromises = tasks.map(async (task) => {
       const newTask = await addTask({ ...task, contest_id: contestId });
-      if (task.type === 'mcq') {
+      if (task.type === "mcq") {
         await addMcqTask({ ...task.mcqData, id: newTask.id });
       }
     });
@@ -39,7 +51,7 @@ exports.createContestWithTasks = async (req, res) => {
 
     res.status(201).json({
       status: "success",
-      data: { contest: newContest, tasks }
+      data: { contest: newContest, tasks },
     });
   } catch (err) {
     res.status(500).json({
@@ -47,8 +59,8 @@ exports.createContestWithTasks = async (req, res) => {
       message: "Server Error",
       details: {
         field: "contest",
-        error: err.message
-      }
+        error: err.message,
+      },
     });
   }
 };
@@ -58,7 +70,7 @@ exports.updateContest = async (req, res) => {
     const contest = await updateContestById(req.params.id, req.body);
     res.status(200).json({
       status: "success",
-      data: { contest }
+      data: { contest },
     });
   } catch (err) {
     res.status(500).json({
@@ -66,8 +78,8 @@ exports.updateContest = async (req, res) => {
       message: "Server Error",
       details: {
         field: "contest",
-        error: err.message
-      }
+        error: err.message,
+      },
     });
   }
 };
@@ -82,8 +94,8 @@ exports.deleteContest = async (req, res) => {
       message: "Server Error",
       details: {
         field: "contest",
-        error: err.message
-      }
+        error: err.message,
+      },
     });
   }
 };
@@ -92,10 +104,15 @@ exports.getContestsByStatus = async (req, res) => {
   const { community_name, group_id, status, limit } = req.query;
 
   try {
-    const contests = await getContestsByStatus({ community_name, group_id, status, limit });
+    const contests = await getContestsByStatus({
+      community_name,
+      group_id,
+      status,
+      limit,
+    });
     res.status(200).json({
       status: "success",
-      data: { contests: contests.length ? contests : [] }
+      data: { contests: contests.length ? contests : [] },
     });
   } catch (err) {
     res.status(500).json({
@@ -103,15 +120,16 @@ exports.getContestsByStatus = async (req, res) => {
       message: "Server Error",
       details: {
         field: "contests",
-        error: err.message
-      }
+        error: err.message,
+      },
     });
   }
 };
 
 exports.editContest = async (req, res) => {
   const { contestId } = req.params;
-  const { description, type, difficulty, name, start_date, end_date, status } = req.body;
+  const { description, type, difficulty, name, start_date, end_date, status } =
+    req.body;
 
   try {
     const updatedContest = await updateContestById(contestId, {
@@ -121,12 +139,12 @@ exports.editContest = async (req, res) => {
       name,
       start_date,
       end_date,
-      status
+      status,
     });
 
     res.status(200).json({
       status: "success",
-      data: { contest: updatedContest }
+      data: { contest: updatedContest },
     });
   } catch (err) {
     res.status(500).json({
@@ -134,8 +152,8 @@ exports.editContest = async (req, res) => {
       message: "Server Error",
       details: {
         field: "contest",
-        error: err.message
-      }
+        error: err.message,
+      },
     });
   }
 };
@@ -155,8 +173,8 @@ exports.deleteContestById = async (req, res) => {
       message: "Server Error",
       details: {
         field: "contest",
-        error: err.message
-      }
+        error: err.message,
+      },
     });
   }
 };
@@ -172,12 +190,12 @@ exports.editTaskById = async (req, res) => {
       points,
       type,
       image,
-      mcqData
+      mcqData,
     });
 
     res.status(200).json({
       status: "success",
-      data: { task: updatedTask }
+      data: { task: updatedTask },
     });
   } catch (err) {
     res.status(500).json({
@@ -185,8 +203,8 @@ exports.editTaskById = async (req, res) => {
       message: "Server Error",
       details: {
         field: "task",
-        error: err.message
-      }
+        error: err.message,
+      },
     });
   }
 };
@@ -198,7 +216,7 @@ exports.deleteTaskById = async (req, res) => {
     await deleteTaskById(taskId);
     res.status(200).json({
       status: "success",
-      message: `Task with ID ${taskId} has been deleted`
+      message: `Task with ID ${taskId} has been deleted`,
     });
   } catch (err) {
     res.status(500).json({
@@ -206,8 +224,8 @@ exports.deleteTaskById = async (req, res) => {
       message: "Server Error",
       details: {
         field: "task",
-        error: err.message
-      }
+        error: err.message,
+      },
     });
   }
 };
@@ -215,10 +233,20 @@ exports.deleteTaskById = async (req, res) => {
 // get contests/tasks/written?contest_id
 exports.getWrittenTasks = async (req, res) => {
   const { contestId } = req.params;
-  try{
+  try {
     const tasks = await getWrittenTasks(+contestId);
-    return res.status(200).json({status: httpStatusText.SUCCESS, data: { tasks }});
-  } catch(err) {
-    return res.status(400).json({status: httpStatusText.ERROR, error: err.message});
-  } 
-}
+    return res
+      .status(200)
+      .json({ status: httpStatusText.SUCCESS, data: { tasks } });
+  } catch (err) {
+    console.error("get written tasks: ", err.message);
+    return res.status(400).json({
+      status: httpStatusText.ERROR,
+      message: "Server Error",
+      details: {
+        field: "get written tasks",
+        error: err.message,
+      },
+    });
+  }
+};

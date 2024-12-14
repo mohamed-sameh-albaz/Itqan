@@ -1,15 +1,20 @@
 const { addGroup, deleteGroup } = require("../models/groupModel");
 const { addRegisterTo } = require("../models/registersToModel");
-const httpStatusText = require ("../utils/httpStatusText");
+const httpStatusText = require("../utils/httpStatusText");
 
 exports.createGroup = async (req, res) => {
   const { description, title, photo, community_name } = req.body;
 
   try {
-    const newGroup = await addGroup({ description, title, photo, community_name });
+    const newGroup = await addGroup({
+      description,
+      title,
+      photo,
+      community_name,
+    });
     res.status(201).json({
       status: "success",
-      data: { group: newGroup }
+      data: { group: newGroup },
     });
   } catch (err) {
     res.status(500).json({
@@ -17,8 +22,8 @@ exports.createGroup = async (req, res) => {
       message: "Server Error",
       details: {
         field: "group",
-        error: err.message
-      }
+        error: err.message,
+      },
     });
   }
 };
@@ -30,7 +35,7 @@ exports.joinGroup = async (req, res) => {
     const registerTo = await addRegisterTo({ userId, groupId });
     res.status(201).json({
       status: "success",
-      data: { registerTo }
+      data: { registerTo },
     });
   } catch (err) {
     res.status(500).json({
@@ -38,22 +43,34 @@ exports.joinGroup = async (req, res) => {
       message: "Server Error",
       details: {
         field: "registerTo",
-        error: err.message
-      }
+        error: err.message,
+      },
     });
   }
 };
 
 // DELETE group/:groupId
 exports.deleteGroup = async (req, res) => {
-  const {groupId} = req.query;
-  try{
-    const deletedGroup = await deleteGroup( +groupId );
-    if(!deletedGroup) {
-      return res.status(404).json({status: httpStatusText.FAIL, data: { deletedGroup: null }});
+  const { groupId } = req.query;
+  try {
+    const deletedGroup = await deleteGroup(+groupId);
+    if (!deletedGroup) {
+      return res
+        .status(404)
+        .json({ status: httpStatusText.FAIL, data: { deletedGroup: null } });
     }
-    return res.status(201).json({status: httpStatusText.SUCCESS, data: { deletedGroup }});
+    return res
+      .status(201)
+      .json({ status: httpStatusText.SUCCESS, data: { deletedGroup } });
   } catch (err) {
-    return res.status(500).json({status: httpStatusText.ERROR, error: err.message});
+    console.log("delete group: ", err.message);
+    return res.status(400).json({
+      status: httpStatusText.ERROR,
+      message: "Server Error",
+      details: {
+        field: "delete group",
+        error: err.message,
+      },
+    });
   }
-}
+};

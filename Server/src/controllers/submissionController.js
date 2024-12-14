@@ -1,5 +1,5 @@
 const submissionModel = require("../models/submissionModel");
-const httpStatusText = require ("../utils/httpStatusText");
+const httpStatusText = require("../utils/httpStatusText");
 
 // Post contests/:contestId/tasks/:taskId/submissions
 exports.submitTask = async (req, res) => {
@@ -13,8 +13,18 @@ exports.submitTask = async (req, res) => {
       teamId,
       submittedData,
     });
-    return res.status(201).json({status: httpStatusText.SUCCESS, data: { submission }});
+    return res
+      .status(201)
+      .json({ status: httpStatusText.SUCCESS, data: { submission } });
   } catch (err) {
-    return res.status(400).json({status: httpStatusText.ERROR, error: err.message});
+    console.log("submit task: ", err.message);
+    return res.status(400).json({
+      status: httpStatusText.ERROR,
+      message: "Server Error",
+      details: {
+        field: "submit tasks",
+        error: err.message,
+      },
+    });
   }
 };
