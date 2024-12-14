@@ -195,9 +195,9 @@ exports.getUsersByCommunityName = async (req, res) => {
 
 // PATCH /communities/Users/promote?communityName
 exports.promoteUser = async (req, res) => {
-  const {userId, communityName} = req.body;
+  const {userId, communityName, roleId} = req.body;
   try{
-    const promotedUser = await promoteUser( +userId, communityName);
+    const promotedUser = await promoteUser( +userId, communityName, +roleId);
     return res.status(200).json({status: httpStatusText.SUCCESS, data: { user: promotedUser }});
   }catch(err) {
     console.error(err.message);

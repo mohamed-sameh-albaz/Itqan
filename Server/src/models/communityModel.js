@@ -111,16 +111,16 @@ const getUsersByCommunityName = async (community_name, limit, offset) => {
   }
 };
 
-const promoteUser = async (userId, communityName) => {
+const promoteUser = async (userId, communityName,  roleId) => {
   const client = await db.connect();
   try {
     const query = `
       UPDATE JoinAs
-      SET role_id = 1, Approved = true
+      SET role_id = $3, Approved = true
       WHERE user_id = $1 AND community_name = $2
       RETURNING *;
     `;
-    const { rows } = await db.query(query, [userId, communityName]);
+    const { rows } = await db.query(query, [userId, communityName, roleId]);
     return rows[0];
   } catch (err) {
     throw new Error(err.message);
