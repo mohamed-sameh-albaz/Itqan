@@ -51,6 +51,21 @@ exports.findUserByEmail = async (email) => {
   }
 };
 
+exports.findUserById = async (userId) => {
+  const client = await db.connect();
+  try {
+    const { rows } = await db.query("SELECT u.*, l.name as level_name, l.pointsThreshold as level_points FROM users u join levels l on l.pointsThreshold <= u.points WHERE u.id = $1 order by pointsThreshold desc limit 1", [
+      userId,
+    ]);
+    return rows[0];
+  } catch (err) {
+    console.error(`Error finding user: ${err.message}`);
+    throw new Error("Database error: Unable to find user");
+  } finally {
+    client.release();
+  }
+};
+
 exports.leaveTeam = async (userId, teamId) => {
   const client = await db.connect();
   try {

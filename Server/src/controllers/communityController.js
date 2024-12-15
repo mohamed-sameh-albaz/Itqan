@@ -120,14 +120,15 @@ exports.getUserCommunities = async (req, res) => {
 };
 
 exports.getGroupsByCommunity = async (req, res) => {
-  const { community_name, page = 1, limit = 10 } = req.query;
+  const { community_name, page = 1, limit = 10, userId } = req.query;
 
   try {
     const offset = (page - 1) * limit;
     const { groups, totalCount } = await getGroupsByCommunity(
       community_name,
+      userId,
       limit,
-      offset
+      offset,
     );
     res.status(200).json({
       status: "success",

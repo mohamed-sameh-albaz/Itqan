@@ -59,9 +59,10 @@ exports.createUser = [
         ...req.body,
         password: hashedPassword,
       });
+      const userWithLevel = await userModel.findUserById(user.id);
       res.status(201).json({
         status: "success",
-        data: { user }
+        data: { user: userWithLevel }
       });
     } catch (err) {
       res.status(500).json({
@@ -92,9 +93,10 @@ exports.loginUser = async (req, res) => {
   try {
     const user = await userModel.findUserByEmail(credentials.name);
     if (user && (await bcrypt.compare(credentials.pass, user.password))) {
+      const userWithLevel = await userModel.findUserById(user.id);
       res.status(200).json({
         status: "success",
-        data: { user }
+        data: { user: userWithLevel }
       });
     } else {
       res.status(401).json({
@@ -147,9 +149,10 @@ exports.updateUser = async (req, res) => {
       photo
     });
 
+    const userWithLevel = await userModel.findUserById(updatedUser.id);
     res.status(200).json({
       status: "success",
-      data: { user: updatedUser }
+      data: { user: userWithLevel }
     });
   } catch (err) {
     res.status(500).json({
@@ -180,6 +183,33 @@ exports.deleteUser = async (req, res) => {
         field: "user",
         error: err.message
       }
+    });
+  }
+};
+
+exports.getUserById = async (req, res) => {
+  const { userId } = req.query;
+  try {
+    const user = await userModel.findUserById(userId);
+    if (user) {
+      res.status(200).json({
+        status: "success",
+        data: { user },
+      });
+    } else {
+      res.status(404).json({
+        status: "error",
+        message: "User not found",
+      });
+    }
+  } catch (err) {
+    res.status(500).json({
+      status: "error",
+      message: "Server Error",
+      details: {
+        field: "user",
+        error: err.message,
+      },
     });
   }
 };
