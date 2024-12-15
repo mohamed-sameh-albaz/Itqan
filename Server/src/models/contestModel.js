@@ -105,4 +105,32 @@ const deleteContestById = async (id) => {
   }
 };
 
-module.exports = { getAllContests, addContest, getContestsByStatus, updateContestById, deleteContestById };
+const getWrittenTasks = async(contestId) => {
+  const client = await db.connect();
+  try{
+    const getNotApprovedquery = `
+    SELECT s.*
+    FROM Submissions s
+    JOIN Tasks t ON t.id = s.task_id
+    JOIN Contests c ON c.id = t.contest_id
+    WHERE t.contest_id = $1
+      AND s.approved_by IS NULL
+      AND NOT EXISTS (
+        SELECT 1
+        FROM McqTasks mcq
+        WHERE mcq.id = t.id
+      )
+    ORDER BY s.created_at DESC;
+    `;
+    console.log(contestId);
+    const { rows: getNotApprovedRes } = await db.query(getNotApprovedquery, [contestId]);
+    console.log(333333333333,getNotApprovedRes);
+    return getNotApprovedRes;
+  } catch(err) {
+    console.log(err.message);
+    throw new Error(err.message);
+  } finally{
+    client.release();
+  }
+}
+module.exports = { getAllContests, addContest, getContestsByStatus, updateContestById, deleteContestById, getWrittenTasks };

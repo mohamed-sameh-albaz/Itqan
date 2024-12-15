@@ -188,6 +188,8 @@ CREATE TABLE IF NOT EXISTS Submissions (
     task_id INT NOT NULL,
     approved_by INT, 
     approved_at TIMESTAMPTZ DEFAULT NULL,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (task_id) REFERENCES Tasks(id)
         ON DELETE CASCADE,
     FOREIGN KEY (approved_by) REFERENCES Users(id)
@@ -196,9 +198,10 @@ CREATE TABLE IF NOT EXISTS Submissions (
 
 
 CREATE TABLE IF NOT EXISTS SingleSubmissions (
-    submission_id INT PRIMARY KEY,
+    submission_id INT NOT NULL,
     individual_id INT NOT NULL,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (submission_id, individual_id),
     FOREIGN KEY (submission_id) REFERENCES Submissions(id)
         ON DELETE CASCADE,
     FOREIGN KEY (individual_id) REFERENCES Users(id)
@@ -206,10 +209,11 @@ CREATE TABLE IF NOT EXISTS SingleSubmissions (
 );
 
 CREATE TABLE IF NOT EXISTS TeamSubmissions (
-    submission_id INT PRIMARY KEY,
+    submission_id INT NOT NULL,
     team_id INT NOT NULL,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (submission_id) REFERENCES Submissions (id)
+    PRIMARY KEY (submission_id, team_id),
+    FOREIGN KEY (submission_id) REFERENCES Submissions(id)
         ON DELETE CASCADE,
     FOREIGN KEY (team_id) REFERENCES Teams(id)
         ON DELETE CASCADE
@@ -220,6 +224,7 @@ CREATE TABLE IF NOT EXISTS Posts (
     title VARCHAR(255) NOT NULL,
     user_id INT NOT NULL, 
     comm_id INT NOT NULL,
+    text_content TEXT,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES Users(id)  
@@ -231,7 +236,6 @@ CREATE TABLE IF NOT EXISTS Posts (
 CREATE TABLE IF NOT EXISTS PostContent (
     id SERIAL PRIMARY KEY,
     post_id INT NOT NULL, 
-    content_type VARCHAR(50),
     content TEXT,
     FOREIGN KEY (post_id) REFERENCES Posts(id)
         ON DELETE CASCADE
@@ -241,7 +245,7 @@ CREATE TABLE IF NOT EXISTS PostLikes (
     user_id INT NOT NULL,
     post_id INT NOT NULL,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP, --may be removed if not updated in UI
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (user_id, post_id),
     FOREIGN KEY (user_id) REFERENCES Users(id)
         ON DELETE CASCADE,
@@ -253,6 +257,7 @@ CREATE TABLE IF NOT EXISTS PostComments (
     comment_id SERIAL PRIMARY KEY, 
     user_id INT NOT NULL, 
     post_id INT NOT NULL, 
+    content text NOT NULL,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP, -- can be deleted
     FOREIGN KEY (user_id) REFERENCES Users (id)
