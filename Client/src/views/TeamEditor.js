@@ -2,7 +2,11 @@ import TeamEditorBlock from "../components/TeamEditorBlock";
 import CommunityNavBar from "../components/CommunityNavBar";
 import "./TeamEditor.css"
 import team_av3 from "../assets/team_av4.jpg"
+import { useLocation } from "react-router-dom";
 const TeamEditor = () => {
+    const location = useLocation();
+    const communityName = location.state || {};
+    console.log("Community Name", communityName);
     return (
       <div>
         <CommunityNavBar />
