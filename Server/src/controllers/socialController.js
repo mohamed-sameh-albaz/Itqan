@@ -37,7 +37,7 @@ exports.createPost = async (req, res) => {
 
 // GET /posts?communityId&limit&page
 exports.getPosts = async (req, res) => {
-  const { communityId, page = 1, limit = 10 } = req.query;
+  const { communityId, page = 1, limit = 10, userId } = req.query;
   try {
     const offset = (page - 1) * limit;
     const { posts, totalCount } = await getPosts(communityId, limit, offset);
@@ -45,6 +45,8 @@ exports.getPosts = async (req, res) => {
     for(let i = 0; i < posts.length; ++i) {
       const postsComments = await getPostComments(posts[i].id);
       const PostLikes = await getPostLikes(posts[i].id)
+      const liked = await isLiked(posts[i].id, userId);
+      posts[i].liked = liked.length;
       posts[i].likes = PostLikes;
       posts[i].comments = postsComments;
       posts[i]['images'] = posts[i]['content'];
