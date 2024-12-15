@@ -61,7 +61,7 @@ exports.getPostComments = async (post_id, limit, offset) => {
   const client = await db.connect();
   try {
     let query = `
-      SELECT pc.*, u.fname, u.lname, r.color
+      SELECT pc.*, u.fname, u.lname, u.photo, r.color
       FROM PostComments AS pc
       JOIN Users AS u ON u.id = pc.user_id  
       JOIN Posts AS p ON p.id = pc.post_id
