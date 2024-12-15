@@ -9,7 +9,7 @@ const teamRoutes = require("./src/routes/teamRoutes");
 const rewardRoutes = require("./src/routes/rewardRoutes");
 const levelRoutes = require("./src/routes/levelRoutes");
 const socialRoutes = require("./src/routes/socialRoutes");
-const rolesRoutes = require("./src/routes/rolesRoutes");
+const rolesRoutes = require("./src/routes/roleRoutes");
 const httpStatusText = require("./src/utils/httpStatusText");
 // Load environment variables from .env file
 dotenv.config();
@@ -24,7 +24,7 @@ app.use("/api/groups", groupRoutes);
 app.use("/api/teams", teamRoutes);
 app.use("/api/rewards", rewardRoutes);
 app.use("/api/levels", levelRoutes);
-app.use("/api/roles", roleRoutes);
+app.use("/api/roles", rolesRoutes);
 app.use("/api/posts", socialRoutes);
 
 app.all('*', (req, res, next) => {
