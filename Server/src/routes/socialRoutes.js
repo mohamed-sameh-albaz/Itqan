@@ -2,8 +2,6 @@ const express = require("express");
 const socialController = require("../controllers/socialController");
 const { getCommunityId } = require("../middlewares/getCommunityId");
 const router = express.Router();
-console.log("getCommunityId:", getCommunityId);
-console.log("socialController.createPost:", socialController.createPost);
 
 router
   .route("/")
