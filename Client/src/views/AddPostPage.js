@@ -10,9 +10,9 @@ const AddPostPage = ({editing}) => {
   const location = useLocation();
   const postData = location.state ?? null;
 
-  const [Title, setTitle] = useState(postData.title);
-  const [Content, setContent] = useState(postData.text_content);
-  const [images, setImages] = useState(postData.images ?? []);
+  const [Title, setTitle] = useState(postData == null ? '' : postData.title ?? '');
+  const [Content, setContent] = useState(postData == null ? '' : postData.text_content ?? '');
+  const [images, setImages] = useState(postData == null ? [] : postData.images ?? []);
   const navigate = useNavigate();
   const parms = useParams();
   const communityName = parms.name;
