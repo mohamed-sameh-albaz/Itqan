@@ -163,18 +163,34 @@ exports.deletePost = async (req, res) => {
 
 // posts/like
 exports.like = async (req, res) => {
-  const { userId, postId } = req.body;
+  const { userId, postId, state } = req.body;
   try {
-    const liked = await isLiked(postId, userId);
-    if(liked.length) {
-      return res
-        .status(400)
-        .json({
-          status: httpStatusText.FAIL,
-          message : "user already likes this post"
-        });
+    let likePost;
+    console.log(state);
+    if(state) {
+      const liked = await isLiked(postId, userId);
+      if(liked.length) {
+        return res
+          .status(200)
+          .json({
+            status: httpStatusText.SUCCESS,
+          });
+      } else {
+        likePost  = await like(postId, userId);
+      }
+    } else {
+      const disliked = await isLiked(postId, userId);
+      if(!disliked.length) {
+        return res
+          .status(200)
+          .json({
+            status: httpStatusText.SUCCESS,
+          });
+      }
+      else {
+        likePost  = await dislike(postId, userId);
+      }
     }
-    const likePost  = await like(postId, userId);
     const likesCount = await getPostLikes(postId);
     res.status(201).json({
       status: httpStatusText.SUCCESS,
@@ -185,7 +201,7 @@ exports.like = async (req, res) => {
       status: httpStatusText.ERROR,
       message: "Server Error",
       details: {
-        field: "post like",
+        field: "post react",
         error: err.message,
       },
     });
