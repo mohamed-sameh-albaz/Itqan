@@ -5,6 +5,13 @@ const {
   editPost,
   deletePost,
   getPostComments,
+  like,
+  getPostLikes,
+  isLiked,
+  dislike,
+  addComment,
+  deleteComment,
+  checkUserComment,
 } = require("../models/socialModel");
 const httpStatusText = require("../utils/httpStatusText");
 
@@ -34,12 +41,17 @@ exports.getPosts = async (req, res) => {
   try {
     const offset = (page - 1) * limit;
     const { posts, totalCount } = await getPosts(communityId, limit, offset);
-    console.log(posts);
-    const postsObj = [];
+
     for(let i = 0; i < posts.length; ++i) {
-      const postsComments = await getPostComments(posts[i].id, communityId);
+      const postsComments = await getPostComments(posts[i].id);
+      const PostLikes = await getPostLikes(posts[i].id)
+      posts[i].likes = PostLikes;
       posts[i].comments = postsComments;
+      posts[i]['images'] = posts[i]['content'];
+      delete posts[i]['content']; 
+      posts[i].images = JSON.parse(posts[i].images);
     }
+    
     res.status(200).json({
       status: httpStatusText.SUCCESS,
       data: { posts },
@@ -63,13 +75,24 @@ exports.getPosts = async (req, res) => {
   }
 };
 
-// GET /posts/:userId?communityId&limit&page
+// GET /posts/?userId&communityId&limit&page
 exports.getUserPosts = async (req, res) => {
-  const { userId } = req.params;
-  const { communityId, limit, page } = req.query;
+  const { communityId, limit, page, userId } = req.query;
+  console.log(3333);
   try {
     const offset = (page - 1) * limit;
     const { posts, totalCount } = await getUserPosts(userId, communityId, limit, offset);
+
+    for(let i = 0; i < posts.length; ++i) {
+      const postsComments = await getPostComments(posts[i].id);
+      const PostLikes = await getPostLikes(posts[i].id)
+      posts[i].likes = PostLikes;
+      posts[i].comments = postsComments;
+      posts[i]['images'] = posts[i]['content'];
+      delete posts[i]['content']; 
+      posts[i].images = JSON.parse(posts[i].images);
+    }
+    
     res.status(201).json({
       status: httpStatusText.SUCCESS,
       data: { posts },
@@ -95,10 +118,10 @@ exports.getUserPosts = async (req, res) => {
 
 // PUT /posts/:userId
 exports.editPost = async (req, res) => {
-  const { userId } = req.params;
-  const { communityId, postId, title, content } = req.body;
+  const { postId, title, images, text, userId } = req.body;
   try {
-    const post = await editPost(userId, communityId, postId, title, content);
+    const post = await editPost(userId, postId, title, images, text);
+
     res.status(201).json({
       status: httpStatusText.SUCCESS,
       data: { post },
@@ -116,10 +139,10 @@ exports.editPost = async (req, res) => {
 };
 
 // DELETE /posts
-exports.editPost = async (req, res) => {
-  const { userId, communityId, postId, title, content_type, content } = req.body;
+exports.deletePost = async (req, res) => {
+  const { userId, postId } = req.body;
   try {
-    const { post } = await editPost(userId, communityId, postId, title);
+    const { post } = await deletePost(userId, postId);
     res.status(201).json({
       status: httpStatusText.SUCCESS,
       data: { post },
@@ -135,3 +158,156 @@ exports.editPost = async (req, res) => {
     });
   }
 };
+
+// posts/like
+exports.like = async (req, res) => {
+  const { userId, postId } = req.body;
+  try {
+    const liked = await isLiked(postId, userId);
+    if(liked.length) {
+      return res
+        .status(400)
+        .json({
+          status: httpStatusText.FAIL,
+          message : "user already likes this post"
+        });
+    }
+    const likePost  = await like(postId, userId);
+    const likesCount = await getPostLikes(postId);
+    res.status(201).json({
+      status: httpStatusText.SUCCESS,
+      data: { likePost, likesCount },
+    });
+  } catch (err) {
+    return res.status(500).json({
+      status: httpStatusText.ERROR,
+      message: "Server Error",
+      details: {
+        field: "post like",
+        error: err.message,
+      },
+    });
+  }
+}
+
+// DELETE /posts/dislike
+exports.dislike = async (req, res) => {
+  const { userId, postId } = req.body;
+  try {
+    const disliked = await isLiked(postId, userId);
+    if(!disliked.length) {
+      return res
+        .status(400)
+        .json({
+          status: httpStatusText.FAIL,
+          message : "user already disLikes this post"
+        });
+    }
+    const likePost  = await dislike(postId, userId);
+    const likesCount = await getPostLikes(postId);
+    res.status(201).json({
+      status: httpStatusText.SUCCESS,
+      data: { likePost, likesCount },
+    });
+  } catch (err) {
+    return res.status(500).json({
+      status: httpStatusText.ERROR,
+      message: "Server Error",
+      details: {
+        field: "post dislike",
+        error: err.message,
+      },
+    });
+  }
+}
+
+// GET /posts/comments
+exports.getComments = async (req, res) => {
+  // console.log(333);
+  const { postId, limit, page } = req.query;
+  try {
+    const offset = (page - 1) * limit;
+    const comments = await getPostComments(postId, limit, offset);
+    console.log(comments);
+    res.status(201).json({
+      status: httpStatusText.SUCCESS,
+      data: { comments },
+      pagination: {
+        from: offset + 1,
+        to: offset + comments.length,
+        current_page: page,
+        total: comments.length,
+        per_page: limit,
+      },
+    });
+  } catch (err) {
+    return res.status(500).json({
+      status: httpStatusText.ERROR,
+      message: "Server Error",
+      details: {
+        field: "get post comments",
+        error: err.message,
+      },
+    });
+  }
+};
+
+// POST /posts/comments
+exports.addComment = async(req, res) => {
+  const { userId, postId, content } = req.body;
+  try {
+    if(content === "") {
+      return res
+        .status(400)
+        .json({
+          status: httpStatusText.FAIL,
+          message : "cannot comment with empty content *-*"
+        });
+    }
+    const newComment = await addComment(postId, userId, content);
+    res.status(201).json({
+      status: httpStatusText.SUCCESS,
+      data: { comment: newComment },
+    });
+  } catch (err) {
+    return res.status(500).json({
+      status: httpStatusText.ERROR,
+      message: "Server Error",
+      details: {
+        field: "post react",
+        error: err.message,
+      },
+    });
+  }
+}
+
+// DELETE /posts/comments/:commentId
+exports.deleteComment = async(req, res) => {
+  const { commentId } = req.params;
+  const { userId, postId } = req.body;
+  try {
+    const isUserComment = await checkUserComment(userId, postId, commentId);
+    if(!isUserComment.length) {
+      return res
+        .status(400)
+        .json({
+          status: httpStatusText.FAIL,
+          message : "cannot delete other user comment"
+        });
+    }
+    const deletedComment = await deleteComment(commentId);
+    res.status(201).json({
+      status: httpStatusText.SUCCESS,
+      data: { comment: deletedComment },
+    });
+  } catch (err) {
+    return res.status(500).json({
+      status: httpStatusText.ERROR,
+      message: "Server Error",
+      details: {
+        field: "delete comment",
+        error: err.message,
+      },
+    });
+  }
+}
