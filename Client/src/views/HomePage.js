@@ -24,10 +24,10 @@ const HomePage = () => {
     setViewAll(!viewAll);
   }
 
-  function onCommunityClicked(name){
-    const joined = !viewAll;
+  function onCommunityClicked(name, role){
+    const joined = role != null;
     if(joined){
-      nav(`/community/${name}`);
+      nav(`/community/${name}`, {state: {role: "Participant"}});
     }else{
       setIsJoinConfirmDialogOpen(true);
       setSelectedCommunityName(name);
@@ -159,7 +159,7 @@ const HomePage = () => {
                                                                       number={index}
                                                                       buttonText={ (community.role_color === null)? "Join" : "View"}
                                                                       color= {community.role_color}
-                                                                      onClick={()=>onCommunityClicked(community.name)}/>
+                                                                      onClick={()=>onCommunityClicked(community.name, community.role_id)}/>
                                                                       )}
       <Card className='w-48 h-48 text-left' variant="filled" shadow="hover" onClick={()=>setIsCreateComDialogOpen(true)} >
         <Card.Body className='cursor-pointer select-none flex flex-col h-full text-center justify-center' >

@@ -40,8 +40,7 @@ async function requestAPI(endPoint, method = 'get', { params = {}, body = {} } =
 function useAPI(endPoint, method = 'get', { params = {}, body = {} } = {}) {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
+    function refresh() {
         axios.request({
             baseURL: process.env.REACT_APP_API_BASE_URL,
             url: endPoint,
@@ -63,8 +62,11 @@ function useAPI(endPoint, method = 'get', { params = {}, body = {} } = {}) {
                 setLoading(false);
             });
 
+    }
+    useEffect(() => {
+        refresh();
     }, []);
     
-    return [data, loading];
+    return [data, loading, refresh];
 }
 export { requestAPI, useAPI };

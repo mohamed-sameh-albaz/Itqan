@@ -1,31 +1,116 @@
+import React, { useState } from 'react';
 import './PostsPage.css';
 import CommunityNavBar from "../components/CommunityNavBar";
-import {Card, Avatar, Modal} from 'react-rainbow-components'
-const PostsPage = () => {
-    return ( <div style={{
+import { Avatar, Button, Card, CardBody, Dialog, DialogBody, DialogFooter, DialogHeader, IconButton, Input, Spinner, Typography } from '@material-tailwind/react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faAdd, faHeart as faHeartSolid, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faHeart as faHeartRegular } from '@fortawesome/free-regular-svg-icons';
+import { faPaperPlane } from '@fortawesome/free-solid-svg-icons';
+import { useAPI } from '../hooks/useAPI';
 
-    }}>
-        <CommunityNavBar />
+function Comment({photo, name, color, comment}) {
+    return (
+        <div className='flex flex-row items-center gap-2'>
+            <Avatar size='sm' className='border border-gray-700' src={photo} />
+            <Card className='border border-gray-500 p-1' variant='small'>
+                <Typography variant='small' className='font-bold'>{name}</Typography>
+                <Typography variant='small' className='text-xs'>{comment}</Typography>
+            </Card>
+        </div>)
 
-        <div className="he">
-            
-            <div className='post-header'>
-            <Avatar src={"https://avatar.iran.liara.run/public"} />
-            <span>Ziad Montaser</span>
+}
+
+const Post = ({ author, content, images }) => {
+    const [liked, setLiked] = useState(false);
+    const [openComments, setOpenComments] = useState(false);
+    return (
+        <>
+        <Card className="m-auto mt-4 sm:max-w-2xl text-left border border-gray-400">
+        <CardBody>
+            <div className='post-header mb-2'>
+                <Avatar className='border border-gray-700' src={author.avatar} />
+                <Typography className='font-bold' variant='small' style={{color:author.color}}>{author.name}</Typography>
             </div>
-            <span>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</span>
-
-            <Modal id="modal-1" isOpen={true}>
-                <h1>Hu</h1>
-                    <img 
-                    style={{width: '100%'}}
-                        src="https://shabiba.eu-central-1.linodeobjects.com/2019/02/10/1001489.jpg"
-                        className="rainbow-p-around_xx-large rainbow-m_auto rainbow-align-content_center"
-                        alt="landscape with rainbows, birds and colorful balloons"
+            <Typography variant='small'>{content}</Typography>
+            <div className='flex overflow-x-auto mt-2 gap-2'>
+                {images.map((image, index) => (
+                    <img
+                    key={index}
+                    className="m-auto h-28 w-52 object-cover"
+                    src={image.src}
+                    alt={image.alt}
                     />
-                </Modal>
-        </div>
-    </div> );
+                ))}
+            </div>
+            <div className='h-1 border-b-2 m-1 border-gray-500' />
+            
+            <Comment photo={author.avatar} name={author.name} comment={content} />
+            <div className='flex justify-end'>
+                <Button variant='text' className='text-gray-500' onClick={()=>setOpenComments(true)}>View all comments</Button>
+            </div>
+            
+            <div className='h-1 border-t-2 border-gray-500' />
+            <div className='flex gap-4 mt-3 items-center'>
+                <Input />
+                <IconButton variant='text' className='fas fa-paper-plane'>
+                    <FontAwesomeIcon icon={faPaperPlane} color="black" size="2x" className="text-gray-700" />
+                </IconButton>
+                <IconButton variant='text' className='fas fa-heart'>
+                    <FontAwesomeIcon icon={liked? faHeartSolid : faHeartRegular} color="black" size="2x" className="text-gray-700" onClick={()=>setLiked(!liked)}/>
+                </IconButton>
+            </div>
+            <Typography variant='small' className='text-gray-500'>2 hours ago</Typography>
+        </CardBody>
+        </Card>
+        <Dialog open={openComments} onClose={()=>setOpenComments(false)}>
+            <DialogBody className=''>
+                <DialogHeader className='flex justify-between p-0'>
+                <Typography variant='h5'>Comments</Typography>
+                <IconButton variant='text' className='fas fa-times' onClick={() => setOpenComments(false)}>
+                    <FontAwesomeIcon icon={faTimes} color="black" size="2x" className="text-gray-700" />
+                </IconButton>
+                </DialogHeader>
+                <DialogBody className='flex  h-96 flex-col gap-2 overflow-y-auto'>
+                <Comment photo={author.avatar} name={author.name} comment={content} />
+                <Comment photo={author.avatar} name={author.name} comment={content} />
+                <Comment photo={author.avatar} name={author.name} comment={content} />
+                <Comment photo={author.avatar} name={author.name} comment={content} />
+                <Comment photo={author.avatar} name={author.name} comment={content} />
+                <Comment photo={author.avatar} name={author.name} comment={content} />
+                <Comment photo={author.avatar} name={author.name} comment={content} />
+                <Comment photo={author.avatar} name={author.name} comment={content} />
+                <Comment photo={author.avatar} name={author.name} comment={content} />
+                    
+                </DialogBody>
+            </DialogBody>
+        </Dialog>
+        </>
+    );
+};
+
+const PostsPage = () => {
+    const [data, loadingData] = useAPI('/posts', 'get', {params:{communityId:1}});
+
+    return ( 
+        <div style={{}}>
+            <CommunityNavBar />
+
+            {loadingData? <div className='h-screen flex'><Spinner className='m-auto '/></div> : data.data.posts.map((post, index) => 
+            <Post 
+                author={{ name:(post.fname + " " + post.lname), avatar: post.photo, color: post.color }} 
+                content={post.content} 
+                images={post.images == null? [] : [...post.images].map((image) => ({src: image, alt: "Post image"}))}
+            />)}
+            <Button 
+                className="absolute bottom-0 right-0 rounded-full" 
+                size="lg" 
+                style={{backgroundColor: 'var(--primary-color)'}}
+                onClick={() => console.log('Add button clicked')}
+            >
+                <FontAwesomeIcon icon={faAdd} size="2x" />
+            </Button>
+        </div> 
+    );
 }
  
 export default PostsPage;

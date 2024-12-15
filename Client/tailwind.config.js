@@ -1,5 +1,5 @@
 const withMT = require("@material-tailwind/react/utils/withMT");
- 
+
 module.exports = withMT({
   content: [
     "./src/**/*.{js,jsx,ts,tsx}", // Adjust the path according to your project structure
@@ -11,9 +11,12 @@ module.exports = withMT({
       colors: {
         primary: {
           DEFAULT: '#000B58',
-      }}
+        }
+      },
+      // fontFamily: {
+      //   sans: ['Lalezar', 'sans-serif'], // Set Lalezar as the default font
+      // },
     },
   },
   plugins: [],
 });
-
