@@ -1,10 +1,11 @@
-/* AddPostPage.css */
+/* 
 .container {
   margin-top: 50px;
 }
 
 .card {
   padding: 20px;
+  background-color: red;
 }
 
 .form-label {
@@ -25,9 +26,9 @@
 }
 
 .image-thumbnail {
-  width: 50px; 
-  height: 50px; 
+  width: 200px; 
+  height: 200px; 
   object-fit: cover;
   border: 1px solid #ccc;
   border-radius: 5px;
-}
+} */
