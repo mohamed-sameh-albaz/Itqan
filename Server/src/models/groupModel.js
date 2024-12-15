@@ -16,12 +16,16 @@ const addGroup = async (group) => {
   }
 };
 
-const getGroupsByCommunity = async (community_name, limit, offset) => {
+const getGroupsByCommunity = async (community_name, user_id, limit, offset) => {
   const client = await db.connect();
   try {
     const { rows: groups } = await db.query(
-      `SELECT * FROM Groups WHERE community_name = $1 LIMIT $2 OFFSET $3`,
-      [community_name, limit, offset]
+      `SELECT g.*, CASE WHEN rt.user_id IS NOT NULL THEN true ELSE false END as joined 
+       FROM Groups g 
+       LEFT OUTER JOIN registers_to rt ON rt.group_id = g.id AND rt.user_id = $2
+       WHERE g.community_name = $1
+       LIMIT $3 OFFSET $4`,
+      [community_name, user_id, limit, offset]
     );
     const { rows: countRows } = await db.query(
       `SELECT COUNT(*) FROM Groups WHERE community_name = $1`,
