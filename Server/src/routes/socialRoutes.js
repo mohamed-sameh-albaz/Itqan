@@ -5,9 +5,9 @@ const router = express.Router();
 router
   .route("/").get(socialController.getPosts).post(socialController.createPost).delete(socialController.deletePost);
 router
-  .route("/:userId").get(socialController.getUserPosts).put(socialController.editPost);
-router
   .route("/comments").post(socialController.addComment).get(socialController.getComments);
+router
+  .route("/user").get(socialController.getUserPosts).put(socialController.editPost);
 router
   .route("/comments/:commentId").delete(socialController.deleteComment);
 router

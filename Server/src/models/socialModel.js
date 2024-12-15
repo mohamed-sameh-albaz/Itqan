@@ -72,7 +72,6 @@ exports.getPostComments = async (post_id, limit, offset) => {
       ORDER BY created_at DESC
     `;
     if(limit) {
-      console.log(3333,limit);
       query += `LIMIT $2 OFFSET $3;`;
       const { rows: comments } = await db.query(query, [post_id, limit, offset]);
       return comments;

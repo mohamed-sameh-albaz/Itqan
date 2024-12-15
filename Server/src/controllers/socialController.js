@@ -77,8 +77,7 @@ exports.getPosts = async (req, res) => {
 
 // GET /posts/?userId&communityId&limit&page
 exports.getUserPosts = async (req, res) => {
-  const { userId } = req.params;
-  const { communityId, limit, page } = req.query;
+  const { communityId, limit, page, userId } = req.query;
   console.log(3333);
   try {
     const offset = (page - 1) * limit;
@@ -119,8 +118,7 @@ exports.getUserPosts = async (req, res) => {
 
 // PUT /posts/:userId
 exports.editPost = async (req, res) => {
-  const { userId } = req.params;
-  const { postId, title, images, text } = req.body;
+  const { postId, title, images, text, userId } = req.body;
   try {
     const post = await editPost(userId, postId, title, images, text);
 
@@ -227,10 +225,8 @@ exports.dislike = async (req, res) => {
 exports.getComments = async (req, res) => {
   // console.log(333);
   const { postId, limit, page } = req.query;
-  console.log(postId, limit, page);
   try {
     const offset = (page - 1) * limit;
-    console.log(limit);
     const comments = await getPostComments(postId, limit, offset);
     console.log(comments);
     res.status(201).json({
@@ -238,9 +234,9 @@ exports.getComments = async (req, res) => {
       data: { comments },
       pagination: {
         from: offset + 1,
-        to: offset + posts.length,
+        to: offset + comments.length,
         current_page: page,
-        total: totalCount,
+        total: comments.length,
         per_page: limit,
       },
     });
