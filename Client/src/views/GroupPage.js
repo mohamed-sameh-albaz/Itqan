@@ -18,7 +18,6 @@ const GroupPage = () => {
 
     const [upCommingResponse, isLoadingCpmming] = useAPI('/contests/status', 'get',
         {params:{
-            community_name: communityName,
             group_id: 5,
             status: "upcoming"
         }});
@@ -27,7 +26,6 @@ const GroupPage = () => {
 
     const [finishedResponse, isFinishedResponse] = useAPI('/contests/status', 'get',
         {params:{
-            community_name: communityName,
             group_id: 5,
             status: "finished"
         }});
