@@ -1,0 +1,29 @@
+.teamTable {
+    margin: 0 auto;
+    text-align: left;
+
+    border-radius: 10px;
+    overflow: hidden;
+
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    width: 100%;
+}
+
+
+.teamTable thead th {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: normal;
+    padding: 12px 14px;
+}
+.teamTable tbody td {
+    padding: 12px 14px;
+}
+
+.teamTable tbody td a {
+    color: blue;
+}
+
+.teamTable tbody tr:nth-of-type(even) {
+    background-color: rgba(0, 0, 0, 0.1);
+}
