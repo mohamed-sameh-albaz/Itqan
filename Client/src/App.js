@@ -23,15 +23,15 @@ function App() {
           <Route path="/auth" element={<Auth />} />
           <Route path="/home" element={<HomePage />} />
           <Route path="/community/:name" element={<CommunityPage />} />
-          <Route path="/group" element={<GroupPage />} />
+          <Route path="/community/:name/group/:id" element={<GroupPage />} />
           <Route path="/contest" element={<ContestPage />} />
-          <Route path="/teame" element={<TeamEditor />} />
+          <Route path="/team/create" element={<TeamEditor />} />
           <Route path="/teams" element={<TeamsPage />} />
 
           <Route path="/add-post" element={<AddPostPage />} /> {/* Add the new route */}
 
           <Route path="/profile/:name" element={<ProfilePage/>} /> 
-          <Route path="/posts/:name" element={<PostsPage/>} /> 
+          <Route path="/community/:name/posts" element={<PostsPage/>} /> 
 
         </Routes>
       </div>
