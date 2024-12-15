@@ -177,10 +177,10 @@ const test = async (client) => {
     -- Insert dummy data into PostContent table
     INSERT INTO PostContent (post_id, content)
     VALUES 
-    (1, 'Additional content for post 1.'),
-    (2, 'Additional content for post 2.'),
-    (3, 'Additional content for post 3.'),
-    (4, 'Additional content for post 4.');
+    (1, 'https://shabiba.eu-central-1.linodeobjects.com/2019/02/10/1001489.jpg'),
+    (2, 'https://shabiba.eu-central-1.linodeobjects.com/2019/02/10/1001489.jpg'),
+    (3, 'https://shabiba.eu-central-1.linodeobjects.com/2019/02/10/1001489.jpg'),
+    (4, 'https://shabiba.eu-central-1.linodeobjects.com/2019/02/10/1001489.jpg');
     DO $$
     DECLARE
         post_id INT;
