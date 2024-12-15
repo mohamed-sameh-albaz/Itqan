@@ -6,6 +6,9 @@ const contestRoutes = require("./src/routes/contestRoutes");
 const communityRoutes = require("./src/routes/communityRoutes");
 const groupRoutes = require("./src/routes/groupRoutes");
 const teamRoutes = require("./src/routes/teamRoutes");
+const rewardRoutes = require("./src/routes/rewardRoutes");
+const levelRoutes = require("./src/routes/levelRoutes");
+const roleRoutes = require("./src/routes/roleRoutes");
 const httpStatusText = require("./src/utils/httpStatusText");
 // Load environment variables from .env file
 dotenv.config();
@@ -18,6 +21,9 @@ app.use("/api/contests", contestRoutes);
 app.use("/api/communities", communityRoutes);
 app.use("/api/groups", groupRoutes);
 app.use("/api/teams", teamRoutes);
+app.use("/api/rewards", rewardRoutes);
+app.use("/api/levels", levelRoutes);
+app.use("/api/roles", roleRoutes);
 
 app.all('*', (req, res, next) => {
   return res.status(404).json({status: httpStatusText.ERROR, message: 'This Resource Is Not Found'});
