@@ -80,7 +80,6 @@ exports.getPosts = async (req, res) => {
 // GET /posts/?userId&communityId&limit&page
 exports.getUserPosts = async (req, res) => {
   const { communityId, limit, page, userId } = req.query;
-  console.log(3333);
   try {
     const offset = (page - 1) * limit;
     const { posts, totalCount } = await getUserPosts(userId, communityId, limit, offset);
