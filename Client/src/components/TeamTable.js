@@ -2,7 +2,7 @@ import "./TeamTable.css"
 
 const TeamTable = ({teams}) => {
     return (
-      <table>
+      <table className="teamTable">
         <thead>
           <tr>
             <th>Teamname</th>

@@ -1,10 +1,11 @@
-/* AddPostPage.css */
+/* 
 .container {
   margin-top: 50px;
 }
 
 .card {
   padding: 20px;
+  background-color: red;
 }
 
 .form-label {
@@ -15,3 +16,19 @@
   background-color: #007bff;
   border-color: #007bff;
 }
+
+.image-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.image-thumbnail {
+  width: 200px; 
+  height: 200px; 
+  object-fit: cover;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+} */
