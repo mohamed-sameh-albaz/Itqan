@@ -1,35 +1,82 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { data, useLocation, useNavigate, useParams } from 'react-router-dom';
 import CommunityNavBar from '../components/CommunityNavBar';
 import './AddPostPage.css';
 import { requestAPI } from "../hooks/useAPI"; 
+import { set } from 'date-fns';
+import { Button } from '@material-tailwind/react';
 
-const AddPostPage = () => {
-  const [Title, setTitle] = useState('');
-  const [Content, setContent] = useState('');
-  const [images, setImages] = useState([]);
+const AddPostPage = ({editing}) => {
+  const location = useLocation();
+  const postData = location.state ?? null;
+
+  const [Title, setTitle] = useState(postData.title);
+  const [Content, setContent] = useState(postData.text_content);
+  const [images, setImages] = useState(postData.images ?? []);
   const navigate = useNavigate();
-  let user_id = 3;
+  const parms = useParams();
+  const communityName = parms.name;
+  const user = JSON.parse(localStorage.getItem('user'));
 
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+
+  /*
+  {
+    "userId": 2,
+    "title": "updated post1",
+    "postId": 5,
+    "text": "Hello World!",
+    "images": [
+        "url 1",
+        "url 2",
+        "url 3",
+        "dadsads"
+    ]
+}*/
   async function handleSubmit (e) {
     e.preventDefault();
-    console.log('Post submitted:', { Title, Content });
-    console.log(images.map(image => image.name));
-     
-    const { status, data } = await requestAPI('/posts', 'post', {
-      body: {
-        title: Title,
-        userId: user_id,
-        communityId: 2, 
-        text: Content,
-        images: images.map(image => image.name)
+    if(!editing){
+      console.log('Post submitted:', { Title, Content });
+      console.log(images.map(image => image.name));
+      setIsSubmitting(true);
+      const { status, data } = await requestAPI('/posts', 'post', {
+        body: {
+          title: Title,
+          userId: user.id,
+          communityName: communityName, 
+          text: Content,
+          images: images.map(image => image.name)
+        }
+      });
+      if (status > 199 && status < 300) {
+        console.log("success");
+        alert("Post added successfully");
+      } else {
+        console.log("error");
+        alert("Post failed to add");
       }
-    });
-    if (status > 199 && status < 300) {
-      console.log("success");
-    } else {
-      console.log("error");
-    }
+      setIsSubmitting(false);
+    }else{
+      setIsSubmitting(true);
+      const { status, data } = await requestAPI('/posts/user', 'put', {
+        body: {
+          title: Title,
+          userId: user.id,
+          communityName: communityName, 
+          text: Content,
+          images: images.map(image => image.name),
+          postId: postData.id,
+        }
+      });
+      if(status > 199 && status < 300){
+        alert("Post edited successfully");
+      }
+      else 
+        alert("Post failed to edit");
+      setIsSubmitting(false);
+      }
   };
 
   const handleImageChange = (e) => {
@@ -94,12 +141,13 @@ const AddPostPage = () => {
                   ))}
                 </div>
                 <div className="flex items-center justify-between">
-                  <button
+                  <Button
                     type="submit"
+                    loading={isSubmitting}
                     className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                   >
-                    Submit
-                  </button>
+                    {editing? "Save" : "Submit"}
+                  </Button>
                 </div>
               </form>
             </div>
