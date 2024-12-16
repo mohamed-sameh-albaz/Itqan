@@ -1,25 +1,29 @@
 import React, { useState } from 'react';
-import { Container, Row, Col, Form, Button, Card } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 import NavigationBar from '../components/MyNavbar';
 import Footer from '../components/Footer';
-import {requestAPI} from '../hooks/useAPI';
-import { useNavigate } from 'react-router-dom';
+import {requestAPI, useAPI} from '../hooks/useAPI';
 import { HttpStatusCode } from 'axios';
 
 function Auth() {
   const [isLogin, setIsLogin] = useState(true);
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [bio, setBio] = useState('');
   const nav = useNavigate();
 
   const toggleForm = () => {
     setIsLogin(!isLogin);
   };
 
-  async function login(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
 
     if(isLogin){
-      localStorage.setItem('email', document.getElementById('formBasicEmail').value);
-      localStorage.setItem('password', document.getElementById('formBasicPassword').value);
+      localStorage.setItem('email', email);
+      localStorage.setItem('password', password);
       
       const {data, status} = await requestAPI('/users/login', 'post');
       
@@ -39,9 +43,6 @@ function Auth() {
     }else{
       const firstname = document.getElementById('formFirstName').value;
       const lastname = document.getElementById('formLastName').value;
-      const email = document.getElementById('formBasicEmail').value;   
-      const password = document.getElementById('formBasicPassword').value;
-      const bio = document.getElementById('formBio').value; 
 
       const {data, status} = await requestAPI('/users', 'post', {body: {firstname, lastname, email, password, bio}});
 
@@ -60,63 +61,90 @@ function Auth() {
   }
 
   return (
-    <Container fluid className="p-0 container-fluid">
+    <div className="min-h-screen flex flex-col">
       <NavigationBar />
-      <div className="content">
-        <Container className="mt-5">
-          <Row className="justify-content-md-center">
-            <Col md="6">
-              <Card className="shadow-lg p-3 mb-5 bg-white rounded">
-                <Card.Body>
-                  <h2 className="text-center mb-4">{isLogin ? 'Login' : 'Register'}</h2>
-                  <Form onSubmit={login}>
-                    {!isLogin && (
-                      <>
-                        <Row>
-                          <Col>
-                            <Form.Group controlId="formFirstName" className="mb-3 text-start">
-                              <Form.Label>First Name</Form.Label>
-                              <Form.Control type="text" placeholder="Enter first name" />
-                            </Form.Group>
-                          </Col>
-                          <Col>
-                            <Form.Group controlId="formLastName" className="mb-3 text-start">
-                              <Form.Label>Last Name</Form.Label>
-                              <Form.Control type="text" placeholder="Enter last name" />
-                            </Form.Group>
-                          </Col>
-                        </Row>
-                      </>
-                    )}
-                    <Form.Group controlId="formBasicEmail" className="mb-3 text-start">
-                      <Form.Label>Email address</Form.Label>
-                      <Form.Control type="email" placeholder="Enter email" />
-                    </Form.Group>
-                    <Form.Group controlId="formBasicPassword" className="mb-3 text-start">
-                      <Form.Label>Password</Form.Label>
-                      <Form.Control type="password" placeholder="Password" />
-                    </Form.Group>
-                    {!isLogin && (
-                      <Form.Group controlId="formBio" className="mb-3 text-start">
-                        <Form.Label>Bio</Form.Label>
-                        <Form.Control as="textarea" rows={3} placeholder="Tell us about yourself" />
-                      </Form.Group>
-                    )}
-                    <Button variant="primary" type="submit" className="w-50 m-3" >
-                      {isLogin ? 'Login' : 'Register'}
-                    </Button>
-                  </Form>
-                  <Button variant="link" onClick={toggleForm} className="w-100 text-center">
-                    {isLogin ? 'Create an account' : 'Already have an account? Login'}
-                  </Button>
-                </Card.Body>
-              </Card>
-            </Col>
-          </Row>
-        </Container>
+      <div className="flex flex-1 items-center justify-center bg-gray-100">
+        <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-lg">
+          <h2 className="text-2xl font-bold mb-6 text-center">{isLogin ? 'Login' : 'Register'}</h2>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {!isLogin && (
+              <div className="flex space-x-4">
+                <div className="flex-1">
+                  <label htmlFor="formFirstName" className="block text-sm font-medium text-gray-700">First Name</label>
+                  <input
+                    type="text"
+                    id="formFirstName"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                    required
+                  />
+                </div>
+                <div className="flex-1">
+                  <label htmlFor="formLastName" className="block text-sm font-medium text-gray-700">Last Name</label>
+                  <input
+                    type="text"
+                    id="formLastName"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                    required
+                  />
+                </div>
+              </div>
+            )}
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
+              <input
+                type="email"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
+              <input
+                type="password"
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                required
+              />
+            </div>
+            {!isLogin && (
+              <div>
+                <label htmlFor="bio" className="block text-sm font-medium text-gray-700">Bio</label>
+                <textarea
+                  id="bio"
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
+                  rows={3}
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                  placeholder="Tell us about yourself"
+                />
+              </div>
+            )}
+            <button
+              type="submit"
+              className="w-full py-2 px-4 bg-primary text-white font-semibold rounded-md shadow-sm hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+            >
+              {isLogin ? 'Login' : 'Register'}
+            </button>
+          </form>
+          <button
+            onClick={toggleForm}
+            className="w-full mt-4 text-center text-primary hover:underline"
+          >
+            {isLogin ? 'Create an account' : 'Already have an account? Login'}
+          </button>
+        </div>
       </div>
       <Footer />
-    </Container>
+    </div>
   );
 }
 
