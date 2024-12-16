@@ -32,10 +32,26 @@ const TeamCard = ({ communityName, userID }) => {
     </Card>);
 }
 
-const UserFinderDialog = ({ open, onClose, isLoadingUsers, usersResponse }) => {
+const RoleSelector = ({initRole = 3, roles = []}) => {
+    const [selectedRole, setSelectedRole] = useState(initRole);
+    return (
+        <select  className='border border-red-600 p-2 rounded-full' style={{color:roles[selectedRole].color}}>
+        {roles.map((e, index)=><option value={index} style={{color:e.color}}>
+            {e.name}
+        </option>)}
+        </select>
+    )
+}
+
+const UserFinderDialog = ({ open, onClose}) => {
+    const parms = useParams();
+    const [usersResponse, isLoadingUsers] = useAPI('/communities/users', 'get', {params: {community_name: parms.name, page: 1, limit: 10}});
+    const [rolesResponse, isRolesLoading] = useAPI('/roles', 'get', {params: {page: 1, limit: 10}});
+
+    const roles = rolesResponse?.data?.roles || [];
     const Header = ['Username', 'Role', 'Email'];
     return (
-        <Dialog open={open} onClose={onClose}>
+        <Dialog size='xl' open={open} onClose={onClose}>
             <DialogHeader>Members</DialogHeader>
             <DialogBody>
                 <table className='mt-4 w-full min-w-max table-auto text-left'>
@@ -53,11 +69,12 @@ const UserFinderDialog = ({ open, onClose, isLoadingUsers, usersResponse }) => {
                                     <Typography>{x.fname + " " + x.lname}</Typography>
                                 </td>
                                 <td><div className=''>
-                                    <Select style={{}} >
+                                    <RoleSelector roles={roles} />
+                                    {/* <Select >
                                         <Option>Admin</Option>
                                         <Option>Creator</Option>
                                         <Option>Member</Option>
-                                    </Select>
+                                    </Select> */}
                                     </div>
                                 </td>
                                 <td>{x.email}</td>
@@ -122,7 +139,6 @@ const CommunityPage = () => {
 
     
     const [groups, isLoadingGroups, refreshGroup] = useAPI('/communities/groups', 'get', {params: {community_name: parms.name, userId:user.id}});
-    const [usersResponse, isLoadingUsers] = useAPI('/communities/users', 'get', {params: {community_name: parms.name, page: 1, limit: 10}});
 
     const [upCommingContestRes, isLoadingUpCommingContestRes] = useAPI('/contests/status', 'get',
         {params:{
@@ -162,7 +178,7 @@ const CommunityPage = () => {
         <Button onClick={()=>setgroupCreator(true)}>Create Contest</Button>
         <Button onClick={()=>setUserFinder(true)}>All Users</Button>
         <CreateGroupDialog communityName={communityName} open={groupCreator} setOpen={handleGroupCreator} setAlert={setAlertMessage} />
-        <UserFinderDialog open={userFinder} onClose={() => setUserFinder(false)} isLoadingUsers={isLoadingUsers} usersResponse={usersResponse} />
+        <UserFinderDialog open={userFinder} onClose={() => setUserFinder(false)} />
         <ConfirmDialog open={confirmJoinGroup} onClose={()=>setConfirmJoinGroup(false)} onConfirm={requestJoinGroupByID} title="Are you sure you want to join this group?" choice1="Cancel" choice2="Join" />
         <div className="content">
             <h3>Upcomming Contests</h3>

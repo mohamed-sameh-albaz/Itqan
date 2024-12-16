@@ -1,15 +1,14 @@
 import React from 'react';
-import { Container, Row, Col, Button, Card } from 'react-bootstrap';
 import NavigationBar from '../components/MyNavbar';
 import Footer from '../components/Footer';
 import backgroundImage from '../assets/home-background.png'; // Adjust the path and filename accordingly
-// import 'bootstrap/dist/css/bootstrap.min.css';
+
 function Landing() {
   return (
-    <Container fluid className="p-0">
+    <div className="min-h-screen flex flex-col">
       <NavigationBar />
       <header
-        className="bg-primary text-white text-center py-5"
+        className="bg-primary text-white text-center py-20"
         style={{
           backgroundImage: `url(${backgroundImage})`,
           backgroundPosition: 'center',
@@ -17,99 +16,85 @@ function Landing() {
           height: '80vh',
         }}
       >
-        <Container>
-          <h1 className="display-4">Welcome to Itqan</h1>
-          <p className="lead">
+        <div className="container mx-auto">
+          <h1 className="text-4xl font-bold">Welcome to Itqan</h1>
+          <p className="text-lg mt-4">
             Enhance your learning through competition and community-driven contests.
           </p>
-          <Button variant="light" href="/auth" className="px-4 py-2">
+          <a href="/auth" className="mt-6 inline-block bg-white text-primary px-6 py-3 rounded">
             Get Started
-          </Button>
-        </Container>
+          </a>
+        </div>
       </header>
 
-      <section className="py-5">
-        <Container>
-          <Row className="text-center">
-            <Col md="4">
-              <Card className="mb-4 shadow-sm">
-                <Card.Body>
-                  <Card.Title>Create Contests</Card.Title>
-                  <Card.Text>
-                    Challenge your friends and peers by creating custom contests.
-                  </Card.Text>
-                </Card.Body>
-              </Card>
-            </Col>
-            <Col md="4">
-              <Card className="mb-4 shadow-sm">
-                <Card.Body>
-                  <Card.Title>Join Communities</Card.Title>
-                  <Card.Text>
-                    Join communities to participate in group contests and discussions.
-                  </Card.Text>
-                </Card.Body>
-              </Card>
-            </Col>
-            <Col md="4">
-              <Card className="mb-4 shadow-sm">
-                <Card.Body>
-                  <Card.Title>Track Progress</Card.Title>
-                  <Card.Text>
-                    Monitor your progress and see how you rank against others.
-                  </Card.Text>
-                </Card.Body>
-              </Card>
-            </Col>
-          </Row>
-        </Container>
+      <section className="py-20">
+        <div className="container mx-auto">
+          <div className="flex flex-wrap text-center">
+            <div className="w-full md:w-1/3 px-4 mb-8">
+              <div className="bg-white p-6 rounded-lg shadow-lg">
+                <h2 className="text-xl font-semibold mb-4">Create Contests</h2>
+                <p>
+                  Challenge your friends and peers by creating custom contests.
+                </p>
+              </div>
+            </div>
+            <div className="w-full md:w-1/3 px-4 mb-8">
+              <div className="bg-white p-6 rounded-lg shadow-lg">
+                <h2 className="text-xl font-semibold mb-4">Join Communities</h2>
+                <p>
+                  Join communities to participate in group contests and discussions.
+                </p>
+              </div>
+            </div>
+            <div className="w-full md:w-1/3 px-4 mb-8">
+              <div className="bg-white p-6 rounded-lg shadow-lg">
+                <h2 className="text-xl font-semibold mb-4">Track Progress</h2>
+                <p>
+                  Monitor your progress and see how you rank against others.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
-      <section className="bg-light py-5">
-        <Container>
-          <Row className="text-center">
-            <Col>
-              <h2>What Our Users Say</h2>
-              <p className="lead">Hear from our satisfied learners</p>
-            </Col>
-          </Row>
-          <Row className="text-center">
-            <Col md="4">
-              <Card className="mb-4 shadow-sm">
-                <Card.Body>
-                  <Card.Text>
-                    "Itqan has transformed the way I learn. The competitive aspect keeps me motivated!"
-                  </Card.Text>
-                  <Card.Footer className="text-muted">- User A</Card.Footer>
-                </Card.Body>
-              </Card>
-            </Col>
-            <Col md="4">
-              <Card className="mb-4 shadow-sm">
-                <Card.Body>
-                  <Card.Text>
-                    "Joining communities and participating in contests has been a game-changer for me."
-                  </Card.Text>
-                  <Card.Footer className="text-muted">- User B</Card.Footer>
-                </Card.Body>
-              </Card>
-            </Col>
-            <Col md="4">
-              <Card className="mb-4 shadow-sm">
-                <Card.Body>
-                  <Card.Text>
-                    "I love tracking my progress and seeing how I rank against others."
-                  </Card.Text>
-                  <Card.Footer className="text-muted">- User C</Card.Footer>
-                </Card.Body>
-              </Card>
-            </Col>
-          </Row>
-        </Container>
+      <section className="bg-gray-100 py-20">
+        <div className="container mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-semibold">What Our Users Say</h2>
+            <p className="text-lg mt-4">Hear from our satisfied learners</p>
+          </div>
+          <div className="flex flex-wrap text-center">
+            <div className="w-full md:w-1/3 px-4 mb-8">
+              <div className="bg-white p-6 rounded-lg shadow-lg">
+                <p>
+                  "Itqan has transformed the way I learn. The competitive aspect keeps me motivated!"
+                </p>
+                <div className="text-gray-500 mt-4">- User A</div>
+              </div>
+            </div>
+            <div className="w-full md:w-1/3 px-4 mb-8">
+              <div className="bg-white p-6 rounded-lg shadow-lg">
+                <p>
+                  "Joining communities and participating in contests has been a game-changer for me."
+                </p>
+                <div className="text-gray-500 mt-4">- User B</div>
+              </div>
+            </div>
+            <div className="w-full md:w-1/3 px-4 mb-8">
+              <div className="bg-white p-6 rounded-lg shadow-lg">
+                <p>
+                  "I love tracking my progress and seeing how I rank against others."
+                </p>
+                <div className="text-gray-500 mt-4">- User C</div>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
       <Footer />
-    </Container>
+    </div>
   );
 }
 
