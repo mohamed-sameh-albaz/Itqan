@@ -2,6 +2,7 @@ const userModel = require("../models/userModel");
 const bcrypt = require("bcrypt");
 const basicAuth = require("basic-auth");
 const { body, validationResult } = require("express-validator");
+const httpStatusText = require("../utils/httpStatusText");
 
 exports.getUsers = async (req, res) => {
   try {
@@ -208,6 +209,26 @@ exports.getUserById = async (req, res) => {
       message: "Server Error",
       details: {
         field: "user",
+        error: err.message,
+      },
+    });
+  }
+};
+
+exports.searchUsers = async (req, res) => {
+  const { name, email, role } = req.query;
+  try {
+    const users = await userModel.searchUsers({ name, email, role });
+    res.status(200).json({
+      status: "success",
+      data: { users },
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: "error",
+      message: "Server Error",
+      details: {
+        field: "search",
         error: err.message,
       },
     });
