@@ -5,10 +5,10 @@ import './ContestPage.css';
 import { requestAPI } from '../hooks/useAPI'; 
 const ContestPage = () => {
   
-  let group_ID = '1';
+  let group_ID = 10;
   
   let user = "leader";
-  let buttons = [{ Qn: 'Question', type: '', title: '', content: '', choices: ['', '', '', ''], correctAnswer: '' }];
+  
   let buttonText = "Submit";
   // const [buttonText, setButtonText] = useState(s);
   // const [TextAllow, setTextAllow] = useState(allow_write);
@@ -19,11 +19,12 @@ const ContestPage = () => {
   }
   else {
     buttonText = "Submit";
-    form_write = "readonly";
+    form_write = "readOnly";
   }
 
-
-
+  const [send_now, setSendNow] = useState("false"); 
+  const [contestID, setContestID] = useState(1); 
+  
   const [formData, setFormData] = useState({
     difficulty: '',
     type: '',
@@ -40,7 +41,6 @@ const ContestPage = () => {
       'post',
       {
         body: {
-          contest: {
             description: formData.description,
             type: formData.type,
             difficulty: formData.difficulty,
@@ -49,33 +49,19 @@ const ContestPage = () => {
             end_date: formData.end_date,
             status: "active",
             group_id: group_ID
-          },
-          tasks:
-           buttons.slice(1).map((button) => (
-          {
-              description: button.content,
-              title: button.title,
-              points: 10,
-              image: "",
-              type: button.type,
-              mcqData: {
-                  A: button.choices[0],
-                  B: button.choices[1],
-                  C: button.choices[2],
-                  D: button.choices[3],        
-                  right_answer: button.correctAnswer
-              }
-            }
-           ))
-          }
+          } 
       }
     )
+   
     if (status > 199 && status < 300) {
     console.log("sucssess");
     }
     else {
       console.log("error");
     }
+
+    setContestID(data.data.contest.id);
+    setSendNow("true");
   };
 
   const handleChange = (e) => {
@@ -83,7 +69,9 @@ const ContestPage = () => {
     setFormData(prevState => ({
       ...prevState,
       [name]: value
+    
     }));
+      console.log(name, value);
   };
 
 
@@ -114,39 +102,44 @@ const ContestPage = () => {
           </div>
           <div className="form-group">
             <label>Difficulty:</label>
-            <input
-              readOnly={form_write}
-              type="text"
+            <select
               name="difficulty"
               value={formData.difficulty}
               onChange={handleChange}
-            />
+              disabled={form_write === "readOnly"}
+            >
+              <option value="easy">Easy</option>
+              <option value="medium">Medium</option>
+              <option value="hard">Hard</option>
+            </select>
           </div>
           <div className="form-group">
             <label>Type:</label>
-            <input
-              readOnly={form_write}
-              type="text"
+            <select
               name="type"
               value={formData.type}
               onChange={handleChange}
-            />
+              disabled={form_write === "readOnly"}
+            >
+              <option value="single">Single</option>
+              <option value="team">Team</option>
+            </select>
           </div>
           <div className="form-group">
-          <label>Start Date:</label>
-          <input
-            readOnly={form_write}
-            type="text"
-            name="start_date"
-            value={formData.start_date}
-            onChange={handleChange}
+            <label>Start Date:</label>
+            <input
+              readOnly={form_write}
+              type="datetime-local"
+              name="start_date"
+              value={formData.start_date}
+              onChange={handleChange}
             />
           </div>
           <div className="form-group">
             <label>End Date:</label>
             <input
               readOnly={form_write}
-              type="text"
+              type="datetime-local"
               name="end_date"
               value={formData.end_date}
               onChange={handleChange}
@@ -157,7 +150,7 @@ const ContestPage = () => {
       </div>
       <div className="keep">Keep Going</div>
 
-      <ContestScreen user={user} buttons={buttons} />
+      <ContestScreen user={user} sendnow={send_now} contestid={contestID} />
 
       <button className="submitt" onClick={handleClick} form-data={formData}>
         {buttonText}

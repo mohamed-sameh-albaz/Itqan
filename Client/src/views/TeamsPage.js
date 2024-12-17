@@ -45,8 +45,10 @@ import CommunityNavBar from "../components/CommunityNavBar";
 import TeamTable from "../components/TeamTable";
 import team_av2 from "../assets/team_av3.jpg"
 import "./TeamsPage.css"
-
+import { requestAPI } from "../hooks/useAPI";
 const TeamsPage = () => {
+
+
 
   const teams = [
     {
