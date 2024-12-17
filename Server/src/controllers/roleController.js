@@ -98,3 +98,23 @@ exports.deleteRole = async (req, res) => {
     });
   }
 };
+
+exports.getUserRoleInCommunity = async (req, res) => {
+  const { userId, communityName } = req.query;
+  try {
+    const role = await roleModel.getUserRoleInCommunity(userId, communityName);
+    res.status(200).json({
+      status: httpStatusText.SUCCESS,
+      data: { role },
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: httpStatusText.ERROR,
+      message: "Server Error",
+      details: {
+        field: "role",
+        error: err.message,
+      },
+    });
+  }
+};

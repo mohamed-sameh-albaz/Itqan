@@ -142,7 +142,6 @@ exports.approveSubmission = async ({ userId, submissionId, score }) => {
     `;
     console.log({ userId, submissionId, score });
     const { rows } = await db.query(query, [userId, score, submissionId]);
-    // console.log(rows);
     return rows;
   } catch(err) {  
     console.error(err);
@@ -150,4 +149,41 @@ exports.approveSubmission = async ({ userId, submissionId, score }) => {
   } finally {
     client.release();
   }
-}
+};
+
+exports.searchUsers = async ({ name, email, role }) => {
+  const client = await db.connect();
+  try {
+    let query = `
+      SELECT u.*, r.name as role_name, r.color as role_color
+      FROM users u
+      LEFT JOIN joinAs ja ON u.id = ja.user_id
+      LEFT JOIN roles r ON ja.role_id = r.id
+      WHERE 1=1
+    `;
+    const params = [];
+
+    if (name) {
+      query += ` AND (u.fname ILIKE $${params.length + 1} OR u.lname ILIKE $${params.length + 1})`;
+      params.push(`%${name}%`);
+    }
+
+    if (email) {
+      query += ` AND u.email ILIKE $${params.length + 1}`;
+      params.push(`%${email}%`);
+    }
+
+    if (role) {
+      query += ` AND r.name ILIKE $${params.length + 1}`;
+      params.push(`%${role}%`);
+    }
+
+    const { rows } = await db.query(query, params);
+    return rows;
+  } catch (err) {
+    console.error(`Error searching users: ${err.message}`);
+    throw new Error("Database error: Unable to search users");
+  } finally {
+    client.release();
+  }
+};
