@@ -151,3 +151,21 @@ exports.approveSubmission = async ({ userId, submissionId, score }) => {
     client.release();
   }
 }
+
+exports.getUserPoints = async (userId) => {
+  const client = await db.connect();
+  try {
+    const query = `
+      SELECT points
+      FROM Users
+      WHERE id = $1;
+    `; 
+    const { rows } = await db.query(query, [userId]);
+    return rows[0].points;
+  } catch(err) {  
+    console.error(err);
+    throw new Error(err.message);
+  } finally {
+    client.release();
+  }
+}
