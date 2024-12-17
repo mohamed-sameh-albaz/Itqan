@@ -85,17 +85,38 @@ transform: scale(1.2,1.2);
 
 
 
-/* .contest-form button[type="submit"] {
-  display: inline-block;
-  padding: 10px 20px;
-  font-size: 16px;
-  color: #fff;
-  background-color: #007bff;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
+.contest-form {
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-.contest-form button[type="submit"]:hover {
-  background-color: #0056b3;
-} */
+.contest-form .form-group {
+  margin-bottom: 20px;
+}
+
+.contest-form label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: bold;
+  color: #333;
+}
+
+.contest-form input[type="text"],
+.contest-form select,
+.contest-form input[type="datetime-local"]  {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+  font-size: 16px;
+  color: #333;
+}
+
+
+
