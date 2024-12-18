@@ -169,3 +169,22 @@ exports.getUserPoints = async (userId) => {
     client.release();
   }
 }
+
+exports.checkUserComm = async (userId, communityName) => {
+  const client = await db.connect();
+  try {
+    const query = `
+      SELECT * 
+      FROM joinAs 
+      WHERE user_id = $1 AND community_name = $2;
+    `; 
+    // console.log(query);///////////////////////////////////
+    const { rows } = await db.query(query, [userId, communityName]);
+    return rows;
+  } catch(err) {  
+  console.error(err.message);
+  throw new Error(err.message);
+  } finally {
+    client.release();
+  }
+}
