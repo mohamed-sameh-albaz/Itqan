@@ -1,5 +1,6 @@
-const { getAllContests, addContest, getContestsByStatus, updateContestById, deleteContestById, getWrittenTasks, getSingleLeaderboard, getTeamLeaderboard, getTasksByContestId } = require("../models/contestModel");
+const { getAllContests, addContest, getContestsByStatus, updateContestById, deleteContestById, getSingleLeaderboard, getTeamLeaderboard, getTasksByContestId, getWrittenSubmissions, getContestType } = require("../models/contestModel");
 const { addTask, addMcqTask, updateTaskById, deleteTaskById } = require("../models/taskModel");
+const { submitTask } = require("../models/userModel")
 const httpStatusText = require("../utils/httpStatusText");
 
 exports.getContests = async (req, res) => {
@@ -243,27 +244,6 @@ exports.deleteTaskById = async (req, res) => {
       message: "Server Error",
       details: {
         field: "task",
-        error: err.message,
-      },
-    });
-  }
-};
-
-// get contests/tasks/written?contest_id
-exports.getWrittenTasks = async (req, res) => {
-  const { contestId } = req.params;
-  try {
-    const tasks = await getWrittenTasks(+contestId);
-    return res
-      .status(200)
-      .json({ status: httpStatusText.SUCCESS, data: { tasks } });
-  } catch (err) {
-    console.error("get written tasks: ", err.message);
-    return res.status(400).json({
-      status: httpStatusText.ERROR,
-      message: "Server Error",
-      details: {
-        field: "get written tasks",
         error: err.message,
       },
     });

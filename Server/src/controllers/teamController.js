@@ -7,7 +7,7 @@ const {
   deleteTeam,
   editTeam,
 } = require("../models/teamModel");
-const { leaveTeam, findUserByEmail } = require("../models/userModel");
+const { leaveTeam, findUserByEmail, checkUserComm } = require("../models/userModel");
 const httpStatusText = require("../utils/httpStatusText");
 const { getUserCommunities } = require("../models/communityModel");
 
@@ -26,25 +26,47 @@ exports.createTeam = async (req, res) => {
         });
     } else {
       const message = [];
+      const teamUsersId = [];
+      for(let i = 0; i < teamUsers.length; ++i) {
+        const teamUserid = await findUserByEmail(teamUsers[i]);
+        if(!teamUserid) {
+          return res
+            .status(400)
+            .json({
+              status: httpStatusText.FAIL,
+              message: "Invalid email.",
+            });
+        }
+        teamUsersId.push( {id: teamUserid.id, email: teamUserid.email} );
+      }
       const results = await Promise.all(
-        teamUsers.map(async (userId) => {
-          const addedUserTeam = await getUserCommTeam(userId, communityName);
-          if (addedUserTeam.length) {
+        teamUsersId.map(async (userId) => {
+          const checkUserInComm = await checkUserComm(userId.id, communityName);
+          if(!checkUserInComm.length) {
             message.push({
               user_id: userId,
-              msg: "user is already in a team",
+              msg: "user is not in this community",
             });
             return null;
+          } else {
+            const addedUserTeam = await getUserCommTeam(userId.id, communityName);
+            if (addedUserTeam.length) {
+              message.push({
+                user_id: userId,
+                msg: "user is already in a team",
+              });
+              return null;
+            }
+            return userId;
           }
-          return userId;
         })
       );
       const newUsers = results.filter(Boolean);
       if (newUsers.length) {
         const newTeam = await createTeam(name, photo, communityName);
-        newUsers.push(userId);
+        newUsers.push({id: userId});
         for (let i = 0; i < newUsers.length; ++i) {
-          const addedUserToTeam = await addToTeam(newUsers[i], newTeam.id);
+          const addedUserToTeam = await addToTeam(newUsers[i].id, newTeam.id);
         }
         const users = await getTeamUsers(newTeam.id);
         return res.status(201).json({

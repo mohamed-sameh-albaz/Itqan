@@ -105,27 +105,16 @@ const deleteContestById = async (id) => {
   }
 };
 
-const getWrittenTasks = async(contestId) => {
+const getContestType = async (contestId) => {
   const client = await db.connect();
-  try{
-    const getNotApprovedquery = `
-    SELECT s.*
-    FROM Submissions s
-    JOIN Tasks t ON t.id = s.task_id
-    JOIN Contests c ON c.id = t.contest_id
-    WHERE t.contest_id = $1
-      AND s.approved_by IS NULL
-      AND NOT EXISTS (
-        SELECT 1
-        FROM McqTasks mcq
-        WHERE mcq.id = t.id
-      )
-    ORDER BY s.created_at DESC;
+  try {
+    const query = `
+    SELECT type 
+    FROM Contests
+    WHERE id = $1;
     `;
-    console.log(contestId);
-    const { rows: getNotApprovedRes } = await db.query(getNotApprovedquery, [contestId]);
-    console.log(333333333333,getNotApprovedRes);
-    return getNotApprovedRes;
+    const { rows } = await db.query(query, [contestId]);
+    return rows[0].type;
   } catch(err) {
     console.log(err.message);
     throw new Error(err.message);
@@ -202,4 +191,58 @@ const getTasksByContestId = async (contestId) => {
   }
 };
 
-module.exports = { getAllContests, addContest, getContestsByStatus, updateContestById, deleteContestById, getWrittenTasks, getSingleLeaderboard, getTeamLeaderboard, getTasksByContestId };
+const getTaskType = async (taskId) => {
+  const client = await db.connect();
+  try {
+    const query = `
+    SELECT type 
+    FROM Tasks
+    WHERE id = $1;
+    `;
+    const { rows } = await db.query(query, [taskId]);
+    return rows[0].type;
+  } catch(err) {
+    console.log(err.message);
+    throw new Error(err.message);
+  } finally{
+    client.release();
+  }
+}
+
+const getMcqRightAnswer = async (taskId) => {
+  const client = await db.connect();
+  try {
+    const query = `
+    SELECT right_answer 
+    FROM McqTasks
+    WHERE id = $1;
+    `;
+    const { rows } = await db.query(query, [taskId]);
+    return rows[0].right_answer;
+  } catch(err) {
+    console.log(err.message);
+    throw new Error(err.message);
+  } finally{
+    client.release();
+  }
+}
+
+const getTaskPoints = async (taskId) => {
+  const client = await db.connect();
+  try {
+    const query = `
+    SELECT points 
+    FROM Tasks
+    WHERE id = $1;
+    `;
+    const { rows } = await db.query(query, [taskId]);
+    return rows[0].points;
+  } catch(err) {
+    console.log(err.message);
+    throw new Error(err.message);
+  } finally{
+    client.release();
+  }
+}
+
+module.exports = { getAllContests, addContest, getContestsByStatus, updateContestById, deleteContestById, getContestType, getTaskType, getMcqRightAnswer,getTaskPoints,  getSingleLeaderboard, getTeamLeaderboard, getTasksByContestId };

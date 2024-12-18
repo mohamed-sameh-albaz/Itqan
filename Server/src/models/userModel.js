@@ -187,3 +187,39 @@ exports.searchUsers = async ({ name, email, role }) => {
     client.release();
   }
 };
+
+exports.getUserPoints = async (userId) => {
+  const client = await db.connect();
+  try {
+    const query = `
+      SELECT points
+      FROM Users
+      WHERE id = $1;
+    `; 
+    const { rows } = await db.query(query, [userId]);
+    return rows[0].points;
+  } catch(err) {  
+    console.error(err);
+    throw new Error(err.message);
+  } finally {
+    client.release();
+  }
+}
+
+exports.checkUserComm = async (userId, communityName) => {
+  const client = await db.connect();
+  try {
+    const query = `
+      SELECT * 
+      FROM joinAs 
+      WHERE user_id = $1 AND community_name = $2;
+    `; 
+    const { rows } = await db.query(query, [userId, communityName]);
+    return rows;
+  } catch(err) {  
+  console.error(err.message);
+  throw new Error(err.message);
+  } finally {
+    client.release();
+  }
+}
