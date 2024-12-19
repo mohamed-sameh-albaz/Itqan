@@ -18,26 +18,26 @@ exports.createTeam = async (req, res) => {
     const userTeam = await getUserCommTeam(userId, communityName);
     if (userTeam.length) {
       return res
-        .status(404)
-        .json({
-          status: httpStatusText.FAIL,
-          message: "You are already in a team",
-          data: { newTeam: null },
-        });
+      .status(404)
+      .json({
+        status: httpStatusText.FAIL,
+        message: "You are already in a team",
+        data: { newTeam: null },
+      });
     } else {
       const message = [];
       const teamUsersId = [];
       for(let i = 0; i < teamUsers.length; ++i) {
         const teamUserid = await findUserByEmail(teamUsers[i]);
         if(!teamUserid) {
-          return res
-            .status(400)
-            .json({
-              status: httpStatusText.FAIL,
-              message: "Invalid email.",
-            });
+          message.push({
+            msg: `${teamUserid} is invalid email`
+          });
+          teamUsers.splice(i, 1);
+          i--;
+        } else {
+          teamUsersId.push( {id: teamUserid.id, email: teamUserid.email} );
         }
-        teamUsersId.push( {id: teamUserid.id, email: teamUserid.email} );
       }
       const results = await Promise.all(
         teamUsersId.map(async (userId) => {
