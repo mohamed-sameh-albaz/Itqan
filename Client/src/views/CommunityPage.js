@@ -149,7 +149,6 @@ const CommunityPage = () => {
 
     function enterGroup(groupName, joined){
         //JOINED remove this later
-        joined = true;
         currentGroupId.current = groupName;
         if(joined === true){
             nav(`/community/${communityName}/group/${currentGroupId.current}`);
