@@ -17,6 +17,6 @@ router.put("/task/edit/:taskId", editTaskById);
 router.delete("/task/delete/:taskId", deleteTaskById);
 router.get("/:contestId/single-leaderboard", getSingleLeaderboard);
 router.get("/:contestId/team-leaderboard", getTeamLeaderboard);
-router.get("/:contestId/tasks", getTasksByContestId); // New route
+router.get("/:contestId/tasks", getTasksByContestId);
 
 module.exports = router;

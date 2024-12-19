@@ -172,13 +172,18 @@ const getTeamLeaderboard = async (contestId) => {
   }
 };
 
-const getTasksByContestId = async (contestId) => {
+const getTasksByContestId = async (contestId, editing) => {
   const client = await db.connect();
   try {
-    const query = `
+    let query = `
       SELECT tasks.*, mcqtasks.a, mcqtasks.b, mcqtasks.c, mcqtasks.d
+    `;
+    if (editing === 'true') {
+      query += `, mcqtasks.right_answer`;
+    }
+    query += `
       FROM tasks
-      left outer join mcqtasks on tasks.id = mcqtasks.id
+      LEFT OUTER JOIN mcqtasks ON tasks.id = mcqtasks.id
       WHERE contest_id = $1;
     `;
     const { rows } = await db.query(query, [contestId]);

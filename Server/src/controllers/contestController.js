@@ -291,8 +291,9 @@ exports.getTeamLeaderboard = async (req, res) => {
 
 exports.getTasksByContestId = async (req, res) => {
   const { contestId } = req.params;
+  const { editing } = req.query;
   try {
-    const tasks = await getTasksByContestId(contestId);
+    const tasks = await getTasksByContestId(contestId, editing);
     res.status(200).json({
       status: "success",
       data: { tasks },
