@@ -250,4 +250,22 @@ const getTaskPoints = async (taskId) => {
   }
 }
 
-module.exports = { getAllContests, addContest, getContestsByStatus, updateContestById, deleteContestById, getContestType, getTaskType, getMcqRightAnswer,getTaskPoints,  getSingleLeaderboard, getTeamLeaderboard, getTasksByContestId };
+const getContestById = async (contestId) => {
+  const client = await db.connect();
+  try {
+    const query = `
+      SELECT *
+      FROM contests
+      WHERE id = $1;
+    `;
+    const { rows } = await db.query(query, [contestId]);
+    return rows[0];
+  } catch (err) {
+    console.error(`Error retrieving contest by ID: ${err.message}`);
+    throw new Error("Database error: Unable to retrieve contest by ID");
+  } finally {
+    client.release();
+  }
+};
+
+module.exports = { getAllContests, addContest, getContestsByStatus, updateContestById, deleteContestById, getSingleLeaderboard, getTeamLeaderboard, getTasksByContestId, getContestById, getContestType, getTaskType, getMcqRightAnswer, getTaskPoints };
