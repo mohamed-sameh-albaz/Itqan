@@ -1,7 +1,5 @@
 const express = require("express");
 const { getContests, createContest, createTask, updateContest, deleteContest, getContestsByStatus, editContest, deleteContestById, editTaskById, deleteTaskById, getWrittenSubmissions, submitWrittenTask, submitMcqTask, getMcqSubmissions, getSingleLeaderboard, getTeamLeaderboard, getTasksByContestId } = require("../controllers/contestController");
-// const { submitTask } = require("../controllers/submissionController");
-const { approveSubmission } = require("../controllers/userController");
 
 const router = express.Router();
 

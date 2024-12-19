@@ -128,28 +128,6 @@ exports.deleteUser = async (userId) => {
     client.release();
   }
 };
-exports.approveSubmission = async ({ userId, submissionId, score }) => {
-  const client = await db.connect();
-  try {
-    const query = `
-      UPDATE Submissions  
-      SET approved_by = $1,
-        score = $2,
-        approved_at = CURRENT_TIMESTAMP,
-        status = 'Approved'
-      WHERE id = $3
-      RETURNING *;
-    `;
-    console.log({ userId, submissionId, score });
-    const { rows } = await db.query(query, [userId, score, submissionId]);
-    return rows;
-  } catch(err) {  
-    console.error(err);
-    throw new Error(err.message);
-  } finally {
-    client.release();
-  }
-};
 
 exports.searchUsers = async ({ name, email, role }) => {
   const client = await db.connect();
@@ -222,4 +200,23 @@ exports.checkUserComm = async (userId, communityName) => {
   } finally {
     client.release();
   }
+}
+
+exports.getUserData = async (userId) => {
+  const client = await db.connect();
+  try {
+    const query = `
+      SELECT fname, lname, photo, id 
+      FROM Users
+      WHERE id = $1;
+    `; 
+    const { rows } = await db.query(query, [userId]);
+    return rows[0];
+  } catch(err) {  
+  console.error(err.message);
+  throw new Error(err.message);
+  } finally {
+    client.release();
+  }
+  
 }

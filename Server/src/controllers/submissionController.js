@@ -1,7 +1,7 @@
-const {submitTask, getWrittenSubmissions, addTaskPoints } = require("../models/submissionModel");
+const {submitTask, getNotApprovedSubmissions, getSubmissions, addTaskPoints, approveSubmission, getSubmitor } = require("../models/submissionModel");
 const { getTeamUsers } = require("../models/teamModel");
 const { getContestType, getTaskType, getMcqRightAnswer, getTaskPoints } = require("../models/contestModel");
-const { getUserPoints } = require("../models/userModel");
+const { getUserPoints, getUserData } = require("../models/userModel");
 const httpStatusText = require("../utils/httpStatusText");
 
 // POST /submissions/
@@ -17,11 +17,8 @@ exports.submitTask = async (req, res) => {
         const taskScore = await getTaskPoints(taskId);
         if(contestType === 'team') {
           const team = await getTeamUsers(teamId);
-          // console.log(team);
           for(let i = 0; i < team.length; ++i) {
-            console.log(team[i].id);
             const userPoints = await getUserPoints(team[i].id);
-            console.log(userPoints);
             const pointsAdded = await addTaskPoints(team[i].id, userPoints + taskScore);
           }
         } else {
@@ -46,48 +43,91 @@ exports.submitTask = async (req, res) => {
   }
 };
 
-// GET /contest/submissions/mcq
-exports.getWrittenSubmissions = async (req, res) => {
+// GET /contest/submissions/written
+exports.getNotApprovedSubmissions = async (req, res) => {
   const { contestId } = req.query;
   try {
-    const contestType = await getContestType(contestId);
-    const submissions = await getWrittenSubmissions(contestId, contestType);
+    const contestType = await getContestType(+contestId);
+    const submissions = await getNotApprovedSubmissions(+contestId, contestType);
     return res
-      .status(201)
+      .status(200)
       .json({ status: httpStatusText.SUCCESS, data: { submissions } });
   } catch (err) {
-    console.log("submit task: ", err.message);
+    console.log("get not approved submissions", err.message);
     return res.status(400).json({
       status: httpStatusText.ERROR,
       message: "Server Error",
       details: {
-        field: "get written submissions",
+        field: "get not approved submissions",
         error: err.message,
       },
     });
   }
 };
 
-// GET /contest/submissions/mcq
-exports.getMcqSubmissions = async (req, res) => {
+// GET /contest/submissions/
+exports.getSubmissions = async (req, res) => {
   const { contestId } = req.query;
   try {
     const contestType = await getContestType(contestId);
-    const submissions = await getWrittenSubmissions(contestId, contestType);
+    const submissions = await getSubmissions(contestId, contestType);
+    if(contestType === 'team') {
+      for(let i = 0; i < submissions.length; ++i) {
+        const teamUsers = await getTeamUsers(submissions[i].team_id);
+        submissions[i].teamUsers = teamUsers;
+        console.log(submissions[i].teamUsers);
+      }
+    }
     return res
-      .status(201)
+      .status(200)
       .json({ status: httpStatusText.SUCCESS, data: { submissions } });
   } catch (err) {
-    console.log("submit task: ", err.message);
+    console.log("get submissions ", err.message);
     return res.status(400).json({
       status: httpStatusText.ERROR,
       message: "Server Error",
       details: {
-        field: "get written submissions",
+        field: "get submissions",
         error: err.message,
       },
     });
   }
 };
 
-
+// PATCH /contest/submissions/
+exports.approveSubmission = async(req, res) => {
+  const { userId, submissionId, score, contestId } = req.body;
+  try {
+    const approvedSub = await approveSubmission(userId, submissionId, score);
+    const contestType = await getContestType(contestId);
+    const approvedBy = await getUserData(userId);
+    approvedSub.approved_by = approvedBy 
+    const taskPoints = await getTaskPoints(approvedSub.task_id); 
+    const upScore = (+score / 100) * taskPoints;
+    const submitor = await getSubmitor(contestType, submissionId);
+    if(contestType === 'team') {
+      const team = await getTeamUsers(submitor.team_id);
+      for(let i = 0; i < team.length; ++i) {
+        console.log(team);
+        const userPoints = await getUserPoints(team[i].id);
+        const pointsAdded = await addTaskPoints(team[i].id, userPoints + upScore);
+      }
+    } else {
+      const userPoints = await getUserPoints(submitor.individual_id);
+      const pointsAdded = await addTaskPoints(submitor.individual_id, userPoints + upScore);
+    }
+    return res
+      .status(200)
+      .json({ status: httpStatusText.SUCCESS, data: { approvedSub } });
+  } catch (err) {
+    console.log("approve submission", err.message);
+    return res.status(400).json({
+      status: httpStatusText.ERROR,
+      message: "Server Error",
+      details: {
+        field: "approve submission",
+        error: err.message,
+      },
+    });
+  }
+};

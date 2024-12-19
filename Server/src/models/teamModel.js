@@ -86,7 +86,7 @@ exports.getTeamUsers = async (teamId) => {
     const { rows } = await db.query(query, [teamId]);
     return rows;
   } catch (err) {
-    console.error(`Error retreiving team members: ${err}`);
+    console.error(`Error retreiving team members: ${err.message}`);
     throw new Error(err.message);
   } finally {
     client.release();
@@ -104,7 +104,7 @@ exports.deleteTeam = async (teamId) => {
     const { rows } = await db.query(query, [teamId]);
     return rows;
   } catch (err) {
-    console.error(`Error deleting team members: ${err}`);
+    console.error(`Error deleting team members: ${err.message}`);
     throw new Error(err.message);
   } finally {
     client.release();
