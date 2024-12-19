@@ -121,16 +121,6 @@ exports.loginUser = async (req, res) => {
   }
 };
 
-exports.approveSubmission = async(req, res) => {
-  const { userId, submissionId, score } = req.body;
-  try {
-    const approvedSub = await userModel.approveSubmission({ userId, submissionId, score });
-    res.status(200).json(approvedSub);
-  } catch(err) {
-    res.status(500).json({error: err.message});
-  }
-};
-
 exports.updateUser = async (req, res) => {
   const { userId, firstname, lastname, email, bio, password, photo } = req.body;
 

@@ -1,7 +1,5 @@
 const express = require("express");
-const { getContests, createContest, createTask, updateContest, deleteContest, getContestsByStatus, editContest, deleteContestById, editTaskById, deleteTaskById, getWrittenSubmissions, submitWrittenTask, submitMcqTask, getMcqSubmissions, getSingleLeaderboard, getTeamLeaderboard, getTasksByContestId, getContestById } = require("../controllers/contestController");
-const { approveSubmission } = require("../controllers/userController");
-
+const { getContests, createContest, createTask, updateContest, deleteContest, getContestsByStatus, editContest, deleteContestById, editTaskById, deleteTaskById, getWrittenSubmissions, submitWrittenTask, submitMcqTask, getMcqSubmissions, getSingleLeaderboard, getTeamLeaderboard, getTasksByContestId,  getContestById } = require("../controllers/contestController");
 const router = express.Router();
 
 router.get("/", getContests);
