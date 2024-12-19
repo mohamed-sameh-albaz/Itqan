@@ -46,7 +46,7 @@ exports.submitTask = async (req, res) => {
   }
 };
 
-// GET /contest/submissions/written
+// GET /contest/submissions/mcq
 exports.getWrittenSubmissions = async (req, res) => {
   const { contestId } = req.query;
   try {
@@ -67,4 +67,27 @@ exports.getWrittenSubmissions = async (req, res) => {
     });
   }
 };
+
+// GET /contest/submissions/mcq
+exports.getMcqSubmissions = async (req, res) => {
+  const { contestId } = req.query;
+  try {
+    const contestType = await getContestType(contestId);
+    const submissions = await getWrittenSubmissions(contestId, contestType);
+    return res
+      .status(201)
+      .json({ status: httpStatusText.SUCCESS, data: { submissions } });
+  } catch (err) {
+    console.log("submit task: ", err.message);
+    return res.status(400).json({
+      status: httpStatusText.ERROR,
+      message: "Server Error",
+      details: {
+        field: "get written submissions",
+        error: err.message,
+      },
+    });
+  }
+};
+
 
