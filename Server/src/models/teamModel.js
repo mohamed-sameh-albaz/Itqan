@@ -47,7 +47,6 @@ exports.getUserCommTeam = async (user_id, community_name) => {
       WHERE ut.user_id = $1 AND t.community_name = $2;
     `;
     const { rows } = await db.query(query, [user_id, community_name]);
-    // console.log(rows);
     return rows;
   } catch (err) {
     console.error(`Error retrieving teams: ${err.message}`);
