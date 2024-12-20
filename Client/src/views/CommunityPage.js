@@ -5,9 +5,10 @@ import ContestTable from '../components/ContestTable';
 import './CommunityPage.css'
 import {requestAPI, useAPI} from '../hooks/useAPI';
 import { useRef, useState } from 'react';
-import { Alert, Avatar, Button, Card, CardBody, Dialog, DialogBody, DialogFooter, DialogHeader, Option, Select, Spinner, Typography } from '@material-tailwind/react';
+import { Alert, Avatar, Button, Card, CardBody, Dialog, DialogBody, DialogFooter, DialogHeader, IconButton, Option, Select, Spinner, Typography } from '@material-tailwind/react';
 import CreateGroupDialog from '../dialogs/CreateGroup';
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faAdd } from '@fortawesome/free-solid-svg-icons';
 const TeamCard = ({ communityName, userID }) => {
   const nav = useNavigate();
   const [data, loading] = useAPI('/teams', 'get', { params: { community_name: communityName, user_id: userID } });
@@ -174,7 +175,6 @@ const CommunityPage = () => {
     <div>
         <Alert className='fixed w-30 bottom-3 right-3' open={alertMessage != null} onClose={() => setAlertMessage(null)}>{alertMessage}</Alert>
         <CommunityNavBar />
-        <Button onClick={()=>setgroupCreator(true)}>Create Contest</Button>
         <Button onClick={()=>setUserFinder(true)}>All Users</Button>
         <CreateGroupDialog communityName={communityName} open={groupCreator} setOpen={handleGroupCreator} setAlert={setAlertMessage} />
         <UserFinderDialog open={userFinder} onClose={() => setUserFinder(false)} />
@@ -208,6 +208,19 @@ const CommunityPage = () => {
                 </div>
             </div>
         </div>
+        <div className='absolute w-full h-screen'>
+            <div className="fixed bottom-2 right-2 rounded-full">
+            <Button 
+                size="lg" 
+                style={{backgroundColor: 'var(--primary-color)'} }
+                onClick={()=>setgroupCreator(true)} 
+                >
+                <FontAwesomeIcon icon={faAdd} size="2x" />
+                <Typography variant='small'>Create<br/>Group</Typography>
+            </Button>
+            </div>
+        </div>
+
     </div> );
 }
  
