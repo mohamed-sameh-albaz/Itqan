@@ -1,18 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import CommunityNavBar from '../components/CommunityNavBar';
 import ContestScreen from '../components/ContestScreen';
 import './ContestPage.css';
 import { requestAPI } from '../hooks/useAPI'; 
-const ContestPage = () => {
+const ContestPage = (props) => {
   
-  let group_ID = 10;
+
+  const my_user = JSON.parse(localStorage.getItem('user'));
   
-  let user = "leader";
+
+  const parms= useParams();
+  let user_ID = my_user.id;
+  console.log(user_ID);
+  let group_ID = parms.groupID;
+  let mode=props.MODE;
   
+  const [user, setUser] = useState("leader");
+
   let buttonText = "Submit";
-  // const [buttonText, setButtonText] = useState(s);
-  // const [TextAllow, setTextAllow] = useState(allow_write);
   let form_write = "";
+
   if (user === "leader") {
     buttonText = "Save";
     form_write = "";
@@ -22,8 +30,48 @@ const ContestPage = () => {
     form_write = "readOnly";
   }
 
+  const fetchUserRole = async () => {
+    const { status, data } = await requestAPI(`/roles/user-role?userId=${user_ID}&communityName=${parms.name}`, 'get');  
+    if (status > 199 && status < 300) {
+      setUser(data.data.role.name);
+      console.log(data.data.role.name);
+    } else {
+      console.error("Error fetching user role");
+    }
+  };
+
+  useEffect(() => {
+
+    fetchUserRole();
+   
+    const fetchContest = async () => {
+      const { status, data } = await requestAPI(`/contests/${parms.contestID}`, 'get');
+      if (status > 199 && status < 300) {
+        setFormData({
+          difficulty: data.data.contest.difficulty,
+          type: data.data.contest.type,
+          name: data.data.contest.name,
+          description: data.data.contest.description,
+          start_date: data.data.contest.start_date,
+          end_date: data.data.contest.end_date
+        });
+        console.log(data.data.contest.start_date);
+      } else {
+        console.error("Error fetching contest details");
+      }
+    };
+
+    if (mode !== "create") {
+      setContestID(parms.contestID);
+      fetchContest();
+     console.log(parms.contestID);
+    }
+  }, [parms.contestID, mode]);
+
+  
+
   const [send_now, setSendNow] = useState("false"); 
-  const [contestID, setContestID] = useState(1); 
+  const [contestID, setContestID] = useState(0); 
   
   const [formData, setFormData] = useState({
     difficulty: '',
@@ -34,7 +82,11 @@ const ContestPage = () => {
     end_date: ''
   });
 
+
+
   async function handleClick () {
+
+    if(user === "leader" &&mode === "create") {
     const {status, data} = await
     requestAPI(
       '/contests',
@@ -52,16 +104,49 @@ const ContestPage = () => {
           } 
       }
     )
-   
+  
     if (status > 199 && status < 300) {
     console.log("sucssess");
     }
     else {
       console.log("error");
     }
-
+  
     setContestID(data.data.contest.id);
-    setSendNow("true");
+   
+  }
+  else if (user==="leader" && mode === "edit") {
+   
+    const {status, data} = await
+    requestAPI(
+      `/contests/edit/${contestID}`,
+      'put',
+      {
+        body: {
+            description: formData.description,
+            type: formData.type,
+            difficulty: formData.difficulty,
+            name: formData.name,
+            start_date: formData.start_date,
+            end_date: formData.end_date,
+            status: "active",
+            group_id: group_ID
+          } 
+      }
+    )
+  
+    if (status > 199 && status < 300) {
+    console.log("sucssess");
+    }
+    else {
+      console.log("error");
+    }
+  }
+  else if (user === "member" && mode === "submit") {
+     console.log("submit");
+
+  }
+  setSendNow("true");
   };
 
   const handleChange = (e) => {
@@ -150,7 +235,7 @@ const ContestPage = () => {
       </div>
       <div className="keep">Keep Going</div>
 
-      <ContestScreen user={user} sendnow={send_now} contestid={contestID} />
+      <ContestScreen user={user} sendnow={send_now} contestid={contestID} Mode={mode} />
 
       <button className="submitt" onClick={handleClick} form-data={formData}>
         {buttonText}
