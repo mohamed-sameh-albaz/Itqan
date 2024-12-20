@@ -128,26 +128,95 @@ exports.deleteUser = async (userId) => {
     client.release();
   }
 };
-exports.approveSubmission = async ({ userId, submissionId, score }) => {
+
+exports.searchUsers = async ({ name, email, role }) => {
+  const client = await db.connect();
+  try {
+    let query = `
+      SELECT u.*, r.name as role_name, r.color as role_color
+      FROM users u
+      LEFT JOIN joinAs ja ON u.id = ja.user_id
+      LEFT JOIN roles r ON ja.role_id = r.id
+      WHERE 1=1
+    `;
+    const params = [];
+
+    if (name) {
+      query += ` AND (u.fname ILIKE $${params.length + 1} OR u.lname ILIKE $${params.length + 1})`;
+      params.push(`%${name}%`);
+    }
+
+    if (email) {
+      query += ` AND u.email ILIKE $${params.length + 1}`;
+      params.push(`%${email}%`);
+    }
+
+    if (role) {
+      query += ` AND r.name ILIKE $${params.length + 1}`;
+      params.push(`%${role}%`);
+    }
+
+    const { rows } = await db.query(query, params);
+    return rows;
+  } catch (err) {
+    console.error(`Error searching users: ${err.message}`);
+    throw new Error("Database error: Unable to search users");
+  } finally {
+    client.release();
+  }
+};
+
+exports.getUserPoints = async (userId) => {
   const client = await db.connect();
   try {
     const query = `
-      UPDATE Submissions  
-      SET approved_by = $1,
-        score = $2,
-        approved_at = CURRENT_TIMESTAMP,
-        status = 'Approved'
-      WHERE id = $3
-      RETURNING *;
-    `;
-    console.log({ userId, submissionId, score });
-    const { rows } = await db.query(query, [userId, score, submissionId]);
-    // console.log(rows);
-    return rows;
+      SELECT points
+      FROM Users
+      WHERE id = $1;
+    `; 
+    const { rows } = await db.query(query, [userId]);
+    return rows[0].points;
   } catch(err) {  
     console.error(err);
     throw new Error(err.message);
   } finally {
     client.release();
   }
+}
+
+exports.checkUserComm = async (userId, communityName) => {
+  const client = await db.connect();
+  try {
+    const query = `
+      SELECT * 
+      FROM joinAs 
+      WHERE user_id = $1 AND community_name = $2;
+    `; 
+    const { rows } = await db.query(query, [userId, communityName]);
+    return rows;
+  } catch(err) {  
+  console.error(err.message);
+  throw new Error(err.message);
+  } finally {
+    client.release();
+  }
+}
+
+exports.getUserData = async (userId) => {
+  const client = await db.connect();
+  try {
+    const query = `
+      SELECT fname, lname, photo, id 
+      FROM Users
+      WHERE id = $1;
+    `; 
+    const { rows } = await db.query(query, [userId]);
+    return rows[0];
+  } catch(err) {  
+  console.error(err.message);
+  throw new Error(err.message);
+  } finally {
+    client.release();
+  }
+  
 }

@@ -105,27 +105,16 @@ const deleteContestById = async (id) => {
   }
 };
 
-const getWrittenTasks = async(contestId) => {
+const getContestType = async (contestId) => {
   const client = await db.connect();
-  try{
-    const getNotApprovedquery = `
-    SELECT s.*
-    FROM Submissions s
-    JOIN Tasks t ON t.id = s.task_id
-    JOIN Contests c ON c.id = t.contest_id
-    WHERE t.contest_id = $1
-      AND s.approved_by IS NULL
-      AND NOT EXISTS (
-        SELECT 1
-        FROM McqTasks mcq
-        WHERE mcq.id = t.id
-      )
-    ORDER BY s.created_at DESC;
+  try {
+    const query = `
+    SELECT type 
+    FROM Contests
+    WHERE id = $1;
     `;
-    console.log(contestId);
-    const { rows: getNotApprovedRes } = await db.query(getNotApprovedquery, [contestId]);
-    console.log(333333333333,getNotApprovedRes);
-    return getNotApprovedRes;
+    const { rows } = await db.query(query, [contestId]);
+    return rows[0].type;
   } catch(err) {
     console.log(err.message);
     throw new Error(err.message);
@@ -133,4 +122,150 @@ const getWrittenTasks = async(contestId) => {
     client.release();
   }
 }
-module.exports = { getAllContests, addContest, getContestsByStatus, updateContestById, deleteContestById, getWrittenTasks };
+
+const getSingleLeaderboard = async (contestId) => {
+  const client = await db.connect();
+  try {
+    const query = `
+      SELECT u.id, u.fname, u.lname, u.photo, SUM(s.score) AS total_score
+      FROM users u
+      JOIN SingleSubmissions ss ON ss.individual_id = u.id
+      JOIN Submissions s ON s.id = ss.submission_id
+      JOIN tasks t ON s.task_id = t.id
+      WHERE t.contest_id = $1
+      GROUP BY u.id
+      ORDER BY total_score DESC
+      limit 10
+      ;
+    `;
+    const { rows } = await db.query(query, [contestId]);
+    return rows;
+  } catch (err) {
+    console.error(`Error retrieving leaderboard: ${err.message}`);
+    throw new Error("Database error: Unable to retrieve leaderboard");
+  } finally {
+    client.release();
+  }
+};
+
+const getTeamLeaderboard = async (contestId) => {
+  const client = await db.connect();
+  try {
+    const query = `
+      SELECT t.id, t.name, t.photo, SUM(s.score) AS total_score
+      FROM teams t
+      JOIN teamSubmissions ts ON ts.team_id = t.id
+      JOIN Submissions s ON s.id = ts.submission_id
+      JOIN tasks ta ON s.task_id = ta.id
+      WHERE ta.contest_id = $1
+      GROUP BY t.id
+      ORDER BY total_score DESC
+      LIMIT 10;
+    `;
+    const { rows } = await db.query(query, [contestId]);
+    return rows;
+  } catch (err) {
+    console.error(`Error retrieving team leaderboard: ${err.message}`);
+    throw new Error("Database error: Unable to retrieve team leaderboard");
+  } finally {
+    client.release();
+  }
+};
+
+const getTasksByContestId = async (contestId, editing) => {
+  const client = await db.connect();
+  try {
+    let query = `
+      SELECT tasks.*, mcqtasks.a, mcqtasks.b, mcqtasks.c, mcqtasks.d
+    `;
+    if (editing === 'true') {
+      query += `, mcqtasks.right_answer`;
+    }
+    query += `
+      FROM tasks
+      LEFT OUTER JOIN mcqtasks ON tasks.id = mcqtasks.id
+      WHERE contest_id = $1;
+    `;
+    const { rows } = await db.query(query, [contestId]);
+    return rows;
+  } catch (err) {
+    console.error(`Error retrieving tasks by contest ID: ${err.message}`);
+    throw new Error("Database error: Unable to retrieve tasks by contest ID");
+  } finally {
+    client.release();
+  }
+};
+
+const getTaskType = async (taskId) => {
+  const client = await db.connect();
+  try {
+    const query = `
+    SELECT type 
+    FROM Tasks
+    WHERE id = $1;
+    `;
+    const { rows } = await db.query(query, [taskId]);
+    return rows[0].type;
+  } catch(err) {
+    console.log(err.message);
+    throw new Error(err.message);
+  } finally{
+    client.release();
+  }
+}
+
+const getMcqRightAnswer = async (taskId) => {
+  const client = await db.connect();
+  try {
+    const query = `
+    SELECT right_answer 
+    FROM McqTasks
+    WHERE id = $1;
+    `;
+    const { rows } = await db.query(query, [taskId]);
+    return rows[0].right_answer;
+  } catch(err) {
+    console.log(err.message);
+    throw new Error(err.message);
+  } finally{
+    client.release();
+  }
+}
+
+const getTaskPoints = async (taskId) => {
+  const client = await db.connect();
+  try {
+    const query = `
+    SELECT points 
+    FROM Tasks
+    WHERE id = $1;
+    `;
+    const { rows } = await db.query(query, [taskId]);
+    return rows[0].points;
+  } catch(err) {
+    console.log(err.message);
+    throw new Error(err.message);
+  } finally{
+    client.release();
+  }
+}
+
+const getContestById = async (contestId) => {
+  const client = await db.connect();
+  try {
+    const query = `
+      SELECT *
+      FROM contests
+      WHERE id = $1;
+    `;
+    const { rows } = await db.query(query, [contestId]);
+    return rows[0];
+  } catch (err) {
+    console.error(`Error retrieving contest by ID: ${err.message}`);
+    throw new Error("Database error: Unable to retrieve contest by ID");
+  } finally {
+    client.release();
+  }
+};
+
+module.exports = { getAllContests, addContest, getContestsByStatus, updateContestById, deleteContestById, getSingleLeaderboard, getTeamLeaderboard, getTasksByContestId, getContestById, getContestType, getTaskType, getMcqRightAnswer, getTaskPoints };

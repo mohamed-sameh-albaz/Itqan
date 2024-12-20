@@ -62,4 +62,23 @@ const deleteRoleById = async (roleId) => {
   }
 };
 
-module.exports = { getAllRoles, addRole, updateRoleById, deleteRoleById };
+const getUserRoleInCommunity = async (userId, communityName) => {
+  const client = await db.connect();
+  try {
+    const query = `
+      SELECT r.*
+      FROM Roles r
+      JOIN joinAs ja ON r.id = ja.role_id
+      WHERE ja.user_id = $1 AND ja.community_name = $2;
+    `;
+    const { rows } = await db.query(query, [userId, communityName]);
+    return rows[0];
+  } catch (err) {
+    console.error(`Error retrieving user role in community: ${err.message}`);
+    throw new Error("Database error: Unable to retrieve user role in community");
+  } finally {
+    client.release();
+  }
+};
+
+module.exports = { getAllRoles, addRole, updateRoleById, deleteRoleById, getUserRoleInCommunity };

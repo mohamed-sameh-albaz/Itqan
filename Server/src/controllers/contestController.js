@@ -1,5 +1,6 @@
-const { getAllContests, addContest, getContestsByStatus, updateContestById, deleteContestById, getWrittenTasks } = require("../models/contestModel");
+const { getAllContests, addContest, getContestsByStatus, updateContestById, deleteContestById, getSingleLeaderboard, getTeamLeaderboard, getTasksByContestId, getWrittenSubmissions, getContestType, getContestById } = require("../models/contestModel");
 const { addTask, addMcqTask, updateTaskById, deleteTaskById } = require("../models/taskModel");
+const { submitTask } = require("../models/userModel")
 const httpStatusText = require("../utils/httpStatusText");
 
 exports.getContests = async (req, res) => {
@@ -23,7 +24,6 @@ exports.getContests = async (req, res) => {
 
 exports.createContest = async (req, res) => {
   const { description, type, difficulty, name, start_date, end_date, status, group_id } = req.body;
-
   try {
     const newContest = await addContest({
       description,
@@ -250,21 +250,80 @@ exports.deleteTaskById = async (req, res) => {
   }
 };
 
-// get contests/tasks/written?contest_id
-exports.getWrittenTasks = async (req, res) => {
+exports.getSingleLeaderboard = async (req, res) => {
   const { contestId } = req.params;
   try {
-    const tasks = await getWrittenTasks(+contestId);
-    return res
-      .status(200)
-      .json({ status: httpStatusText.SUCCESS, data: { tasks } });
+    const leaderboard = await getSingleLeaderboard(contestId);
+    res.status(200).json({
+      status: "success",
+      data: { leaderboard },
+    });
   } catch (err) {
-    console.error("get written tasks: ", err.message);
-    return res.status(400).json({
-      status: httpStatusText.ERROR,
+    res.status(500).json({
+      status: "error",
       message: "Server Error",
       details: {
-        field: "get written tasks",
+        field: "leaderboard",
+        error: err.message,
+      },
+    });
+  }
+};
+exports.getTeamLeaderboard = async (req, res) => {
+  const { contestId } = req.params;
+  try {
+    const leaderboard = await getTeamLeaderboard(contestId);
+    res.status(200).json({
+      status: "success",
+      data: { leaderboard },
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: "error",
+      message: "Server Error",
+      details: {
+        field: "leaderboard",
+        error: err.message,
+      },
+    });
+  }
+};
+
+exports.getTasksByContestId = async (req, res) => {
+  const { contestId } = req.params;
+  const { editing } = req.query;
+  try {
+    const tasks = await getTasksByContestId(contestId, editing);
+    res.status(200).json({
+      status: "success",
+      data: { tasks },
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: "error",
+      message: "Server Error",
+      details: {
+        field: "tasks",
+        error: err.message,
+      },
+    });
+  }
+};
+
+exports.getContestById = async (req, res) => {
+  const { contestId } = req.params;
+  try {
+    const contest = await getContestById(contestId);
+    res.status(200).json({
+      status: "success",
+      data: { contest },
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: "error",
+      message: "Server Error",
+      details: {
+        field: "contest",
         error: err.message,
       },
     });

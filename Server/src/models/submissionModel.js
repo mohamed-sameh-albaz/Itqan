@@ -1,103 +1,182 @@
 const db = require("../config/db");
 
-exports.submitTask = async (submissionParams) => {
+exports.submitTask = async (taskId, userId, teamId, content, contestType, taskType) => {
   const client = await db.connect();
   try {
-    const contestQuery = `
-      SELECT id, status, type 
-      FROM Contests 
-      Where id = $1; 
+    let query = `
+      INSERT INTO Submissions (status, content, task_id, score)`;
+    if (taskType === "mcq") {
+      query += `VALUES ('Approved', $1, $2, 0)`;
+    } else {
+      query += `VALUES ('pending', $1, $2, 0)`;
+    }
+    query += `
+    RETURNING *;
     `;
-    const { rows: contestRes } = await db.query(contestQuery, [
-      submissionParams.contestId,
-    ]);
-    if (!contestRes.length) {
-      throw new Error("Contest not found");
-    }
-    const contestType = contestRes[0].type;
-    
-    const contestStatus = contestRes[0].status;
-    // check that the contest is running
-    if(contestStatus !== "running") {
-      // throw new Error("the contest is finished you cannot submit");
-    }
-    // verify if the task belongs to the specified contest
-    const taskQuery = `
-      SELECT id 
-      FROM Tasks 
-      WHERE id = $1 AND contest_id = $2;`;
-    const { rows: taskRes } = await db.query(taskQuery, [
-      submissionParams.taskId,
-      submissionParams.contestId,
-    ]);
+    const { rows: submission } = await db.query(query, [content, taskId]);
 
-    if (!taskRes.length) {
-      throw new Error("Task not found in this contest.");
-    }
-    // contestType= "single";
-    console.log(contestType);
-    // team submissions must be handled
-    const submissionQuery = `
-      INSERT INTO Submissions (task_id, content, status)
-      VALUES ($1, $2, 'Pending')
+    query = `INSERT INTO `;
+    const params = [submission[0].id];
+    if (contestType === "team") {
+      query += `
+      TeamSubmissions (submission_id, team_id)
+      VALUES ($1, $2)
       RETURNING *;
       `;
-    const { rows: submissionRes } = await db.query(submissionQuery, [
-      submissionParams.taskId,
-      submissionParams.submittedData,
-    ]);
-    console.log(submissionRes);///////////
-    console.log(contestType);///////////
-    if(contestType === "team") {
-      console.log(3333);
-      const teamSubmissionQuery = `
-        INSERT INTO TeamSubmissions (submission_id, team_id)
-        VALUES ($1, $2)
-        RETURNING *;
-      `;
-      console.log(submissionParams.teamId);
-      const { rows: teamSubRes } = await db.query(teamSubmissionQuery, [
-        submissionRes[0].id,
-        submissionParams.teamId,
-      ]);
-      console.log("333333",teamSubRes);
+      params.push(teamId);
     } else {
-      // check if the user have regiestered to the group that conducts the contest
-      const userGroupQuery = `
-        SELECT r.user_id, r.group_id
-        FROM Registers_to AS r
-        INNER JOIN Contests AS c ON r.group_id = c.group_id
-        WHERE r.user_id = $1 AND c.id = $2;
+      query += `
+      SingleSubmissions (submission_id, individual_id)
+      VALUES ($1, $2)
+      RETURNING *;
       `;
-      const { rows: userGroupRes } = await db.query(userGroupQuery, [
-        submissionParams.userId,
-        submissionParams.contestId,
-      ]);
-      console.log(userGroupRes);
-      if (!userGroupRes.length) {
-        throw new Error("User is not in the contest's group");
-      }
-      
-      const singleSubmissionQuery = `
-        INSERT INTO SingleSubmissions (submission_id, individual_id)
-        VALUES ($1, $2)
-        RETURNING *;
-      `;
-      const { rows: singleSubRes } = await db.query(singleSubmissionQuery, [
-        submissionRes[0].id,
-        submissionParams.userId,
-      ]);
-      console.log(singleSubRes);
+      params.push(userId);
     }
-
-
-    // submit
-    // console.log(singleSubRes);
-    return { submissionRes };
+    const { rows: submissionType } = await db.query(query, params);
+    submission[0].submissionType = contestType;
+    submission[0].taskType = taskType;
+    return submission[0];
   } catch (err) {
-    console.error(`Error adding submission: ${err.message}`);
-    throw new Error(`${err.message}`);
+    console.error("Error submit task:", err.message);
+    throw new Error(err.message);
   } finally {
     client.release();
   }
 };
+
+exports.addTaskPoints = async (userId, points) => {
+  const client = await db.connect();
+  try {
+    const query = `
+      UPDATE Users
+      SET points = $1
+      WHERE id = $2
+      RETURNING *;
+    `;
+    const { rows } = await db.query(query, [points, userId]);
+    return rows[0];
+  } catch (err) {
+    console.error("Error submit task:", err.message);
+    throw new Error(err.message);
+  } finally {
+    client.release();
+  }
+};
+
+exports.getNotApprovedSubmissions = async (contestId, contestType) => {
+  const client = await db.connect();
+  try {
+    let query = `
+      SELECT s.*`;
+    if (contestType == "team") {
+      query += `, sub.team_id`;
+    } else {
+      query += `, sub.individual_id`;
+    }
+    query += `
+      FROM Submissions AS s
+    `;
+    if (contestType === "team") {
+      query += `  JOIN TeamSubmissions AS sub ON sub.submission_id = s.id
+      `;
+    } else {
+      query += `  JOIN SingleSubmissions AS sub ON sub.submission_id = s.id
+      `;
+    }
+    query += `JOIN Tasks AS t ON t.id = s.task_id AND t.type = 'written'
+      JOIN Contests AS c ON c.id = t.contest_id
+      WHERE c.id = $1 AND s.approved_by IS NULL
+      ORDER BY s.created_at DESC;
+    `;
+    console.log(query);
+    const { rows } = await db.query(query, [contestId]);
+    return rows;
+  } catch (err) {
+    console.log(err.message);
+    throw new Error(err.message);
+  } finally {
+    client.release();
+  }
+};
+
+exports.getSubmissions = async (contestId, contestType) => {
+  const client = await db.connect();
+  try {
+    let query = `
+      SELECT s.*, t.type AS task_type`;
+    if (contestType == "team") {
+      query += `, sub.team_id`;
+    } else {
+      query += `, sub.individual_id`;
+    }
+    query += `
+      FROM Submissions AS s
+    `;
+    if (contestType === "team") {
+      query += `  JOIN TeamSubmissions AS sub ON sub.submission_id = s.id
+      `;
+    } else {
+      query += `  JOIN SingleSubmissions AS sub ON sub.submission_id = s.id
+      `;
+    }
+    query += `JOIN Tasks AS t ON t.id = s.task_id
+      JOIN Contests AS c ON c.id = t.contest_id
+      WHERE c.id = $1
+      ORDER BY s.created_at DESC;
+    `;
+    const { rows } = await db.query(query, [contestId]);
+    return rows;
+  } catch (err) {
+    console.log(err.message);
+    throw new Error(err.message);
+  } finally {
+    client.release();
+  }
+};
+
+exports.approveSubmission = async ( userId, submissionId, score ) => {
+  const client = await db.connect();
+  try {
+    const query = `
+      UPDATE Submissions  
+      SET approved_by = $1,
+      score = $2,
+      approved_at = CURRENT_TIMESTAMP,
+      status = 'Approved'
+      WHERE id = $3
+      RETURNING *;
+    `;
+    const { rows } = await db.query(query, [userId, score, submissionId]);
+    return rows[0];
+  } catch(err) {  
+    console.error(err);
+    throw new Error(err.message);
+  } finally {
+    client.release();
+  }
+};
+
+exports.getSubmitor = async (contestType, submissionId) => {
+  const client = await db.connect();
+  try {
+    let query = `
+      SELECT `;
+    if(contestType === 'team') {
+      query += `team_id
+      FROM TeamSubmissions`;
+    } else {
+      query += `individual_id 
+      FROM SingleSubmissions`;
+    }
+    query += `
+      WHERE submission_id = $1;
+    `;
+    const { rows } = await db.query(query, [submissionId]);
+    return rows[0];
+  } catch(err) {  
+    console.error(err.message);
+    throw new Error(err.message);
+  } finally {
+    client.release();
+  } 
+}
