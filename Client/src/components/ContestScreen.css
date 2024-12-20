@@ -214,8 +214,9 @@ color:var(--button-color)
   border-radius: 5px;
   box-sizing: border-box;
   margin-top: 20px;
-  height:30px
-  
+  height:30px;
+  font-size: 15px;
+  height:40px
 }
 
 .CS_all forLeader{

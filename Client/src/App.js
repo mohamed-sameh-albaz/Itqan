@@ -33,6 +33,11 @@ function App() {
           <Route path="/community/:name/posts/edit" element={<AddPostPage editing={false} />} /> 
           <Route path="/community/:name/posts/edit/:post_id" element={<AddPostPage editing={true} />} /> 
 
+          <Route path="/community/:name/groups/:groupID/create" element={<ContestPage MODE={"create"} />} />
+          <Route path="/community/:name/groups/:groupID/contest/:contestID/edit" element={<ContestPage MODE={"edit"} />} />
+          <Route path="/community/:name/groups/:groupID/contest/:contestID/submit" element={<ContestPage MODE={"submit"} />} />
+        
+
         </Routes>
       </div>
     </Router>

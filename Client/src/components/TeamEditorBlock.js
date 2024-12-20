@@ -1,12 +1,14 @@
 import "./TeamEditorBlock.css"
 import React, { useState } from "react";
 import { requestAPI } from '../hooks/useAPI'; 
-const TeamEditorBlock = () => {
+const TeamEditorBlock = (props) => {
+
 
   const user=JSON.parse(localStorage.getItem('user'));
  
-  let id = 7;
-  let CommunityName="Community6";
+  let id = user.id;
+  let name_com=props.com_name;
+
   const handlechange1 = (e) => { 
     setTeamName( e.target.value );
   };
@@ -18,6 +20,8 @@ const TeamEditorBlock = () => {
   }
   
   async function handleCreateTeam(){
+    console.log(id);
+    console.log(name_com);
     console.log("Team name: ", teamName);
     console.log("Team mate1: ", teamMate1);
     console.log("Team mate2: ", teamMate2);
@@ -31,16 +35,21 @@ const TeamEditorBlock = () => {
             userId: id,
             name: teamName,
             photo: "test Photo",
-            communityName: "Community Three",
-            teamUsers: [8, 9]
+            communityName: name_com,
+            teamUsers: [
+             teamMate1,
+              teamMate2
+            ]
           }
         }
     )
  if (status > 199 && status < 300) {
     console.log("sucssess");
+   
     }
     else {
       console.log("error");
+   
     }
 
   }
