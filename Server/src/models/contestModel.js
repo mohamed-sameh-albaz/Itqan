@@ -268,4 +268,22 @@ const getContestById = async (contestId) => {
   }
 };
 
-module.exports = { getAllContests, addContest, getContestsByStatus, updateContestById, deleteContestById, getSingleLeaderboard, getTeamLeaderboard, getTasksByContestId, getContestById, getContestType, getTaskType, getMcqRightAnswer, getTaskPoints };
+const setContestStatus = async (contestId) => {
+  const client = await db.connect();
+  try {
+    const query = `
+      UPDATE contests 
+      SET status = 'finished', updated_at = CURRENT_TIMESTAMP
+      WHERE id = $1 
+      RETURNING *;
+    `;
+    const { rows } = await db.query(query, [contestId]);
+    return rows[0];
+  } catch (err) {
+    console.error(`Error updating contest: ${err.message}`);
+    throw new Error("Database error: Unable to update contest");
+  } finally {
+    client.release();
+  }
+}
+module.exports = { getAllContests, addContest, getContestsByStatus, updateContestById, deleteContestById, getSingleLeaderboard, getTeamLeaderboard, getTasksByContestId, getContestById, getContestType, getTaskType, getMcqRightAnswer, getTaskPoints, setContestStatus };

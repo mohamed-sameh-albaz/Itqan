@@ -4,14 +4,9 @@ exports.submitTask = async (taskId, userId, teamId, content, contestType, taskTy
   const client = await db.connect();
   try {
     let query = `
-      INSERT INTO Submissions (status, content, task_id, score)`;
-    if (taskType === "mcq") {
-      query += `VALUES ('Approved', $1, $2, 0)`;
-    } else {
-      query += `VALUES ('pending', $1, $2, 0)`;
-    }
-    query += `
-    RETURNING *;
+      INSERT INTO Submissions (status, content, task_id, score)
+      VALUES ('Pending', $1, $2, 0)
+      RETURNING *;
     `;
     const { rows: submission } = await db.query(query, [content, taskId]);
 
@@ -63,7 +58,26 @@ exports.addTaskPoints = async (userId, points) => {
   }
 };
 
-exports.getNotApprovedSubmissions = async (contestId, contestType) => {
+exports.setSubmissionScore = async (submissionId, score, status) => {
+  const client = await db.connect();
+  try {
+    const query = `
+      UPDATE Submissions
+      SET score = $1, status = $2
+      WHERE id = $3
+      RETURNING *;
+    `;
+    const { rows } = await db.query(query, [score, status, submissionId]);
+    return rows[0];
+  } catch (err) {
+    console.error("Error setting submissions score:", err.message);
+    throw new Error(err.message);
+  } finally {
+    client.release();
+  }
+};
+
+exports.getPendingSubmissions = async (contestId, contestType) => {
   const client = await db.connect();
   try {
     let query = `
@@ -83,12 +97,11 @@ exports.getNotApprovedSubmissions = async (contestId, contestType) => {
       query += `  JOIN SingleSubmissions AS sub ON sub.submission_id = s.id
       `;
     }
-    query += `JOIN Tasks AS t ON t.id = s.task_id AND t.type = 'written'
+    query += `JOIN Tasks AS t ON t.id = s.task_id AND t.type LIKE '_ritten'
       JOIN Contests AS c ON c.id = t.contest_id
-      WHERE c.id = $1 AND s.approved_by IS NULL
+      WHERE c.id = $1 AND s.approved_by IS NULL AND s.status LIKE '_ending'
       ORDER BY s.created_at DESC;
     `;
-    console.log(query);
     const { rows } = await db.query(query, [contestId]);
     return rows;
   } catch (err) {
@@ -179,4 +192,52 @@ exports.getSubmitor = async (contestType, submissionId) => {
   } finally {
     client.release();
   } 
+}
+
+exports.checkSubmitorSubs = async (userId, teamId, taskId) => {
+  const client = await db.connect();
+  try {
+    let query = `
+      SELECT id FROM Submissions AS s`;
+    const params = [];
+    if(teamId) {
+      query += `
+      JOIN TeamSubmissions AS sub ON sub.submission_id = s.id AND sub.team_id = $1`;
+      params.push(teamId);
+    } else if (userId) {
+      query += ` 
+      JOIN SingleSubmissions AS sub ON sub.submission_id = s.id AND sub.individual_id = $1`;
+      params.push(userId);
+    }
+    query += `
+      WHERE s.task_id = $2;
+    `;
+    params.push(taskId);
+    const { rows } = await db.query(query, params);
+    return rows;
+  } catch(err) {  
+    console.error(err.message);
+    throw new Error(err.message);
+  } finally {
+    client.release();
+  } 
+}
+
+exports.checkApproved = async (submissionId) => {
+  const client = await db.connect();
+  try {
+    let query = `
+      SELECT * 
+      FROM Submissions
+      WHERE id = $1;
+      `;
+    const { rows } = await db.query(query, [submissionId]);
+    return rows;
+  } catch(err) {  
+    console.error(err.message);
+    throw new Error(err.message);
+  } finally {
+    client.release();
+  } 
+
 }

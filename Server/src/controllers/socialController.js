@@ -177,7 +177,6 @@ exports.like = async (req, res) => {
   const { userId, postId, state } = req.body;
   try {
     let likePost;
-    console.log(state);
     if(state) {
       const liked = await isLiked(postId, userId);
       if(liked.length) {
