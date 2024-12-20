@@ -25,6 +25,8 @@ exports.submitTask = async (req, res) => {
           const userPoints = await getUserPoints(userId);
           const pointsAdded = await addTaskPoints(userId, taskScore + userPoints);
         }
+      } else {
+        
       }
     }
     return res
@@ -75,7 +77,6 @@ exports.getSubmissions = async (req, res) => {
       for(let i = 0; i < submissions.length; ++i) {
         const teamUsers = await getTeamUsers(submissions[i].team_id);
         submissions[i].teamUsers = teamUsers;
-        console.log(submissions[i].teamUsers);
       }
     }
     return res
@@ -108,7 +109,6 @@ exports.approveSubmission = async(req, res) => {
     if(contestType === 'team') {
       const team = await getTeamUsers(submitor.team_id);
       for(let i = 0; i < team.length; ++i) {
-        console.log(team);
         const userPoints = await getUserPoints(team[i].id);
         const pointsAdded = await addTaskPoints(team[i].id, userPoints + upScore);
       }
