@@ -12,6 +12,8 @@ const {
   addComment,
   deleteComment,
   checkUserComment,
+  addToPostContent,
+  getPostContent,
 } = require("../models/socialModel");
 const httpStatusText = require("../utils/httpStatusText");
 
@@ -19,7 +21,12 @@ const httpStatusText = require("../utils/httpStatusText");
 exports.createPost = async (req, res) => {
   const { title, userId, communityId, text, images } = req.body;
   try {
-    const newPost = await createPost(title, userId, communityId, text, images);
+    const newPost = await createPost(title, userId, communityId, text);
+    newPost.images = [];
+    for(let i = 0; i < images.length; ++i) {
+      const PostContent = await addToPostContent(newPost.id, images[i]);
+      newPost.images.push(PostContent.content);
+    }
     res
       .status(201)
       .json({ status: httpStatusText.SUCCESS, data: { post: newPost } });
@@ -46,14 +53,15 @@ exports.getPosts = async (req, res) => {
       const postsComments = await getPostComments(posts[i].id);
       const PostLikes = await getPostLikes(posts[i].id)
       const liked = await isLiked(posts[i].id, userId);
+      const PostContent = await getPostContent(posts[i].id);
       posts[i].liked = liked.length;
       posts[i].likes = PostLikes;
       posts[i].comments = postsComments;
-      posts[i]['images'] = posts[i]['content'];
-      delete posts[i]['content']; 
-      posts[i].images = JSON.parse(posts[i].images);
+      posts[i].images = [];
+      for(let j = 0; j < PostContent.length; ++j) {
+        posts[i].images.push(PostContent[j].content);
+      }
     }
-    
     res.status(200).json({
       status: httpStatusText.SUCCESS,
       data: { posts },
@@ -87,14 +95,18 @@ exports.getUserPosts = async (req, res) => {
     for(let i = 0; i < posts.length; ++i) {
       const postsComments = await getPostComments(posts[i].id);
       const PostLikes = await getPostLikes(posts[i].id)
+      const liked = await isLiked(posts[i].id, userId);
+      const PostContent = await getPostContent(posts[i].id);
+      posts[i].liked = liked.length;
       posts[i].likes = PostLikes;
       posts[i].comments = postsComments;
-      posts[i]['images'] = posts[i]['content'];
-      delete posts[i]['content']; 
-      posts[i].images = JSON.parse(posts[i].images);
+      posts[i].images = [];
+      for(let j = 0; j < PostContent.length; ++j) {
+        posts[i].images.push(PostContent[j].content);
+      }
     }
     
-    res.status(201).json({
+    res.status(200).json({
       status: httpStatusText.SUCCESS,
       data: { posts },
       pagination: {
@@ -240,12 +252,10 @@ exports.dislike = async (req, res) => {
 
 // GET /posts/comments
 exports.getComments = async (req, res) => {
-  // console.log(333);
   const { postId, limit, page } = req.query;
   try {
     const offset = (page - 1) * limit;
     const comments = await getPostComments(postId, limit, offset);
-    console.log(comments);
     res.status(201).json({
       status: httpStatusText.SUCCESS,
       data: { comments },
