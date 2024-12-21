@@ -1,0 +1,48 @@
+/* Client/src/views/submission.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.bg-white {
+  @apply bg-white;
+}
+
+.shadow-md {
+  @apply shadow-md;
+}
+
+.rounded-lg {
+  @apply rounded-lg;
+}
+
+.p-4 {
+  @apply p-4;
+}
+
+.mb-4 {
+  @apply mb-4;
+}
+
+.text-xl {
+  @apply text-xl;
+}
+
+.font-bold {
+  @apply font-bold;
+}
+
+.text-gray-700 {
+  @apply text-gray-700;
+}
+
+.text-gray-500 {
+  @apply text-gray-500;
+}
+
+.container {
+  @apply container mx-auto mt-5;
+}
+
+.grid {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4;
+}

@@ -12,7 +12,7 @@ import TeamsPage from './views/TeamsPage';
 import AddPostPage from './views/AddPostPage'; // Import the new component
 import ProfilePage from './views/ProfilePage';
 import PostsPage from './views/PostsPage';
-
+import SubmissionsPage from './views/SubmissionsPage';
 
 function App() {
   return (
@@ -33,10 +33,14 @@ function App() {
           <Route path="/community/:name/posts/edit" element={<AddPostPage editing={false} />} /> 
           <Route path="/community/:name/posts/edit/:post_id" element={<AddPostPage editing={true} />} /> 
 
+
+          <Route path="/sub" element={<SubmissionsPage />} />
+
           <Route path="/community/:name/group/:groupID/create" element={<ContestPage MODE={"create"} />} />
           <Route path="/community/:name/group/:groupID/contest/:contestID/edit" element={<ContestPage MODE={"edit"} />} />
           <Route path="/community/:name/group/:groupID/contest/:contestID/show" element={<ContestPage MODE={"submit"} />} />
         
+
 
         </Routes>
       </div>
