@@ -1,6 +1,5 @@
-const { getAllContests, addContest, getContestsByStatus, updateContestById, deleteContestById, getSingleLeaderboard, getTeamLeaderboard, getTasksByContestId, getWrittenSubmissions, getContestType, getContestById } = require("../models/contestModel");
+const { getAllContests, addContest, getContestsByStatus, updateContestById, deleteContestById, getSingleLeaderboard, getTeamLeaderboard, getTasksByContestId, getContestById } = require("../models/contestModel");
 const { addTask, addMcqTask, updateTaskById, deleteTaskById } = require("../models/taskModel");
-const { submitTask } = require("../models/userModel")
 const httpStatusText = require("../utils/httpStatusText");
 
 exports.getContests = async (req, res) => {
@@ -121,7 +120,8 @@ exports.deleteContest = async (req, res) => {
 };
 
 exports.getContestsByStatus = async (req, res) => {
-  const { community_name, group_id, status, limit } = req.query;
+  const { community_name, group_id, status, limit = 10, page = 1 } = req.query;
+  const offset = (page - 1) * limit;
 
   try {
     const contests = await getContestsByStatus({
@@ -129,10 +129,16 @@ exports.getContestsByStatus = async (req, res) => {
       group_id,
       status,
       limit,
+      offset,
     });
     res.status(200).json({
       status: "success",
       data: { contests: contests.length ? contests : [] },
+      pagination: {
+        current_page: page,
+        per_page: limit,
+        total: contests.length,
+      },
     });
   } catch (err) {
     res.status(500).json({
@@ -148,8 +154,7 @@ exports.getContestsByStatus = async (req, res) => {
 
 exports.editContest = async (req, res) => {
   const { contestId } = req.params;
-  const { description, type, difficulty, name, start_date, end_date, status } =
-    req.body;
+  const { description, type, difficulty, name, start_date, end_date, status } = req.body;
 
   try {
     const updatedContest = await updateContestById(contestId, {
