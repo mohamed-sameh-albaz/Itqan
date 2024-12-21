@@ -233,6 +233,7 @@ const CommunityPage = () => {
         setConfirmJoinGroup(false);
     }
 
+    const {roleId} = useRole(communityName);
     const Header = ['Username', 'Role', 'Email'];
     return ( 
     <div>
@@ -258,12 +259,12 @@ const CommunityPage = () => {
                 <div className='groups-section'>
                     <h3>You Groups</h3>
                     <div className="groups-grid">
-                        <Card className='w-48 h-48 text-left' variant="filled" shadow="hover" onClick={()=>setgroupCreator(true)} >
+                        {(roleId == 2 || roleId == 1) && <Card className='w-48 h-48 text-left' variant="filled" shadow="hover" onClick={()=>setgroupCreator(true)} >
                             <Card.Body className='cursor-pointer select-none flex flex-col h-full text-center justify-center' >
                             <FontAwesomeIcon icon={faAdd} color="black" size="3x" className="text-gray-700"/>
                             <Typography className="text-gray-800 font-bold">Create new group</Typography>
                             </Card.Body>
-                        </Card>
+                        </Card>}
                         {(isLoadingGroups? [] : groups.data.groups).map((e,index)=>
                         <CommunityCard
                             key={e.title}
@@ -272,8 +273,10 @@ const CommunityPage = () => {
                             number={index}
                             buttonText={ (e.joined === true)? "View" : "Join"}
                             color= {null}
-                            onClick={()=>enterGroup(e.id, e.joined)}/>
-                            )}
+                            onClick={()=>enterGroup(e.id, e.joined)}
+                            // onDelete={() => handleDelete(e.title, e.id)}
+                            // onEdit={()=>console.log("Edit")}
+                            />)}
                     </div>
                 </div>
 

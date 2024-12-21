@@ -3,7 +3,7 @@ import "./HomePage.css"; // Make sure to import the CSS file
 import CommunityCard from "../components/CommunityCard"; // Import the new component
 import HomeNavBar from "../components/HomeNavBar"; // Import the HomeNavBar component
 import {requestAPI, useAPI} from "../hooks/useAPI";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Button, ButtonGroup, Card, Dialog, DialogBody, DialogFooter, DialogHeader, Input, Spinner, Typography } from "@material-tailwind/react";
 import {faAdd} from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -13,8 +13,8 @@ const HomePage = () => {
   const nav = useNavigate();
   const [viewAll, setViewAll] = useState(false);
 
-  const [allCommunities, isAllCommunitiyLoading] = useAPI('/communities', 'get', {params: {userId: user.id}});
-  const [userCommunities, isUserCommunitiyLoading] = useAPI('/communities/user', 'get', {params: {userId: user.id}});
+  const [allCommunities, isAllCommunitiyLoading, refreshAllCommunities] = useAPI('/communities', 'get', {params: {userId: user.id}});
+  const [userCommunities, isUserCommunitiyLoading, refreshCommunities] = useAPI('/communities/user', 'get', {params: {userId: user.id}});
   console.log(allCommunities, " ", userCommunities);
   useEffect(() => {
     localStorage.getItem("user") ?? nav("/auth#login");
@@ -56,6 +56,7 @@ const HomePage = () => {
 
   const colors = ['#BE181B', '#4807E0', '#3DB741', '#E5A226', '#DBD827', '#BF2794', '#B2084C', '#1AB8C0']
   const [isCreateComDialogOpen, setIsCreateComDialogOpen] = useState(false);
+  const [communityEditorId, setCommunityEditorId] = useState(null);
   const [selectedColorIndex, setSelectedColorIndex] = useState(0);
   const [communityName, setCommunityName] = useState("");
   const [communityDes, setCommunityDes] = useState("");
@@ -80,12 +81,28 @@ const HomePage = () => {
     }
 
   }
+  const parm = useParams();
+
+  
+  async function handleDelete(name, id) {
+    console.log("Delete", name, id);
+    const {status, data} = await requestAPI(`/communities/${id}`, 'delete');
+
+    if(status > 199 && status < 300){
+      refreshCommunities();
+      refreshAllCommunities();
+      alert(`Community ${name} deleted`);
+    }
+    else{
+        alert(`Failed to delete community ${name}`);
+    }
+  }
 
   return (
     <div>
       <HomeNavBar userName = {user.fname + " " + user.lname}/>
       <Dialog open={isJoinConfirmDialogOpen} onClose={()=>setIsJoinConfirmDialogOpen(false)}>
-        <DialogHeader>Are you sure you want to join Logic Design.</DialogHeader>
+        <DialogHeader>Are you sure you want to join this community?.</DialogHeader>
         <DialogFooter>
           <Button variant="outlined" color="red" onClick={()=>setIsJoinConfirmDialogOpen(false)}>Cancle</Button>
           <div className="w-2"/>
@@ -159,8 +176,10 @@ const HomePage = () => {
                                                                       number={index}
                                                                       buttonText={ (community.role_color === null)? "Join" : "View"}
                                                                       color= {community.role_color}
-                                                                      onClick={()=>onCommunityClicked(community.name, community.role_id)}/>
-                                                                      )}
+                                                                      onClick={()=>onCommunityClicked(community.name, community.role_id)}
+                                                                      onDelete={()=>handleDelete(community.name, community.id)}
+
+                                                                      />)}
       <Card className='w-48 h-48 text-left' variant="filled" shadow="hover" onClick={()=>setIsCreateComDialogOpen(true)} >
         <Card.Body className='cursor-pointer select-none flex flex-col h-full text-center justify-center' >
           <FontAwesomeIcon icon={faAdd} color="black" size="3x" className="text-gray-700"/>

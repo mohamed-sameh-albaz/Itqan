@@ -63,6 +63,14 @@ const DetailedPage = () => {
         groupId:        ((selectedGroup !=-1 && selectedContest==-1)? selectedGroup : null), 
         contestId:      (selectedContest!=-1)? selectedContest : null ,
         }})
+
+    const [participate_rate, loadingparticipate, refreshparticipate] = useAPI('/stats/participation-rate', 'get',
+        {params:{
+        year: 2024,
+        communityName:  ((selectedGroup ==-1 && selectedContest==-1)? parms.name: null),
+        groupId:        ((selectedGroup !=-1 && selectedContest==-1)? selectedGroup : null), 
+        contestId:      (selectedContest!=-1)? selectedContest : null ,
+        }})
     
     const [year, setYear] = useState(2024);
 
@@ -141,8 +149,8 @@ const DetailedPage = () => {
                     <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
                             <Pie data={loadingAcceptance? [] : [
-    { name: 'Participated', value: acceptance_rate.data.acceptance_rate.accepted_count },
-    { name: "Didn't Participate", value: acceptance_rate.data.acceptance_rate.rejected_count },
+    { name: 'Participated', value: participate_rate.data.participatied_count.participatied_count },
+    { name: "Didn't Participate", value: participate_rate.data.participatied_count.non_participatied_count },
     ]} dataKey="value" cx="50%" cy="50%"  fill="#82ca9d" label>
                                 <Cell key="Participated" fill="#00C49F" />
                                 <Cell key="Didn't Participate" fill="#FF8042" />

@@ -25,7 +25,7 @@ const calculateTimeLeft = (startDate, endData) => {
 
     // if(isDateBetween(now, start, end)) return "Running";
 
-    return "Finished";
+    return 0;
   };
 
 const isDateBetween = (date, startDate, endDate) => {
@@ -89,7 +89,7 @@ const ContestTable = ({contests, refresh}) => {
                     <td>{format(new Date(e.start_date), 'yyyy-MM-dd')}<br/> {format(new Date(e.start_date), 'HH:mm')} </td>
                     {/* <td>{format(new Date(e.end_date), 'yyyy-MM-dd')}<br/> {format(new Date(e.start_date), 'HH:mm')} </td> */}
                     <td>{calculateTimeLeft(e.start_date, e.end_date)}</td>
-                    <td>{calculateTimeLeft((new Date()).toUTCString(),e.start_date) + " Left"}</td>
+                    <td>{calculateTimeLeft((new Date()).toUTCString(),e.start_date) != 0 ? calculateTimeLeft((new Date()).toUTCString(),e.start_date) : "Finished"}</td>
                     <td className='flex gap-2 justify-left'>
                     
                     <Button style={{backgroundColor:'var(--primary-color)'}} onClick={()=>nav(`/community/${parms.name}/group/${e.group_id}/contest/${e.id}/show`)}>Go There</Button>

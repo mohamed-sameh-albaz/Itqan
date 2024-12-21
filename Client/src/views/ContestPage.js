@@ -13,7 +13,7 @@ const ContestPage = (props) => {
   
 
   const parms= useParams();
-  let user_ID = 3//my_user.id;
+  let user_ID = my_user.id;
   console.log(user_ID);
   let group_ID = parms.groupID;
   let mode=props.MODE;
@@ -25,7 +25,7 @@ const ContestPage = (props) => {
   let buttonText = "Submit";
   let form_write = "";
 
-  if (user === "leader" || user === "Admin") {
+  if (user === "leader" || user === "admin") {
     buttonText = "Save";
     form_write = "";
   }
@@ -94,7 +94,7 @@ const ContestPage = (props) => {
   async function handleClick () {
 
     
-    if((user === "leader" || user==="Admin") &&mode === "create") {
+    if((user === "leader" || user==="admin") &&mode === "create") {
       if(formData.type === "" || formData.difficulty === "" || formData.name === "" || formData.description === "" || formData.start_date === "" || formData.end_date === "") 
       {
         alert("Please fill all the fields");
@@ -130,7 +130,7 @@ const ContestPage = (props) => {
   }  
   }
 
-  else if ((user==="leader"||user==="Admin") && mode === "edit") {
+  else if ((user==="leader"||user==="admin") && mode === "edit") {
     if(formData.type === "" || formData.difficulty === "" || formData.name === "" || formData.description === "" || formData.start_date === "" || formData.end_date === "") 
       {
         alert("Please fill all the fields");

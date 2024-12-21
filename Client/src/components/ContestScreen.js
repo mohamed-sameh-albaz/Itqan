@@ -27,7 +27,7 @@ const ContestScreen = (props) =>
 
   const [buttons_len, setButtonsLen] = useState(0);
 
-  if (user === "leader" || user === "Admin") {
+  if (user === "leader" || user === "admin") {
     allow_read = "";
   }
   else { 
@@ -172,7 +172,7 @@ else if(mymode==="submit")
  
   
   useEffect(() => {
-     if (props.sendnow==="true" && (props.user==="leader"||props.user==="Admin") && mymode==="create") {
+     if (props.sendnow==="true" && (props.user==="leader"||props.user==="admin") && mymode==="create") {
        buttons.map((label,index) => {
          if (index > 0) {
            handleeClick(index);
@@ -188,7 +188,7 @@ else if(mymode==="submit")
     });
     }
 
-    else if (props.sendnow==="true" && (props.user==="leader"||props.use==="Admin") && mymode==="edit") {
+    else if (props.sendnow==="true" && (props.user==="leader"||props.user==="admin") && mymode==="edit") {
       buttons.map((label,index) => {
         if (index > 0) {
           handleeClickedit(index);
@@ -352,7 +352,7 @@ async function handleeClickSubmit(index){
           />
         </div>
 
-        {buttons[activeIndex].type === "mcq" && (user === "leader"||user==="Admin") && (
+        {buttons[activeIndex].type === "mcq" && (user === "leader"||user==="admin") && (
           <div className="choices">
             {[1, 2, 3, 4].map((num) => (
               <div key={num} className="choice-input">
@@ -413,7 +413,7 @@ async function handleeClickSubmit(index){
           </div>
         )}
       </div>
-      {(user === "leader"||user==="Admin" )&& (
+      {(user === "leader"||user==="admin" )&& (
         <div className="forLeader">
           <button className="addQM" onClick={() => addquesM()}>
             add Question MCQ
