@@ -1,3 +1,4 @@
+const { Query } = require("pg");
 const db = require("../config/db");
 
 const getCommunityStats = async (communityName) => {
@@ -247,4 +248,36 @@ const getAcceptanceRate = async ({ communityName, groupId, contestId }) => {
   }
 };
 
-module.exports = { getCommunityStats, getDetailedReport, getAcceptanceRate };
+const getParticipationRate =async ({ communityName, groupId }) => {
+  const client = await db.connect();
+  try {
+    let query = `
+      SELECT ss.individual_id, COUNT(ss.individual_id) AS individual_participated_count
+      FROM SingleSubmissions AS ss 
+      JOIN Submissions AS s ON s.id = ss.submission_id
+      JOIN Tasks AS t ON s.task_id = t.id
+      JOIN Contests AS c ON c.id = t.contest_id
+      JOIN Groups AS g ON g.id = c.group_id
+      JOIN Community comm ON g.community_name = comm.name
+    `;
+    const params = [];
+    if (communityName) {
+      query += ` WHERE comm.name = $1 `;
+      params.push(communityName);
+    } else if (groupId) {
+      query += ` WHERE g.id = $1 `;
+      params.push(groupId);
+    }
+    query += `GROUP BY individual_id;`
+    const { rows } = await db.query(query, params);
+    console.log(rows);
+    return !rows.length ? 0 : +rows[0].individual_participated_count;
+  } catch (err) {
+    console.error(`Error retrieving participation count: ${err.message}`);
+    throw new Error("Database error: Unable to retrieve participation count");
+  } finally {
+    client.release();
+  }
+}
+
+module.exports = { getCommunityStats, getDetailedReport, getAcceptanceRate, getParticipationRate };
