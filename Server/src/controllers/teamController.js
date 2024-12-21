@@ -96,12 +96,14 @@ exports.createTeam = async (req, res) => {
 
 // DELETE /teams
 exports.leaveTeam = async (req, res) => {
-  const { userId, teamId } = req.body;
+  const { userId, CommunityName } = req.body;
   try {
-    const user = await leaveTeam(userId, teamId);
-    const users = await getTeamUsers(teamId);
-    if (!users.length) {
-      const team = await deleteTeam(teamId);
+    const userTeam = await getUserCommTeam(userId, CommunityName);
+    const user = await leaveTeam(userId, userTeam[0].id);
+    const users = await getTeamUsers(userTeam[0].id);
+    if (users.length <= 1) {
+      const team = await deleteTeam(userTeam[0].id);
+      users.pop();
     }
     return res
       .status(200)
