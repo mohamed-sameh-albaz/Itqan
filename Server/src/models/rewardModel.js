@@ -34,6 +34,22 @@ const addReward = async (reward) => {
   }
 };
 
+const addBonusReward = async (rewardId, userId) => {
+  const client = await db.connect();
+  try {
+    const { rows } = await db.query(
+      `INSERT INTO user_rewards (user_id, reward_id) VALUES ($1, $2) RETURNING *`,
+      [userId, rewardId]
+    );
+    return rows[0];
+  } catch (err) {
+    console.error(`Error adding bonus reward: ${err.message}`);
+    throw new Error("Database error: Unable to add bonus reward");
+  } finally {
+    client.release();
+  }
+};
+
 const updateRewardById = async (rewardId, reward) => {
   const client = await db.connect();
   try {
@@ -70,7 +86,12 @@ const getUserRewards = async (userId, limit, offset) => {
        FROM ((users 
        JOIN levels ON levels.pointsThreshold <= users.points) 
        JOIN rewards ON rewards.id = levels.reward_id) 
-       WHERE users.id = $1 
+       WHERE users.id = $1
+       UNION
+       SELECT r.*
+       FROM user_rewards ur
+       JOIN rewards r ON ur.reward_id = r.id
+       WHERE ur.user_id = $1
        LIMIT $2 OFFSET $3`,
       [userId, limit, offset]
     );
@@ -79,10 +100,16 @@ const getUserRewards = async (userId, limit, offset) => {
        FROM ((users 
        JOIN levels ON levels.pointsThreshold <= users.points) 
        JOIN rewards ON rewards.id = levels.reward_id) 
-       WHERE users.id = $1`,
+       WHERE users.id = $1
+       UNION
+       SELECT COUNT(*)
+       FROM user_rewards ur
+       JOIN rewards r ON ur.reward_id = r.id
+       WHERE ur.user_id = $1`,
       [userId]
     );
-    const totalCount = parseInt(countRows[0].count, 10);
+    let totalCount = parseInt(countRows[0].count, 10);
+    totalCount += parseInt(countRows[1].count, 10);
     return { rewards, totalCount };
   } catch (err) {
     console.error(`Error retrieving user rewards: ${err.message}`);
@@ -92,4 +119,4 @@ const getUserRewards = async (userId, limit, offset) => {
   }
 };
 
-module.exports = { getAllRewards, addReward, updateRewardById, deleteRewardById, getUserRewards };
+module.exports = { getAllRewards, addReward, addBonusReward, updateRewardById, deleteRewardById, getUserRewards };
