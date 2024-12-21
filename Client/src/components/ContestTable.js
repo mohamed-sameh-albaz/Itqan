@@ -95,7 +95,7 @@ const ContestTable = ({contests, refresh}) => {
                     <IconButton variant='text' onClick={() => handleDelete(e.id, e.name)}>
                         <FontAwesomeIcon color='red'  icon={faTrash}/>
                     </IconButton>
-                    <IconButton variant='text' onClick={() => nav(`/community/${parms.name}/groups/${e.group_id}/contest/${e.id}/edit`)}>
+                    <IconButton variant='text' onClick={() => nav(`/community/${parms.name}/group/${e.group_id}/contest/${e.id}/edit`)}>
                         <FontAwesomeIcon icon={faEdit}/>
                     </IconButton>
                     </div>
