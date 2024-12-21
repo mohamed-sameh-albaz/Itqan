@@ -1,5 +1,5 @@
 const { addCommunity, getAllCommunities, getUserCommunities, searchCommunitiesByName, getUsersByCommunityName, promoteUser, updateCommunityById, removeCommunityById } = require("../models/communityModel");
-const { addJoinAs } = require("../models/joinAsModel");
+const { addJoinAs, removeJoinAs } = require("../models/joinAsModel");
 const { getGroupsByCommunity } = require("../models/groupModel");
 const httpStatusText = require("../utils/httpStatusText");
 
@@ -47,6 +47,39 @@ exports.joinCommunity = async (req, res) => {
       message: "Server Error",
       details: {
         field: "joinAs",
+        error: err.message,
+      },
+    });
+  }
+};
+
+exports.leaveCommunity = async (req, res) => {
+  const { userId, communityName } = req.body;
+
+  try {
+    const result = await removeJoinAs(userId, communityName);
+    if (result.message) {
+      return res.status(400).json({
+        status: httpStatusText.FAIL,
+        message: result.message,
+      });
+    }
+    if (!result) {
+      return res.status(404).json({
+        status: httpStatusText.FAIL,
+        message: "User not found in the community",
+      });
+    }
+    res.status(200).json({
+      status: httpStatusText.SUCCESS,
+      message: "User has left the community",
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: httpStatusText.ERROR,
+      message: "Server Error",
+      details: {
+        field: "leave community",
         error: err.message,
       },
     });

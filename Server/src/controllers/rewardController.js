@@ -107,3 +107,24 @@ exports.deleteReward = async (req, res) => {
     });
   }
 };
+
+exports.addBonusReward = async (req, res) => {
+  const { rewardId, userId } = req.body;
+
+  try {
+    const bonusReward = await rewardModel.addBonusReward(rewardId, userId);
+    res.status(201).json({
+      status: httpStatusText.SUCCESS,
+      data: { bonusReward },
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: httpStatusText.ERROR,
+      message: "Server Error",
+      details: {
+        field: "bonusReward",
+        error: err.message,
+      },
+    });
+  }
+};

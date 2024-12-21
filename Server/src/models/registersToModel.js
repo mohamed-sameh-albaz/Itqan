@@ -16,4 +16,20 @@ const addRegisterTo = async (registerTo) => {
   }
 };
 
-module.exports = { addRegisterTo };
+const removeRegisterTo = async (userId, groupId) => {
+  const client = await db.connect();
+  try {
+    const { rows } = await db.query(
+      `DELETE FROM registers_to WHERE user_id = $1 AND group_id = $2 RETURNING *`,
+      [userId, groupId]
+    );
+    return rows[0];
+  } catch (err) {
+    console.error(`Error removing registerTo: ${err.message}`);
+    throw new Error("Database error: Unable to remove registerTo");
+  } finally {
+    client.release();
+  }
+};
+
+module.exports = { addRegisterTo, removeRegisterTo };
