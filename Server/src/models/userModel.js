@@ -206,7 +206,7 @@ exports.getUserData = async (userId) => {
   const client = await db.connect();
   try {
     const query = `
-      SELECT fname, lname, photo, id 
+      SELECT fname, lname, photo, id, email 
       FROM Users
       WHERE id = $1;
     `; 
