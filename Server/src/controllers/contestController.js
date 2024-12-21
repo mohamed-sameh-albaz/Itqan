@@ -1,6 +1,7 @@
 const { getAllContests, addContest, getContestsByStatus, updateContestById, deleteContestById, getSingleLeaderboard, getTeamLeaderboard, getTasksByContestId, getContestById } = require("../models/contestModel");
 const { addTask, addMcqTask, updateTaskById, deleteTaskById } = require("../models/taskModel");
 const httpStatusText = require("../utils/httpStatusText");
+const { body, validationResult } = require("express-validator");
 
 exports.getContests = async (req, res) => {
   try {
@@ -21,35 +22,63 @@ exports.getContests = async (req, res) => {
   }
 };
 
-exports.createContest = async (req, res) => {
-  const { description, type, difficulty, name, start_date, end_date, status, group_id } = req.body;
-  try {
-    const newContest = await addContest({
-      description,
-      type,
-      difficulty,
-      name,
-      start_date,
-      end_date,
-      status,
-      group_id
-    });
+exports.createContest = [
+  // Validation rules
+  body("type").notEmpty().withMessage("Type is required"),
+  body("name").notEmpty().withMessage("Name is required"),
+  body("group_id").notEmpty().withMessage("Group ID is required"),
+  body("start_date").isISO8601().withMessage("Start date must be a valid date"),
+  body("end_date").isISO8601().withMessage("End date must be a valid date"),
+  body("end_date").custom((value, { req }) => {
+    if (new Date(value) <= new Date(req.body.start_date)) {
+      throw new Error("End date must be greater than start date");
+    }
+    return true;
+  }),
 
-    res.status(201).json({
-      status: "success",
-      data: { contest: newContest },
-    });
-  } catch (err) {
-    res.status(500).json({
-      status: "error",
-      message: "Server Error",
-      details: {
-        field: "contest",
-        error: err.message,
-      },
-    });
+  async (req, res) => {
+    // Check for validation errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        status: "error",
+        message: "Validation failed",
+        details: errors.array().map(error => ({
+          field: error.param,
+          error: error.msg
+        }))
+      });
+    }
+
+    const { description, type, difficulty, name, start_date, end_date, status, group_id } = req.body;
+    try {
+      const newContest = await addContest({
+        description,
+        type,
+        difficulty,
+        name,
+        start_date,
+        end_date,
+        status,
+        group_id
+      });
+
+      res.status(201).json({
+        status: "success",
+        data: { contest: newContest },
+      });
+    } catch (err) {
+      res.status(500).json({
+        status: "error",
+        message: "Server Error",
+        details: {
+          field: "contest",
+          error: err.message,
+        },
+      });
+    }
   }
-};
+];
 
 exports.createTask = async (req, res) => {
   const { description, title, points, type, image, mcqData, contest_id } = req.body;
@@ -124,7 +153,7 @@ exports.getContestsByStatus = async (req, res) => {
   const offset = (page - 1) * limit;
 
   try {
-    const contests = await getContestsByStatus({
+    const { contests, totalCount } = await getContestsByStatus({
       community_name,
       group_id,
       status,
@@ -137,7 +166,7 @@ exports.getContestsByStatus = async (req, res) => {
       pagination: {
         current_page: page,
         per_page: limit,
-        total: contests.length,
+        total: totalCount,
       },
     });
   } catch (err) {
