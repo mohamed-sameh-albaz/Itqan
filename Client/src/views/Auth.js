@@ -4,6 +4,7 @@ import NavigationBar from '../components/MyNavbar';
 import Footer from '../components/Footer';
 import {requestAPI, useAPI} from '../hooks/useAPI';
 import { HttpStatusCode } from 'axios';
+import { AuthProvider, ProtectedRoute, useAuth} from '../hooks/authProvider';
 
 function Auth() {
   const [isLogin, setIsLogin] = useState(true);
@@ -14,6 +15,7 @@ function Auth() {
   const [bio, setBio] = useState('');
   const nav = useNavigate();
 
+  const auther = useAuth();
   const toggleForm = () => {
     setIsLogin(!isLogin);
   };
@@ -29,6 +31,7 @@ function Auth() {
       
       if(status == HttpStatusCode.Ok){
         localStorage.setItem('user', JSON.stringify(data.data.user));
+        auther.login(data.data.user);
         nav('/home');
       }else if (status == HttpStatusCode.Unauthorized) {
         alert("Invalid email or password");

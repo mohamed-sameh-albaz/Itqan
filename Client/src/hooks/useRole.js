@@ -20,6 +20,6 @@ function useRole(communityName) {
         getRole()
     }, [communityName, user]);
 
-    return {role, id: role.id ?? 3, name: role.name ?? 'Member', roleColor: role.color ?? '#a31c9c', canDelete: role.id == 1, canEdit: role.id == 1, canCreate: role.id == 1, canAdmin: role.id == 1};
+    return {role, roleId: role?.id ?? 3, roleName: role?.name ?? 'Member', roleColor: role?.color ?? '#a31c9c', canDelete: role?.id == 1, canEdit: role?.id == 1, canCreate: role?.id == 1, canAdmin: role?.id == 1};
 }
 export default useRole;

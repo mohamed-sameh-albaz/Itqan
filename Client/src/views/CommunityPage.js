@@ -207,7 +207,7 @@ const CommunityPage = () => {
         {params:{
             community_name: communityName,
             status: "upcoming",
-            limit: 5
+            // limit: 5
         }});
     const upCommingContest = upCommingContestRes==null? [] : upCommingContestRes.data.contests;
 
@@ -239,7 +239,7 @@ const CommunityPage = () => {
         <Alert className='fixed w-30 bottom-3 right-3' open={alertMessage != null} onClose={() => setAlertMessage(null)}>{alertMessage}</Alert>
         <CommunityNavBar />
         <Card className='width-full min-h-28 m-8'>
-            <CardBody className='gap-3'>
+            <CardBody className='gap-3 flex justify-center'>
             <Button onClick={()=>setUserFinder(true)}>All Users</Button>
             <Button onClick={()=>nav(`/community/${parms.name}/stats/summary`)}>View Summary Stats</Button>
             <Button onClick={()=>nav(`/community/${parms.name}/stats/detailed`)}>View Detailed Stats</Button>
