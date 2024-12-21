@@ -4,7 +4,7 @@ import NavigationBar from '../components/MyNavbar';
 import Footer from '../components/Footer';
 import {requestAPI, useAPI} from '../hooks/useAPI';
 import { HttpStatusCode } from 'axios';
-import { AuthProvider, ProtectedRoute, useAuth} from '../hooks/authProvider';
+import { useAuth} from '../context/AuthContext';
 
 function Auth() {
   const [isLogin, setIsLogin] = useState(true);

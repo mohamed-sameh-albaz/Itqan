@@ -11,12 +11,10 @@ const HomeNavBar = ({userName}) => {
       <div className="navbar-main">
         <span>اتـــقــــــــــــــــان</span>
         <div className='flex gap-2'>
-          <div className="level-view items-center text-center align-middle">
-            <div className="level-indecator">3</div>
-            <div className="flex justify-center items-center h-full">
-              1200
-            </div>
-          </div>
+        <div className="level-view flex  items-center">
+            <div className="level-indecator ">{user.level_name.split(' ')[1]}</div>
+            <div className=''>{user.points}</div>
+        </div>
           <Button variant='text' color='white' className='ml-3' onClick={()=>{localStorage.removeItem('user'); nav('/')}}>Logout</Button>
         </div>
       </div>

@@ -6,12 +6,13 @@ import { faAdd } from '@fortawesome/free-solid-svg-icons';
 import './GroupPage.css'
 import { useAPI } from '../hooks/useAPI';
 import { useNavigate, useParams } from 'react-router-dom';
+import useRole from '../hooks/useRole';
 const GroupPage = () => {
     const parms = useParams();
     const nav = useNavigate();
     const communityName = parms.name;
     const groupID = parms.id;
-
+    const {roleId} = useRole(parms.name)
 
     const [upCommingResponse, isLoadingCpmming, refreshUpcomming] = useAPI('/contests/status', 'get',
         {params:{
@@ -39,7 +40,7 @@ const GroupPage = () => {
             </div>
 
         </div>
-        <div className='absolute w-full h-screen'>
+        {(roleId == 2 || roleId == 1) && <div className='absolute w-full h-screen'>
             <div className="fixed bottom-2 right-2 rounded-full">
             <Button
                 size="lg" 
@@ -50,7 +51,7 @@ const GroupPage = () => {
                 <Typography variant='small'>Create<br/>Contest</Typography>
             </Button>
             </div>
-        </div>
+        </div>}
 
     </div> );
 }

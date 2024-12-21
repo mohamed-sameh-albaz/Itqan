@@ -18,7 +18,7 @@ import DetailedPage from './views/DetailedPage';
 import ApprovePage from './views/AprovePage'
 import SubmissionsPage from './views/SubmissionsPage';
 
-import { AuthProvider, ProtectedRoute} from './hooks/authProvider';
+import { AuthProvider, ProtectedRoute} from './context/AuthContext';
 
 function App() {
   return (
