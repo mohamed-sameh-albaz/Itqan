@@ -30,8 +30,8 @@ function App() {
           <Route path="/team/create" element={<TeamEditor />} />
           <Route path="/teams" element={<TeamsPage />} />
 
-          <Route path="/community/stats/summary" element={<SummaryPage/>} />
-          <Route path="/community/stats/detailed" element={<DetailedPage/>} />
+          <Route path="/community/:name/stats/summary" element={<SummaryPage/>} />
+          <Route path="/community/:name/stats/detailed" element={<DetailedPage/>} />
 
           <Route path="/profile/:id" element={<ProfilePage/>} /> 
           <Route path="/community/:name/posts" element={<PostsPage/>} /> 
