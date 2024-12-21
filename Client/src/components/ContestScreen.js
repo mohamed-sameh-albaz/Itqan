@@ -1,5 +1,7 @@
 
 import React, { useState, useEffect } from "react";
+import { useParams } from 'react-router-dom';
+
 import "./ContestScreen.css"
 import { requestAPI ,useAPI} from "../hooks/useAPI"; 
 import { button } from "@material-tailwind/react";
@@ -12,6 +14,17 @@ const ContestScreen = (props) =>
   let user = props.user;
   let mymode = props.Mode;
   
+
+  const my_user = JSON.parse(localStorage.getItem('user'));
+  
+  const UserID= 3//my_user.id;
+
+  const parms= useParams();
+  let ContestID=parms.contestID;
+  let GroupID=parms.groupID;
+
+  console.log(ContestID,GroupID);
+
   const [buttons_len, setButtonsLen] = useState(0);
 
   if (user === "leader" || user === "Admin") {
@@ -37,6 +50,7 @@ const ContestScreen = (props) =>
           photo: task.image,
           choices: [task.a,task.b,task.c,task.d],
          correctAnswer: task.correctAnswer,
+          ans: "",
          id: task.id
         }));
         addQuestion(prevButtons=>[...prevButtons,...newButtons]);
@@ -59,6 +73,7 @@ const ContestScreen = (props) =>
           points: task.points,
           photo: task.image,
           choices: [task.a,task.b,task.c,task.d],
+          ans: "",
          id: task.id
         }));
         addQuestion(prevButtons=>[...prevButtons,...newButtons]);
@@ -82,9 +97,6 @@ else if(mymode==="submit")
     
      const handleClick = (index) => {
        setActiveIndex(index);
-       console.log(buttons[activeIndex].ans);  ////////////////////////////////////////
-       console.log(buttons[activeIndex].type);
-       console.log(user);
   }; 
   
 
@@ -129,6 +141,7 @@ else if(mymode==="submit")
     const newButtons = [...buttons];
     newButtons[activeIndex].correctAnswer = e.target.value;
     addQuestion(newButtons);
+    console.log(buttons[activeIndex].correctAnswer);
   }
 
  const handlePhotoChange = (e) => {
@@ -154,8 +167,6 @@ else if(mymode==="submit")
   const handleAnsChanged = (e) => {
     const newButtons = [...buttons];
     newButtons[activeIndex].ans = e.target.value;
-    console.log(newButtons[activeIndex].ans);
-    // console.log(buttons[activeIndex+1].ans);
     addQuestion(newButtons);
   };
  
@@ -170,7 +181,13 @@ else if(mymode==="submit")
      }
     else if (props.sendnow==="true" && props.user==="member") {
     console.log("submit");
+    buttons.map((label,index) => {
+      if (index > 0&&buttons[index].type==="written") {
+        handleeClickSubmit(index);
+      }
+    });
     }
+
     else if (props.sendnow==="true" && (props.user==="leader"||props.use==="Admin") && mymode==="edit") {
       buttons.map((label,index) => {
         if (index > 0) {
@@ -261,6 +278,27 @@ else
 }
 }
   
+async function handleeClickSubmit(index){
+  console.log(buttons[index].id,props.contestid,UserID,buttons[index].ans);
+  const { status, data } = await requestAPI("/submissions/", "post", {
+    body: {
+     taskId: buttons[index].id,
+     contestId: parseInt(props.contestid,10),
+     userId: UserID,
+     content: buttons[index].ans,
+      }
+    }
+  );
+  if (status > 199 && status < 300) {
+    console.log("sucssess");
+    alert("Answers submitted successfully");
+  } else {
+    console.log("error");
+    alert("Error submitting answers");
+  }
+
+}
+
   return (
     <div className="CS_all">
       <div className="Qlist">
@@ -355,8 +393,17 @@ else
                   type="radio"
                   id={`msq-choice${num}`}
                   name="msq-choice"
-                  value={`msq-choice${2}`}
-                  onChange={handleAnsChanged}
+                  value={String.fromCharCode(65 + num - 1)} // A, B, C, D
+                checked={buttons[activeIndex]?.ans === String.fromCharCode(65 + num - 1)}
+                onChange={(e) => {
+                  const newButtons = [...buttons];
+                  newButtons[activeIndex].ans = e.target.value;
+                  addQuestion(newButtons);
+                  console.log(buttons[activeIndex].ans);
+
+                }}
+                  // value={`msq-choice${num}`}
+                  // onChange={handleAnsChanged}
                 />
                 <label htmlFor={`msq-choice${num}`} className="msq-label">
                   {buttons[activeIndex].choices[num - 1]}
