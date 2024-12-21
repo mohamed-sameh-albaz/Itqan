@@ -119,24 +119,6 @@ CREATE TABLE IF NOT EXISTS Roles (
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS History (
-    id SERIAL PRIMARY KEY,
-    contest_id INT,
-    team_id INT,
-    user_id INT,
-    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (contest_id) REFERENCES Contests(id)
-        ON DELETE SET NULL
-        ON UPDATE CASCADE,
-    FOREIGN KEY (team_id) REFERENCES Teams(id)
-        ON DELETE SET NULL
-        ON UPDATE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES Users(id)
-        ON DELETE SET NULL
-        ON UPDATE CASCADE
-);
-
 CREATE TABLE IF NOT EXISTS user_team (
     user_id INT,
     team_id INT,

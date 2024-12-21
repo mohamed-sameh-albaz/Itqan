@@ -17,7 +17,7 @@ const ContestScreen = (props) =>
 
   const my_user = JSON.parse(localStorage.getItem('user'));
   
-  const UserID= 3//my_user.id;
+  const UserID= my_user.id;
 
   const parms= useParams();
   let ContestID=parms.contestID;

@@ -21,6 +21,26 @@ const getAllLevels = async (limit, offset) => {
 const addLevel = async (level) => {
   const client = await db.connect();
   try {
+    // Validate level name
+    if (!level.name || level.name.trim() === "") {
+      throw new Error("Level name cannot be empty or null");
+    }
+
+    // Validate points threshold
+    if (level.pointsThreshold == null || level.pointsThreshold === "") {
+      throw new Error("Points threshold cannot be empty or null");
+    }
+
+    // Check if points threshold is unique
+    const { rows: existingLevel } = await db.query(
+      `SELECT * FROM Levels WHERE pointsThreshold = $1`,
+      [level.pointsThreshold]
+    );
+
+    if (existingLevel.length > 0) {
+      throw new Error("Points threshold must be unique");
+    }
+
     const { rows } = await db.query(
       `INSERT INTO Levels (name, pointsThreshold, reward_id) VALUES ($1, $2, $3) RETURNING *`,
       [level.name, level.pointsThreshold, level.reward_id]
@@ -28,7 +48,7 @@ const addLevel = async (level) => {
     return rows[0];
   } catch (err) {
     console.error(`Error adding level: ${err.message}`);
-    throw new Error("Database error: Unable to add level");
+    throw new Error(err.message);
   } finally {
     client.release();
   }
