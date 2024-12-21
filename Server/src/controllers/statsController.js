@@ -1,4 +1,7 @@
-const { getCommunityStats, getDetailedReport, getAcceptanceRate } = require("../models/statsModel");
+const { getCommunityStats, getDetailedReport, getAcceptanceRate, getParticipationRate } = require("../models/statsModel");
+const { getUsersByCommunityName } = require("../models/communityModel");
+const { getGroupUsersCount } = require("../models/groupModel");
+
 const httpStatusText = require("../utils/httpStatusText");
 
 exports.getCommunityStats = async (req, res) => {
@@ -91,6 +94,40 @@ exports.getAcceptanceRate = async (req, res) => {
       message: "Server Error",
       details: {
         field: "acceptance_rate",
+        error: err.message,
+      },
+    });
+  }
+};
+
+exports.getParticipationRate = async (req, res) => {
+  const { communityName, groupId } = req.query;
+  try {
+    const participatied_count = await getParticipationRate({ communityName, groupId });
+    let totalCount;
+    if(communityName) {
+      totalCount = await getUsersByCommunityName(communityName, 1, 10);
+      console.log(totalCount);
+      totalCount = totalCount.totalCount;
+    } else {
+      totalCount = await getGroupUsersCount(groupId);
+    }
+    const non_participatied_count = totalCount - participatied_count;
+    res.status(200).json({
+      status: httpStatusText.SUCCESS,
+      data: {
+        participatied_count: {
+          participatied_count,
+          non_participatied_count,
+        },
+      },
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: httpStatusText.ERROR,
+      message: "Server Error",
+      details: {
+        field: "Participation Rate",
         error: err.message,
       },
     });

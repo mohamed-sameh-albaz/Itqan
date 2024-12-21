@@ -81,7 +81,7 @@ exports.getPendingSubmissions = async (contestId, contestType) => {
   const client = await db.connect();
   try {
     let query = `
-      SELECT s.*`;
+      SELECT s.*, t.title AS task_title, t.description AS task_description`;
     if (contestType == "team") {
       query += `, sub.team_id`;
     } else {
@@ -100,7 +100,7 @@ exports.getPendingSubmissions = async (contestId, contestType) => {
     query += `JOIN Tasks AS t ON t.id = s.task_id AND t.type LIKE '_ritten'
       JOIN Contests AS c ON c.id = t.contest_id
       WHERE c.id = $1 AND s.approved_by IS NULL AND s.status LIKE '_ending'
-      ORDER BY s.created_at DESC;
+      ORDER BY t.id, s.created_at;
     `;
     const { rows } = await db.query(query, [contestId]);
     return rows;
@@ -194,7 +194,7 @@ exports.getSubmitor = async (contestType, submissionId) => {
   } 
 }
 
-exports.checkSubmitorSubs = async (userId, teamId, taskId) => {
+exports.checkSubmitorSubs = async ({userId, teamId, taskId}) => {
   const client = await db.connect();
   try {
     let query = `
@@ -229,7 +229,7 @@ exports.checkApproved = async (submissionId) => {
     let query = `
       SELECT * 
       FROM Submissions
-      WHERE id = $1;
+      WHERE id = $1 AND approved_by IS NOT NULL;
       `;
     const { rows } = await db.query(query, [submissionId]);
     return rows;

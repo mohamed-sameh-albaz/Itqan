@@ -3,10 +3,11 @@ import './ContestTable.css'
 import { format, differenceInDays, differenceInHours, differenceInMinutes, differenceInSeconds, isWithinInterval, set } from 'date-fns';
 import { useNavigate, useNavigation, useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faPeopleGroup, faTrash, faUser } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faListCheck, faPeopleGroup, faTrash, faUser } from '@fortawesome/free-solid-svg-icons';
 import {ConfirmDialog} from '../dialogs/ConfirmDialog'
 import { useState } from 'react';
 import { requestAPI, useAPI } from '../hooks/useAPI';
+import useRole from '../hooks/useRole';
 const calculateTimeLeft = (startDate, endData) => {
     const now = new Date();
     const start = new Date(startDate);
@@ -34,6 +35,7 @@ const isDateBetween = (date, startDate, endDate) => {
 const ContestTable = ({contests, refresh}) => {
     const nav = useNavigate();
     const parms = useParams();
+    const {roleId} = useRole(parms.name);
 
     const [selectedContest, setSelectedContest] = useState(null);
     const [selectedContestName, setSelectedContestName] = useState(null);
@@ -90,14 +92,17 @@ const ContestTable = ({contests, refresh}) => {
                     <td>{calculateTimeLeft((new Date()).toUTCString(),e.start_date) + " Left"}</td>
                     <td className='flex gap-2 justify-left'>
                     
-                    <Button style={{backgroundColor:'var(--primary-color)'}} onClick={()=>nav(`group/${e.group_id}/contest/${e.id}/show`)}>Go There</Button>
+                    <Button style={{backgroundColor:'var(--primary-color)'}} onClick={()=>nav(`/community/${parms.name}/group/${e.group_id}/contest/${e.id}/show`)}>Go There</Button>
                     <div>
-                    <IconButton variant='text' onClick={() => handleDelete(e.id, e.name)}>
+                    { (roleId == 1 || roleId == 2) && <><IconButton variant='text' onClick={() => handleDelete(e.id, e.name)}>
                         <FontAwesomeIcon color='red'  icon={faTrash}/>
                     </IconButton>
                     <IconButton variant='text' onClick={() => nav(`/community/${parms.name}/group/${e.group_id}/contest/${e.id}/edit`)}>
                         <FontAwesomeIcon icon={faEdit}/>
                     </IconButton>
+                    <IconButton variant='text' onClick={() => nav(`/community/${parms.name}/group/${e.group_id}/contest/${e.id}/approve`)}>
+                        <FontAwesomeIcon icon={faListCheck}/>
+                    </IconButton></>}
                     </div>
                     
                     </td>

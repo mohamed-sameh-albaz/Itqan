@@ -1,14 +1,22 @@
-const {submitTask, getPendingSubmissions, getSubmissions, addTaskPoints, approveSubmission, getSubmitor, setSubmissionScore, checkSubmitorSubs, checkApproved} = require("../models/submissionModel");
-const { getTeamUsers } = require("../models/teamModel");
-const { getContestType, getTaskType, getMcqRightAnswer, getTaskPoints, setContestStatus } = require("../models/contestModel");
+const {submitTask, getPendingSubmissions, getSubmissions, addTaskPoints, approveSubmission, getSubmitor, setSubmissionScore, checkSubmitorSubs, checkApproved, checkTeamSubmissions} = require("../models/submissionModel");
+const { getTeamUsers, getUserCommTeam } = require("../models/teamModel");
+const { getContestType, getTaskType, getMcqRightAnswer, getTaskPoints, setContestStatus, getContestCommunity } = require("../models/contestModel");
 const { getUserPoints, getUserData } = require("../models/userModel");
 const httpStatusText = require("../utils/httpStatusText");
 
 // POST /submissions/
 exports.submitTask = async (req, res) => {
-  const { userId, content, teamId, taskId, contestId } = req.body;
+  const { userId, content, taskId, contestId } = req.body;
   try {
-    const checkSubmitorSubmissions = await checkSubmitorSubs(userId, teamId, taskId)
+    const contestType = await getContestType(contestId);
+    let checkSubmitorSubmissions, userTeam;
+    if(contestType === 'team') {
+      const contestCommunity = await getContestCommunity(contestId);
+      userTeam = await getUserCommTeam(userId, contestCommunity);
+      checkSubmitorSubmissions = await checkTeamSubmissions({userId, teamId: userTeam.id, taskId});
+    } else {
+      checkSubmitorSubmissions = await checkSubmitorSubs({ userId, teamId: null, taskId });
+    }
     if(checkSubmitorSubmissions.length) {
       return res.status(400).json({
         status: httpStatusText.ERROR,
@@ -18,9 +26,13 @@ exports.submitTask = async (req, res) => {
         },
       });
     }
-    const contestType = await getContestType(contestId);
     const taskType = await getTaskType(taskId);
-    const submission = await submitTask(taskId, userId, teamId, content, contestType, taskType);
+    let submission;
+    if(contestType === 'team') {
+      submission = await submitTask(taskId, userId, userTeam.id, content, contestType, taskType);
+    } else {
+      submission = await submitTask(taskId, userId, null, content, contestType, taskType);
+    }
     if(taskType === 'mcq') {
       const rightAnswer = await getMcqRightAnswer(taskId);
       if(rightAnswer === content) {
@@ -29,8 +41,8 @@ exports.submitTask = async (req, res) => {
         submission.score = submissionScore.score;
         submission.status = submissionScore.status;
         if(contestType === 'team') {
-          const team = await getTeamUsers(teamId);
-          for(let i = 0; i < team.length; ++i) {
+          const team = await getTeamUsers(userTeam.id);
+          for(let i = 0; i < userTeam.length; ++i) {
             const userPoints = await getUserPoints(team[i].id);
             const pointsAdded = await addTaskPoints(team[i].id, userPoints + taskScore);
           }
@@ -66,6 +78,7 @@ exports.getPendingSubmissions = async (req, res) => {
   try {
     const contestType = await getContestType(+contestId);
     const submissions = await getPendingSubmissions(+contestId, contestType);
+    console.log(submissions);
     if(!submissions.length) {
       const finishContest = await setContestStatus(contestId);
     }
