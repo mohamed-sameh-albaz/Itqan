@@ -241,8 +241,8 @@ const CommunityPage = () => {
         <Card className='width-full min-h-28 m-8'>
             <CardBody className='gap-3'>
             <Button onClick={()=>setUserFinder(true)}>All Users</Button>
-            <Button onClick={()=>setUserFinder(true)}>View Summary Stats</Button>
-            <Button onClick={()=>setUserFinder(true)}>View Detailed Stats</Button>
+            <Button onClick={()=>nav(`/community/${parms.name}/stats/summary`)}>View Summary Stats</Button>
+            <Button onClick={()=>nav(`/community/${parms.name}/stats/detailed`)}>View Detailed Stats</Button>
             </CardBody>
         </Card>
         <CreateGroupDialog communityName={communityName} open={groupCreator} setOpen={handleGroupCreator} setAlert={setAlertMessage} />

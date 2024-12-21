@@ -90,7 +90,7 @@ const ContestTable = ({contests, refresh}) => {
                     <td>{calculateTimeLeft((new Date()).toUTCString(),e.start_date) + " Left"}</td>
                     <td className='flex gap-2 justify-left'>
                     
-                    <Button style={{backgroundColor:'var(--primary-color)'}} onClick={()=>nav(`groups/${e.group_id}/contest/${e.id}/show`)}>Go There</Button>
+                    <Button style={{backgroundColor:'var(--primary-color)'}} onClick={()=>nav(`group/${e.group_id}/contest/${e.id}/show`)}>Go There</Button>
                     <div>
                     <IconButton variant='text' onClick={() => handleDelete(e.id, e.name)}>
                         <FontAwesomeIcon color='red'  icon={faTrash}/>

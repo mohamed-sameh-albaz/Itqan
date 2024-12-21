@@ -12,6 +12,9 @@ import TeamsPage from './views/TeamsPage';
 import AddPostPage from './views/AddPostPage'; // Import the new component
 import ProfilePage from './views/ProfilePage';
 import PostsPage from './views/PostsPage';
+import SummaryPage from './views/SummaryPage';
+import DetailedPage from './views/DetailedPage';
+
 import SubmissionsPage from './views/SubmissionsPage';
 
 function App() {
@@ -27,6 +30,9 @@ function App() {
           <Route path="/contest" element={<ContestPage />} />
           <Route path="/team/create" element={<TeamEditor />} />
           <Route path="/teams" element={<TeamsPage />} />
+
+          <Route path="/community/:name/stats/summary" element={<SummaryPage/>} />
+          <Route path="/community/:name/stats/detailed" element={<DetailedPage/>} />
 
           <Route path="/profile/:id" element={<ProfilePage/>} /> 
           <Route path="/community/:name/posts" element={<PostsPage/>} /> 

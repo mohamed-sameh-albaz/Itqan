@@ -12,15 +12,10 @@ const GroupPage = () => {
     const communityName = parms.name;
     const groupID = parms.id;
 
-    const contets = [
-        {name: "Eco Systems", startDate: "11/28/2024 12: pm", duration: "3 days left",},
-        {name: "Eco Systems", startDate: "11/28/2024 12: pm", duration: "3 days left",},
-        {name: "Eco Systems", startDate: "11/28/2024 12: pm", duration: "3 days left",},
-    ];
 
     const [upCommingResponse, isLoadingCpmming, refreshUpcomming] = useAPI('/contests/status', 'get',
         {params:{
-            group_id: 5,
+            group_id: groupID,
             status: "upcoming"
         }});
 
@@ -28,7 +23,7 @@ const GroupPage = () => {
 
     const [finishedResponse, isFinishedResponse, refreshFinished] = useAPI('/contests/status', 'get',
         {params:{
-            group_id: 5,
+            group_id: groupID,
             status: "finished"
         }});
     const finishedContest = isFinishedResponse? [] : finishedResponse.data.contests;
