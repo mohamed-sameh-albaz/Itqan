@@ -76,23 +76,23 @@ const TeamEditorBlock = (props) => {
             create your team : You can create a team with 2 or 3 members
           </div>
           <div className="TeamName">
-            <label htmlFor="name" className="lbl">
+            <label htmlFor="name" className="lbl" >
               Team name :
             </label>
-            <input onChange={handlechange1} type="text" className="name" />
+            <input onChange={handlechange1} type="text" className="name" placeholder="Enter team name"/>
           </div>
 
           <div className="TeamMate">
-            <label htmlFor="TMname" className="lbl">
+            <label htmlFor="TMname" className="lbl" >
               Team mate1 :
             </label>
-            <input onChange={ handlechange2} type="text" className="TMname" />
+            <input onChange={ handlechange2} type="text" className="TMname" placeholder="Enter email of team mate 1"/>
           </div>
           <div className="TeamMate">
-            <label htmlFor="TMname2" className="lbl2">
+            <label htmlFor="TMname2" className="lbl2" >
               Team mate2 :
             </label>
-            <input onChange={handlechange3} type="text" className="TMname2" />
+            <input onChange={handlechange3} type="text" className="TMname2" placeholder="Enter email of team mate 2"/>
             </div>
           <button onClick={handleCreateTeam}  className="send">Create The Team</button>
         </div>

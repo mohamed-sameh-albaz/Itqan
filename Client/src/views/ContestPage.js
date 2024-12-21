@@ -25,7 +25,7 @@ const ContestPage = (props) => {
   let buttonText = "Submit";
   let form_write = "";
 
-  if (user === "leader" || user === "Admin") {
+  if (user === "leader" || user === "admin") {
     buttonText = "Save";
     form_write = "";
   }
@@ -94,10 +94,14 @@ const ContestPage = (props) => {
   async function handleClick () {
 
     
-    if((user === "leader" || user==="Admin") &&mode === "create") {
+    if((user === "leader" || user==="admin") &&mode === "create") {
       if(formData.type === "" || formData.difficulty === "" || formData.name === "" || formData.description === "" || formData.start_date === "" || formData.end_date === "") 
       {
         alert("Please fill all the fields");
+      }
+      
+      else if (new Date(formData.end_date) <= new Date(formData.start_date)) {
+        alert("End date must be greater than start date");
       }
      else {
     const {status, data} = await
@@ -130,10 +134,13 @@ const ContestPage = (props) => {
   }  
   }
 
-  else if ((user==="leader"||user==="Admin") && mode === "edit") {
+  else if ((user==="leader"||user==="admin") && mode === "edit") {
     if(formData.type === "" || formData.difficulty === "" || formData.name === "" || formData.description === "" || formData.start_date === "" || formData.end_date === "") 
       {
         alert("Please fill all the fields");
+      }
+      else if (new Date(formData.end_date) <= new Date(formData.start_date)) {
+        alert("End date must be greater than start date");
       }
      else {
     const {status, data} = await

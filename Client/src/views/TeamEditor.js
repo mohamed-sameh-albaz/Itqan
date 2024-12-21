@@ -14,7 +14,7 @@ const TeamEditor = () => {
       const id = user.id;
       const { status, data } = await requestAPI(
         '/teams',
-        'post',
+        'delete',
         {
           body: {
             userId: id,
@@ -25,7 +25,7 @@ const TeamEditor = () => {
       if (status > 199 && status < 300) {
         alert("You have successfully exited the team");
       } else {
-        alert("Error exiting the team")
+        alert("You are already out of any team in this community")
     }
   }
     return (

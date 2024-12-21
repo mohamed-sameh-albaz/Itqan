@@ -27,7 +27,7 @@ const ContestScreen = (props) =>
 
   const [buttons_len, setButtonsLen] = useState(0);
 
-  if (user === "leader" || user === "Admin") {
+  if (user === "leader" || user === "admin") {
     allow_read = "";
   }
   else { 
@@ -99,13 +99,11 @@ else if(mymode==="submit")
        setActiveIndex(index);
   }; 
   
+ 
 
 
 
-
-
-
- const [Content, setContent] = useState("");
+  const [Content, setContent] = useState("");
   const [choices, setChoices] = useState(["", "", "", ""]);
   const [Title, setTitle] = useState(""); 
   const [Points, setPoints] = useState(1);
@@ -170,9 +168,28 @@ else if(mymode==="submit")
     addQuestion(newButtons);
   };
  
+  const handleTaskDelete = (index) => {
+    if(index>0)
+    {
+      const newButtons = [...buttons];
+      newButtons.splice(index, 1);
+      if (activeIndex === newButtons.length) {
+        setActiveIndex(newButtons.length - 1);
+      }
+      for (let i = index; i < newButtons.length; i++) {
+        console.log(i, newButtons.length);
+        newButtons[i].Qn = String.fromCharCode(65 + i-1);
+      }
+
+      addQuestion(newButtons);
+    }
+  };
+
+
+  
   
   useEffect(() => {
-     if (props.sendnow==="true" && (props.user==="leader"||props.user==="Admin") && mymode==="create") {
+     if (props.sendnow==="true" && (props.user==="leader"||props.user==="admin") && mymode==="create") {
        buttons.map((label,index) => {
          if (index > 0) {
            handleeClick(index);
@@ -188,7 +205,7 @@ else if(mymode==="submit")
     });
     }
 
-    else if (props.sendnow==="true" && (props.user==="leader"||props.use==="Admin") && mymode==="edit") {
+    else if (props.sendnow==="true" && (props.user==="leader"||props.user==="admin") && mymode==="edit") {
       buttons.map((label,index) => {
         if (index > 0) {
           handleeClickedit(index);
@@ -352,7 +369,7 @@ async function handleeClickSubmit(index){
           />
         </div>
 
-        {buttons[activeIndex].type === "mcq" && (user === "leader"||user==="Admin") && (
+        {buttons[activeIndex].type === "mcq" && (user === "leader"||user==="admin") && (
           <div className="choices">
             {[1, 2, 3, 4].map((num) => (
               <div key={num} className="choice-input">
@@ -413,7 +430,7 @@ async function handleeClickSubmit(index){
           </div>
         )}
       </div>
-      {(user === "leader"||user==="Admin" )&& (
+      {(user === "leader"||user==="admin" )&& (
         <div className="forLeader">
           <button className="addQM" onClick={() => addquesM()}>
             add Question MCQ
@@ -460,6 +477,9 @@ async function handleeClickSubmit(index){
               className="photo-field"
             />
           </div>
+          <button className="deleteTask" onClick={() => handleTaskDelete(activeIndex)}>
+            Delete Task
+            </button>
         </div>
       )}
     </div>
