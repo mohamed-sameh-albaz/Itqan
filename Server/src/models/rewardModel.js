@@ -109,6 +109,7 @@ const getUserRewards = async (userId, limit, offset) => {
       [userId]
     );
     let totalCount = parseInt(countRows[0].count, 10);
+    if (countRows[1])
     totalCount += parseInt(countRows[1].count, 10);
     return { rewards, totalCount };
   } catch (err) {
