@@ -102,7 +102,6 @@ exports.leaveTeam = async (req, res) => {
     const user = await leaveTeam(userId, userTeam[0].id);
     const users = await getTeamUsers(userTeam[0].id);
     if (users.length <= 1) {
-      console.log("deleteTeam")
       const team = await deleteTeam(userTeam[0].id);
       users.pop();
     }
