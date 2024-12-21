@@ -12,7 +12,7 @@ import TeamsPage from './views/TeamsPage';
 import AddPostPage from './views/AddPostPage'; // Import the new component
 import ProfilePage from './views/ProfilePage';
 import PostsPage from './views/PostsPage';
-
+import SubmissionsPage from './views/SubmissionsPage';
 
 function App() {
   return (
@@ -36,8 +36,7 @@ function App() {
           <Route path="/community/:name/groups/:groupID/create" element={<ContestPage MODE={"create"} />} />
           <Route path="/community/:name/groups/:groupID/contest/:contestID/edit" element={<ContestPage MODE={"edit"} />} />
           <Route path="/community/:name/groups/:groupID/contest/:contestID/submit" element={<ContestPage MODE={"submit"} />} />
-        
-
+          <Route path="/sub" element={<SubmissionsPage />} />
         </Routes>
       </div>
     </Router>

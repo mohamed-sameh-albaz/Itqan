@@ -7,14 +7,14 @@ const ContestScreen = (props) =>
 { 
   let s="                                                                                Lets Go Now";
   const [activeIndex, setActiveIndex] = useState(0); // Track the clicked button index
-  const [buttons, addQuestion] = useState([{ Qn: 'Question', type: '', title: 'Are You Ready', content: s,points:0,photo : '', choices: ['', '', '', ''], correctAnswer: '',id:0 }]);  
+  const [buttons, addQuestion] = useState([{ Qn: 'Question', type: '', title: 'Are You Ready', content: s,points:0,photo : '', choices: ['', '', '', ''], correctAnswer: '',id:0,ans:'' }]); // Array of buttons
   let allow_read = "";
   let user = props.user;
   let mymode = props.Mode;
   
   const [buttons_len, setButtonsLen] = useState(0);
 
-  if (user === "leader") {
+  if (user === "leader" || user === "Admin") {
     allow_read = "";
   }
   else { 
@@ -82,6 +82,9 @@ else if(mymode==="submit")
     
      const handleClick = (index) => {
        setActiveIndex(index);
+       console.log(buttons[activeIndex].ans);  ////////////////////////////////////////
+       console.log(buttons[activeIndex].type);
+       console.log(user);
   }; 
   
 
@@ -96,6 +99,7 @@ else if(mymode==="submit")
   const [Points, setPoints] = useState(1);
   const [CorrectAnswer, setCorrectAnswer] = useState("");
   const [Photo, setPhoto] = useState("");
+  const [Ans, setAns] = useState("");
 
   const handlechoiceschange = (index) => (e) => {
     const newButtons = [...buttons];
@@ -136,21 +140,28 @@ else if(mymode==="submit")
 
   const addquesM = () => {
     const char = String.fromCharCode(buttons.length + 64);
-    const newitem = { Qn:char ,type:"mcq",title:Title,content:Content,points:Points,photo:"", choices:["","","",""],correctAnswer:"",id:0};
+    const newitem = { Qn:char ,type:"mcq",title:Title,content:Content,points:Points,photo:"", choices:["","","",""],correctAnswer:"",id:0,ans:Ans};
     addQuestion((prevButtons) => [...prevButtons, newitem]);
   };
   const addquesW = () => {
     
      const char = String.fromCharCode(buttons.length + 64);
-     const newitem = {Qn:char,type:"written",title:Title, content:Content,points:Points,photo:"",choices:["","","",""],correctAnswer:"",id:0};  
+     const newitem = {Qn:char,type:"written",title:Title, content:Content,points:Points,photo:"",choices:["","","",""],correctAnswer:"",id:0,ans:Ans};  
      addQuestion((prevButtons) => [...prevButtons, newitem]);
     
   };
 
+  const handleAnsChanged = (e) => {
+    const newButtons = [...buttons];
+    newButtons[activeIndex].ans = e.target.value;
+    console.log(newButtons[activeIndex].ans);
+    // console.log(buttons[activeIndex+1].ans);
+    addQuestion(newButtons);
+  };
  
   
   useEffect(() => {
-     if (props.sendnow==="true" && props.user==="leader" && mymode==="create") {
+     if (props.sendnow==="true" && (props.user==="leader"||props.user==="Admin") && mymode==="create") {
        buttons.map((label,index) => {
          if (index > 0) {
            handleeClick(index);
@@ -160,7 +171,7 @@ else if(mymode==="submit")
     else if (props.sendnow==="true" && props.user==="member") {
     console.log("submit");
     }
-    else if (props.sendnow==="true" && props.user==="leader" && mymode==="edit") {
+    else if (props.sendnow==="true" && (props.user==="leader"||props.use==="Admin") && mymode==="edit") {
       buttons.map((label,index) => {
         if (index > 0) {
           handleeClickedit(index);
@@ -178,7 +189,7 @@ else if(mymode==="submit")
           title: buttons[index].title,
           points: buttons[index].points,
           type: buttons[index].type,
-          image: "http://example.com/image.png",
+          image: buttons[index].photo,
           mcqData: {
             A: buttons[index].choices[0],
             B: buttons[index].choices[1],
@@ -206,7 +217,7 @@ async function handleeClickedit(index) {
       title: buttons[index].title,
       points: buttons[index].points,
       type: buttons[index].type,
-      image: "http://example.com/image.png",
+      image: buttons[index].photo,
       mcqData: {
         A: buttons[index].choices[0],
         B: buttons[index].choices[1],
@@ -232,7 +243,7 @@ else
       title: buttons[index].title,
       points: buttons[index].points,
       type: buttons[index].type,
-      image: "http://example.com/image.png",
+      image: buttons[index].photo,
       mcqData: {
         A: buttons[index].choices[0],
         B: buttons[index].choices[1],
@@ -303,7 +314,7 @@ else
           />
         </div>
 
-        {buttons[activeIndex].type === "mcq" && user === "leader" && (
+        {buttons[activeIndex].type === "mcq" && (user === "leader"||user==="Admin") && (
           <div className="choices">
             {[1, 2, 3, 4].map((num) => (
               <div key={num} className="choice-input">
@@ -327,7 +338,12 @@ else
             <label htmlFor="ans" className="Ans">
               Answer :
             </label>
-            <textarea type="text" className="ans" rows="5" />
+            <textarea
+             type="text"
+             onChange={handleAnsChanged}
+             value={buttons[activeIndex].ans}
+             className="ans" 
+             />
           </div>
         )}
 
@@ -339,7 +355,8 @@ else
                   type="radio"
                   id={`msq-choice${num}`}
                   name="msq-choice"
-                  value={`msq-choice${num}`}
+                  value={`msq-choice${2}`}
+                  onChange={handleAnsChanged}
                 />
                 <label htmlFor={`msq-choice${num}`} className="msq-label">
                   {buttons[activeIndex].choices[num - 1]}
@@ -349,7 +366,7 @@ else
           </div>
         )}
       </div>
-      {user === "leader" && (
+      {(user === "leader"||user==="Admin" )&& (
         <div className="forLeader">
           <button className="addQM" onClick={() => addquesM()}>
             add Question MCQ
@@ -357,19 +374,6 @@ else
           <button className="addQW" onClick={() => addquesW()}>
             add Question written
           </button>
-          {/* <div className="correct-answer">
-            <label htmlFor="correct-answer" className="correct-answer-label">
-              Correct Answer:
-            </label>
-            <input
-              value={buttons[activeIndex].correctAnswer}
-              type="text"
-              id="correct-answer"
-              onChange={handleanswerchange}
-              className="correct-answer-field"
-            />
-          </div> */}
-
             <div className="correct-answer">
               <label htmlFor="correct-answer" className="correct-answer-label">
                 Correct Answer:

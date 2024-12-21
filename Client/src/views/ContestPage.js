@@ -4,6 +4,8 @@ import CommunityNavBar from '../components/CommunityNavBar';
 import ContestScreen from '../components/ContestScreen';
 import './ContestPage.css';
 import { requestAPI } from '../hooks/useAPI'; 
+import { format } from "date-fns";
+
 const ContestPage = (props) => {
   
 
@@ -17,11 +19,13 @@ const ContestPage = (props) => {
   let mode=props.MODE;
   
   const [user, setUser] = useState("leader");
+  const [enableclick, setEnable] = useState(true);
+
 
   let buttonText = "Submit";
   let form_write = "";
 
-  if (user === "leader") {
+  if (user === "leader" || user === "Admin") {
     buttonText = "Save";
     form_write = "";
   }
@@ -47,15 +51,17 @@ const ContestPage = (props) => {
     const fetchContest = async () => {
       const { status, data } = await requestAPI(`/contests/${parms.contestID}`, 'get');
       if (status > 199 && status < 300) {
+        const truncatedStartDate =format(data.data.contest.start_date, "yyyy-MM-dd HH:mm");
+        const truncatedEndDate =format(data.data.contest.end_date, "yyyy-MM-dd HH:mm");
         setFormData({
           difficulty: data.data.contest.difficulty,
           type: data.data.contest.type,
           name: data.data.contest.name,
           description: data.data.contest.description,
-          start_date: data.data.contest.start_date,
-          end_date: data.data.contest.end_date
+          start_date: truncatedStartDate,
+          end_date: truncatedEndDate
         });
-        console.log(data.data.contest.start_date);
+      
       } else {
         console.error("Error fetching contest details");
       }
@@ -66,6 +72,7 @@ const ContestPage = (props) => {
       fetchContest();
      console.log(parms.contestID);
     }
+  
   }, [parms.contestID, mode]);
 
   
@@ -86,7 +93,13 @@ const ContestPage = (props) => {
 
   async function handleClick () {
 
-    if(user === "leader" &&mode === "create") {
+    
+    if((user === "leader" || user==="Admin") &&mode === "create") {
+      if(formData.type === "" || formData.difficulty === "" || formData.name === "" || formData.description === "" || formData.start_date === "" || formData.end_date === "") 
+      {
+        alert("Please fill all the fields");
+      }
+     else {
     const {status, data} = await
     requestAPI(
       '/contests',
@@ -104,19 +117,25 @@ const ContestPage = (props) => {
           } 
       }
     )
-  
     if (status > 199 && status < 300) {
-    console.log("sucssess");
+      console.log("sucssess");
+      alert("Contest created successfully");
+      setEnable(false);
+      setContestID(data.data.contest.id);  
     }
-    else {
-      console.log("error");
-    }
-  
-    setContestID(data.data.contest.id);
-   
+      else {
+        console.log("error");
+      }
+        
+  }  
   }
-  else if (user==="leader" && mode === "edit") {
-   
+
+  else if ((user==="leader"||user==="Admin") && mode === "edit") {
+    if(formData.type === "" || formData.difficulty === "" || formData.name === "" || formData.description === "" || formData.start_date === "" || formData.end_date === "") 
+      {
+        alert("Please fill all the fields");
+      }
+     else {
     const {status, data} = await
     requestAPI(
       `/contests/edit/${contestID}`,
@@ -134,19 +153,24 @@ const ContestPage = (props) => {
           } 
       }
     )
-  
+     
     if (status > 199 && status < 300) {
     console.log("sucssess");
+    alert("Contest edited successfully");
+    setEnable(false);
     }
     else {
       console.log("error");
     }
   }
+  }
   else if (user === "member" && mode === "submit") {
      console.log("submit");
-
+     alert("Contest submitted successfully");
+     setEnable(false);
   }
   setSendNow("true");
+  
   };
 
   const handleChange = (e) => {
@@ -193,6 +217,7 @@ const ContestPage = (props) => {
               onChange={handleChange}
               disabled={form_write === "readOnly"}
             >
+               <option value="" disabled>Select Difficulty</option>
               <option value="easy">Easy</option>
               <option value="medium">Medium</option>
               <option value="hard">Hard</option>
@@ -206,6 +231,7 @@ const ContestPage = (props) => {
               onChange={handleChange}
               disabled={form_write === "readOnly"}
             >
+               <option value="" disabled>Select type</option>
               <option value="single">Single</option>
               <option value="team">Team</option>
             </select>
@@ -236,10 +262,11 @@ const ContestPage = (props) => {
       <div className="keep">Keep Going</div>
 
       <ContestScreen user={user} sendnow={send_now} contestid={contestID} Mode={mode} />
-
-      <button className="submitt" onClick={handleClick} form-data={formData}>
+      {!enableclick && <label >You can not {buttonText} again</label>}
+      <button className="submitt" onClick={handleClick} form-data={formData} disabled={!enableclick}>
         {buttonText}
       </button>
+     
     </div>
   );
 }
