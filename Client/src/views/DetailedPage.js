@@ -72,11 +72,12 @@ const DetailedPage = () => {
         }})
     return ( <div>
         <CommunityNavBar />
+        <Typography variant="h5" className="text-left mx-3 mt-3">{parms.name}'s detailed report </Typography>
         <div className=" container mx-auto">
             <div className="flex gap-4 items-center">
             <Typography variant="lead" color="gray">Selected year: </Typography>
             <input className="border border-gray-800 p-1 m-4" type="number" min="1900" max="2099" step="1" value={year} onChange={(e)=>setYear(e.target.value)} />
-            <Button variant='solid' style={{backgroundColor:'var(--primary-color)'}} onClick={()=>{refreshStats();}}>Update</Button>
+            <Button variant='solid' style={{backgroundColor:'var(--primary-color)'}} onClick={()=>{refreshStats();}}>Show</Button>
             </div>
 
             {isStatsLoading? <></> 
@@ -99,7 +100,7 @@ const DetailedPage = () => {
             </div>
            }
 
-            <Card className="w-full h-96 border border-gray-600" >
+            <Card className="w-full h-96 border border-gray-600 mt-4" >
                 <CardBody>
                 <Typography color="gray">
                     Community Stats
@@ -134,16 +135,37 @@ const DetailedPage = () => {
                     </CardBody>
                 </Card>
 
-                <Card className="w-52 h-52 " shadow="lg">
-                    <Typography className="font-bold">Participation Rate</Typography>
+                <Card className="w-52 h-52 bg" shadow="lg">
+                    <Typography className="font-bold">Single Contest Participate Rate</Typography>
                     <CardBody className="w-full h-full p-0 m-0">
                     <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
-                            <Pie data={ParticipateRate} dataKey="value" cx="50%" cy="50%"  fill="#82ca9d" label>
-                                <Cell key="Success" fill="#00C49F" />
-                                <Cell key="Failure" fill="#FF8042" />
+                            <Pie data={loadingAcceptance? [] : [
+    { name: 'Participated', value: acceptance_rate.data.acceptance_rate.accepted_count },
+    { name: "Didn't Participate", value: acceptance_rate.data.acceptance_rate.rejected_count },
+    ]} dataKey="value" cx="50%" cy="50%"  fill="#82ca9d" label>
+                                <Cell key="Participated" fill="#00C49F" />
+                                <Cell key="Didn't Participate" fill="#FF8042" />
                             </Pie>
-                            <Legend />
+                            <Legend layout="vertical"/>
+                        </PieChart>
+                    </ResponsiveContainer>
+                    </CardBody>
+                </Card>
+
+                <Card className="w-52 h-52 bg" shadow="lg">
+                    <Typography className="font-bold">Team Contest Participate Rate</Typography>
+                    <CardBody className="w-full h-full p-0 m-0">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                            <Pie data={loadingAcceptance? [] : [
+    { name: 'Participated', value: acceptance_rate.data.acceptance_rate.accepted_count },
+    { name: "Didn't Participated", value: acceptance_rate.data.acceptance_rate.rejected_count },
+    ]} dataKey="value" cx="50%" cy="50%"  fill="#82ca9d" label>
+                                <Cell key="Participated" fill="#00C49F" />
+                                <Cell key="Didn't Participate" fill="#FF8042" />
+                            </Pie>
+                            <Legend layout="vertical"/>
                         </PieChart>
                     </ResponsiveContainer>
                     </CardBody>
