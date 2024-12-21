@@ -13,7 +13,7 @@ const ContestPage = (props) => {
   
 
   const parms= useParams();
-  let user_ID = my_user.id;
+  let user_ID = 3//my_user.id;
   console.log(user_ID);
   let group_ID = parms.groupID;
   let mode=props.MODE;
