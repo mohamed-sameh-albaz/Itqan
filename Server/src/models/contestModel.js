@@ -136,6 +136,11 @@ const getContestsByStatus = async ({ community_name, group_id, status, limit, of
       statusParams.push(status);
     }
 
+    // Count total contests matching the criteria
+    const countQuery = statusQuery.replace('SELECT *', 'SELECT COUNT(*)');
+    const { rows: countRows } = await db.query(countQuery, statusParams);
+    const totalCount = parseInt(countRows[0].count, 10);
+
     statusQuery += ` ORDER BY start_date ASC`;
 
     if (limit) {
@@ -148,11 +153,9 @@ const getContestsByStatus = async ({ community_name, group_id, status, limit, of
       statusParams.push(offset);
     }
 
-    console.log(statusQuery, statusParams);
-
     const { rows: filteredContests } = await db.query(statusQuery, statusParams);
 
-    return filteredContests;
+    return { contests: filteredContests, totalCount };
   } catch (err) {
     console.error(`Error retrieving contests by status: ${err.message}`);
     throw new Error("Database error: Unable to retrieve contests by status");
