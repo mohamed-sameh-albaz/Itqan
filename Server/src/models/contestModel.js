@@ -27,6 +27,16 @@ const addContest = async (contest) => {
       status = 'finished';
     }
 
+    // Check if the group exists
+    const { rows: existingGroup } = await db.query(
+      `SELECT * FROM Groups WHERE id = $1`,
+      [contest.group_id]
+    );
+
+    if (existingGroup.length === 0) {
+      throw new Error("Group does not exist");
+    }
+
     const { rows } = await db.query(
       `INSERT INTO contests (description, type, difficulty, name, start_date, end_date, status, group_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
       [contest.description, contest.type, contest.difficulty, contest.name, contest.start_date, contest.end_date, status, contest.group_id]
@@ -59,7 +69,7 @@ const updateContestStatus = async (contestId, status) => {
   }
 };
 
-const getContestsByStatus = async ({ community_name, group_id, status, limit }) => {
+const getContestsByStatus = async ({ community_name, group_id, status, limit, offset }) => {
   const client = await db.connect();
   try {
     // Fetch all contests first
@@ -79,6 +89,11 @@ const getContestsByStatus = async ({ community_name, group_id, status, limit }) 
     if (limit) {
       query += ` LIMIT $${params.length + 1}`;
       params.push(limit);
+    }
+
+    if (offset) {
+      query += ` OFFSET $${params.length + 1}`;
+      params.push(offset);
     }
 
     const { rows: contests } = await db.query(query, params);
@@ -102,8 +117,40 @@ const getContestsByStatus = async ({ community_name, group_id, status, limit }) 
       }
     }
 
-    // Filter contests by the requested status
-    const filteredContests = contests.filter(contest => contest.status === status);
+    // Retrieve contests by the required status and apply pagination
+    let statusQuery = `SELECT * FROM contests WHERE `;
+    const statusParams = [];
+
+    if (community_name) {
+      statusQuery += ` group_id IN (SELECT id FROM Groups WHERE community_name = $1) AND `;
+      statusParams.push(community_name);
+    } else if (group_id) {
+      statusQuery += ` group_id = $1 AND `;
+      statusParams.push(group_id);
+    }
+
+    if (status == 'active') {
+      statusQuery += ` (status = 'upcoming' OR status = 'running')`;
+    } else {
+      statusQuery += ` status = $${statusParams.length + 1}`;
+      statusParams.push(status);
+    }
+
+    statusQuery += ` ORDER BY start_date ASC`;
+
+    if (limit) {
+      statusQuery += ` LIMIT $${statusParams.length + 1}`;
+      statusParams.push(limit);
+    }
+
+    if (offset) {
+      statusQuery += ` OFFSET $${statusParams.length + 1}`;
+      statusParams.push(offset);
+    }
+
+    console.log(statusQuery, statusParams);
+
+    const { rows: filteredContests } = await db.query(statusQuery, statusParams);
 
     return filteredContests;
   } catch (err) {
@@ -117,6 +164,7 @@ const getContestsByStatus = async ({ community_name, group_id, status, limit }) 
 const updateContestById = async (id, contest) => {
   const client = await db.connect();
   try {
+
     const { rows } = await db.query(
       `UPDATE contests SET description = $1, type = $2, difficulty = $3, name = $4, start_date = $5, end_date = $6, status = $7, updated_at = CURRENT_TIMESTAMP WHERE id = $8 RETURNING *`,
       [contest.description, contest.type, contest.difficulty, contest.name, contest.start_date, contest.end_date, contest.status, id]
@@ -323,7 +371,6 @@ const setContestStatus = async (contestId) => {
     client.release();
   }
 }
-
 const getContestCommunity = async (contestId) => {
   const client = await db.connect();
   try {
