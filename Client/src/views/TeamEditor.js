@@ -4,6 +4,7 @@ import "./TeamEditor.css"
 import team_av3 from "../assets/team_av4.jpg"
 import { useLocation } from "react-router-dom";
 const TeamEditor = () => {
+   
     const location = useLocation();
     const communityName = location.state || {};
     console.log("Community Name", communityName);
@@ -15,7 +16,7 @@ const TeamEditor = () => {
              </div> 
             
         <div className="TEB">
-          <TeamEditorBlock />
+          <TeamEditorBlock  com_name={communityName}/>
         </div>
         <button className="Exit">Exit from your team</button>
       </div>

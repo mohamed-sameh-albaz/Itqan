@@ -1,28 +1,94 @@
 
 import React, { useState, useEffect } from "react";
 import "./ContestScreen.css"
-import { requestAPI } from "../hooks/useAPI"; 
+import { requestAPI ,useAPI} from "../hooks/useAPI"; 
 import { button } from "@material-tailwind/react";
 const ContestScreen = (props) =>
 { 
   let s="                                                                                Lets Go Now";
   const [activeIndex, setActiveIndex] = useState(0); // Track the clicked button index
-  const [buttons, addQuestion] = useState([{ Qn: 'Question', type: '', title: 'Are You Ready', content: s,points:0,photo : '', choices: ['', '', '', ''], correctAnswer: '' }]);  
+  const [buttons, addQuestion] = useState([{ Qn: 'Question', type: '', title: 'Are You Ready', content: s,points:0,photo : '', choices: ['', '', '', ''], correctAnswer: '',id:0 }]);  
   let allow_read = "";
   let user = props.user;
-
+  let mymode = props.Mode;
   
+  const [buttons_len, setButtonsLen] = useState(0);
+
+  if (user === "leader") {
+    allow_read = "";
+  }
+  else { 
+    allow_read = "readOnly";
+  }
+  
+
+  useEffect(() => {
+   
+    const fetchTasksforedit = async () => {
+      const { status, data } = await requestAPI(`/contests/${props.contestid}/tasks?editing=${true}`, "get");
+      if (status > 199 && status < 300) {
+        console.log(data.status);
+       const newButtons = (data.data.tasks).map((task, index) => ({
+          Qn: String.fromCharCode(97 + index),
+          type: task.type,
+          title: task.title,
+          content: task.description,
+          points: task.points,
+          photo: task.image,
+          choices: [task.a,task.b,task.c,task.d],
+         correctAnswer: task.correctAnswer,
+         id: task.id
+        }));
+        addQuestion(prevButtons=>[...prevButtons,...newButtons]);
+        setButtonsLen((newButtons.length)+1);
+      } else {
+        console.error("Error fetching tasks");
+      }
+    };
+
+    const fetchTasksforsubmit = async () => {
+
+      const { status, data } = await requestAPI(`/contests/${props.contestid}/tasks?editing=${false}`, "get");
+      if (status > 199 && status < 300) {
+        console.log(data.status);
+       const newButtons = (data.data.tasks).map((task, index) => ({
+          Qn: String.fromCharCode(97 + index),
+          type: task.type,
+          title: task.title,
+          content: task.description,
+          points: task.points,
+          photo: task.image,
+          choices: [task.a,task.b,task.c,task.d],
+         id: task.id
+        }));
+        addQuestion(prevButtons=>[...prevButtons,...newButtons]);
+        setButtonsLen((newButtons.length)+1);
+      } else {
+        console.log("Error fetching tasks");
+      }
+    };
+
+    if(mymode==="edit")
+   {
+   console.log(props.contestid);
+    fetchTasksforedit();  
+}
+else if(mymode==="submit")
+{
+  console.log(props.contestid);
+  fetchTasksforsubmit();
+}
+  }, [props.contestid]);
     
      const handleClick = (index) => {
        setActiveIndex(index);
   }; 
   
-  if (user === "leader") {
-    allow_read = "";
-  }
-  else { 
-    allow_read = "readonly";
-  }
+
+
+
+
+
 
  const [Content, setContent] = useState("");
   const [choices, setChoices] = useState(["", "", "", ""]);
@@ -70,13 +136,13 @@ const ContestScreen = (props) =>
 
   const addquesM = () => {
     const char = String.fromCharCode(buttons.length + 64);
-    const newitem = { Qn:char ,type:"mcq",title:Title,content:Content,points:Points,photo:"", choices:["","","",""],correctAnswer:""};
+    const newitem = { Qn:char ,type:"mcq",title:Title,content:Content,points:Points,photo:"", choices:["","","",""],correctAnswer:"",id:0};
     addQuestion((prevButtons) => [...prevButtons, newitem]);
   };
   const addquesW = () => {
     
      const char = String.fromCharCode(buttons.length + 64);
-     const newitem = {Qn:char,type:"written",title:Title, content:Content,points:Points,photo:"",choices:["","","",""],correctAnswer:""};  
+     const newitem = {Qn:char,type:"written",title:Title, content:Content,points:Points,photo:"",choices:["","","",""],correctAnswer:"",id:0};  
      addQuestion((prevButtons) => [...prevButtons, newitem]);
     
   };
@@ -84,13 +150,23 @@ const ContestScreen = (props) =>
  
   
   useEffect(() => {
-     if (props.sendnow==="true") {
+     if (props.sendnow==="true" && props.user==="leader" && mymode==="create") {
        buttons.map((label,index) => {
          if (index > 0) {
            handleeClick(index);
          }
        });
      }
+    else if (props.sendnow==="true" && props.user==="member") {
+    console.log("submit");
+    }
+    else if (props.sendnow==="true" && props.user==="leader" && mymode==="edit") {
+      buttons.map((label,index) => {
+        if (index > 0) {
+          handleeClickedit(index);
+        }
+      });
+    }
    }, [props.sendnow]);
 
   async function handleeClick(index) {
@@ -119,7 +195,60 @@ const ContestScreen = (props) =>
       }
   };
   
-
+async function handleeClickedit(index) {
+  console.log(buttons_len);
+  if(index<buttons_len)
+  {
+  console.log(props.contestid,buttons[index].title);
+  const { status, data } = await requestAPI(`/contests/task/edit/${buttons[index].id}`, "put", {
+    body: {
+      description: buttons[index].content,
+      title: buttons[index].title,
+      points: buttons[index].points,
+      type: buttons[index].type,
+      image: "http://example.com/image.png",
+      mcqData: {
+        A: buttons[index].choices[0],
+        B: buttons[index].choices[1],
+        C: buttons[index].choices[2],
+        D: buttons[index].choices[3],
+        right_answer: buttons[index].correctAnswer,
+      }
+    }
+  });
+  if (status > 199 && status < 300) {
+    console.log("sucssess");
+  } else {
+    console.log("error");
+  }
+}
+else
+{
+  console.log("new task");
+  const { status, data } = await requestAPI("/contests/task", "post", {
+    body: {
+      contest_id: props.contestid,
+      description: buttons[index].content,
+      title: buttons[index].title,
+      points: buttons[index].points,
+      type: buttons[index].type,
+      image: "http://example.com/image.png",
+      mcqData: {
+        A: buttons[index].choices[0],
+        B: buttons[index].choices[1],
+        C: buttons[index].choices[2],
+        D: buttons[index].choices[3],
+        right_answer: buttons[index].correctAnswer,
+      }
+    }
+  });
+  if (status > 199 && status < 300) {
+    console.log("sucssess");
+  } else {
+    console.log("error");
+  }
+}
+}
   
   return (
     <div className="CS_all">
@@ -193,7 +322,7 @@ const ContestScreen = (props) =>
           </div>
         )}
 
-        {buttons[activeIndex].type === "written" && user === "student" && (
+        {buttons[activeIndex].type === "written" && user === "member" && (
           <div className="ANS">
             <label htmlFor="ans" className="Ans">
               Answer :
@@ -202,7 +331,7 @@ const ContestScreen = (props) =>
           </div>
         )}
 
-        {buttons[activeIndex].type === "mcq" && user === "student" && (
+        {buttons[activeIndex].type === "mcq" && user === "member" && (
           <div className="msq">
             {[1, 2, 3, 4].map((num) => (
               <div key={num} className="msq-choice">
@@ -210,10 +339,10 @@ const ContestScreen = (props) =>
                   type="radio"
                   id={`msq-choice${num}`}
                   name="msq-choice"
-                  value={`choice${num}`}
+                  value={`msq-choice${num}`}
                 />
                 <label htmlFor={`msq-choice${num}`} className="msq-label">
-                  Choice {num}
+                  {buttons[activeIndex].choices[num - 1]}
                 </label>
               </div>
             ))}
@@ -228,7 +357,7 @@ const ContestScreen = (props) =>
           <button className="addQW" onClick={() => addquesW()}>
             add Question written
           </button>
-          <div className="correct-answer">
+          {/* <div className="correct-answer">
             <label htmlFor="correct-answer" className="correct-answer-label">
               Correct Answer:
             </label>
@@ -239,7 +368,23 @@ const ContestScreen = (props) =>
               onChange={handleanswerchange}
               className="correct-answer-field"
             />
-          </div>
+          </div> */}
+
+            <div className="correct-answer">
+              <label htmlFor="correct-answer" className="correct-answer-label">
+                Correct Answer:
+              </label>
+              <select
+                onChange={handleanswerchange}
+                className="correct-answer-field"
+                value={buttons[activeIndex].correctAnswer}
+              >
+                <option value="A">A</option>
+                <option value="B">B</option>
+                <option value="C">C</option>
+                <option value="D">D</option>
+              </select>
+            </div>
 
           <div className="points">
             <label htmlFor="points" className="points-label">

@@ -9,7 +9,6 @@ const {
 } = require("../models/teamModel");
 const { leaveTeam, findUserByEmail, checkUserComm } = require("../models/userModel");
 const httpStatusText = require("../utils/httpStatusText");
-const { getUserCommunities } = require("../models/communityModel");
 
 // POST teams/new/
 exports.createTeam = async (req, res) => {

@@ -12,7 +12,7 @@ const ConfirmDialog = ({ open, onClose, onConfirm, title, choice1, choice2}) => 
 
     return (<Dialog open={open} onClose={onClose}>
         <DialogHeader>{title}</DialogHeader>
-        <DialogFooter>
+        <DialogFooter className='gap-4'>
             <Button variant='outlined' onClick={onClose}>{choice1}</Button>
             <Button loading={waiting} variant='filled' onClick={()=>handleConfirm()}>{choice2}</Button>
         </DialogFooter>

@@ -62,12 +62,12 @@ const AddPostPage = ({editing}) => {
       setIsSubmitting(true);
       const { status, data } = await requestAPI('/posts/user', 'put', {
         body: {
-          title: Title,
           userId: user.id,
+          title: Title,
+          postId: postData.id,
           communityName: communityName, 
           text: Content,
           images: images.map(image => image.name),
-          postId: postData.id,
         }
       });
       if(status > 199 && status < 300){

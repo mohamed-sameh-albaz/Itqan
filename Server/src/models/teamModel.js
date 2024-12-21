@@ -47,7 +47,6 @@ exports.getUserCommTeam = async (user_id, community_name) => {
       WHERE ut.user_id = $1 AND t.community_name = $2;
     `;
     const { rows } = await db.query(query, [user_id, community_name]);
-    // console.log(rows);
     return rows;
   } catch (err) {
     console.error(`Error retrieving teams: ${err.message}`);
@@ -86,7 +85,7 @@ exports.getTeamUsers = async (teamId) => {
     const { rows } = await db.query(query, [teamId]);
     return rows;
   } catch (err) {
-    console.error(`Error retreiving team members: ${err}`);
+    console.error(`Error retreiving team members: ${err.message}`);
     throw new Error(err.message);
   } finally {
     client.release();
@@ -104,7 +103,7 @@ exports.deleteTeam = async (teamId) => {
     const { rows } = await db.query(query, [teamId]);
     return rows;
   } catch (err) {
-    console.error(`Error deleting team members: ${err}`);
+    console.error(`Error deleting team members: ${err.message}`);
     throw new Error(err.message);
   } finally {
     client.release();
