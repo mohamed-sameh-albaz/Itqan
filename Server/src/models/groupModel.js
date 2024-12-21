@@ -76,4 +76,22 @@ const updateGroupById = async (groupId, group) => {
   }
 };
 
-module.exports = { addGroup, getGroupsByCommunity, deleteGroup, updateGroupById };
+const getGroupUsersCount = async (groupId) => {
+  const client = await db.connect();
+  try{
+    const query = `
+      SELECT count(user_id) 
+      FROM registers_to
+      WHERE group_id = $1;
+    `
+    const { rows } = await db.query(query, [groupId]);
+    return rows[0].count;
+  } catch (err) {
+    console.error(`Error updating group: ${err.message}`);
+    throw new Error("Database error: Unable to update group");
+  } finally {
+    client.release();
+  }
+}
+
+module.exports = { addGroup, getGroupsByCommunity, deleteGroup, updateGroupById, getGroupUsersCount };

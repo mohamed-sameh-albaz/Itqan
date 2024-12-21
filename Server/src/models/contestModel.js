@@ -286,4 +286,24 @@ const setContestStatus = async (contestId) => {
     client.release();
   }
 }
-module.exports = { getAllContests, addContest, getContestsByStatus, updateContestById, deleteContestById, getSingleLeaderboard, getTeamLeaderboard, getTasksByContestId, getContestById, getContestType, getTaskType, getMcqRightAnswer, getTaskPoints, setContestStatus };
+
+const getContestCommunity = async (contestId) => {
+  const client = await db.connect();
+  try {
+    const query = `
+      SELECT g.community_name
+      FROM Contests AS c
+      JOIN Groups AS g ON g.id = c.group_id
+      WHERE c.id = $1;
+    `;
+    const { rows } = await db.query(query, [contestId]);
+    return rows[0];
+  } catch (err) {
+    console.error(`Error get contest contest: ${err.message}`);
+    throw new Error("Database error: Unable to update contest");
+  } finally {
+    client.release();
+  }
+
+}
+module.exports = { getAllContests, addContest, getContestsByStatus, updateContestById, deleteContestById, getSingleLeaderboard, getTeamLeaderboard, getTasksByContestId, getContestById, getContestType, getTaskType, getMcqRightAnswer, getTaskPoints, setContestStatus, getContestCommunity };
