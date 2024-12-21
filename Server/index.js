@@ -11,6 +11,7 @@ const levelRoutes = require("./src/routes/levelRoutes");
 const socialRoutes = require("./src/routes/socialRoutes");
 const rolesRoutes = require("./src/routes/roleRoutes");
 const submissionRoutes = require("./src/routes/submissionRoutes");
+const statsRoutes = require("./src/routes/statsRoutes");
 const httpStatusText = require("./src/utils/httpStatusText");
 // Load environment variables from .env file
 dotenv.config();
@@ -28,6 +29,7 @@ app.use("/api/levels", levelRoutes);
 app.use("/api/roles", rolesRoutes);
 app.use("/api/posts", socialRoutes);
 app.use("/api/submissions", submissionRoutes);
+app.use("/api/stats", statsRoutes);
 
 app.all('*', (req, res, next) => {
   return res.status(404).json({status: httpStatusText.ERROR, message: 'This Resource Is Not Found'});

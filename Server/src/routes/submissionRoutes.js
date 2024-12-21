@@ -1,9 +1,9 @@
 const express = require("express");
 const router = express.Router();
 
-const { submitTask, getNotApprovedSubmissions, getSubmissions, approveSubmission } = require("../controllers/submissionController");
+const { submitTask, getPendingSubmissions, getSubmissions, approveSubmission } = require("../controllers/submissionController");
 
 router.route("/").post(submitTask).get(getSubmissions);
-router.route("/written").get(getNotApprovedSubmissions).patch(approveSubmission);
+router.route("/written").get(getPendingSubmissions).patch(approveSubmission);
 
 module.exports = router;
