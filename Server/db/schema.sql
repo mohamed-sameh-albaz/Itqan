@@ -154,6 +154,7 @@ CREATE TABLE IF NOT EXISTS joinAs (
     role_id INT,
     community_name VARCHAR(255),
     approved BOOLEAN,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (user_id, community_name),
     FOREIGN KEY (user_id) REFERENCES Users(id)
         ON DELETE CASCADE
