@@ -3,6 +3,26 @@ const db = require("../config/db");
 const addGroup = async (group) => {
   const client = await db.connect();
   try {
+    // Validate group title
+    if (!group.title || group.title.trim() === "") {
+      throw new Error("Group title cannot be empty or null");
+    }
+
+    // Validate community name
+    if (!group.community_name || group.community_name.trim() === "") {
+      throw new Error("Community name cannot be empty or null");
+    }
+
+    // Check if the community exists
+    const { rows: existingCommunity } = await db.query(
+      `SELECT * FROM Community WHERE name = $1`,
+      [group.community_name]
+    );
+
+    if (existingCommunity.length === 0) {
+      throw new Error("Community does not exist");
+    }
+
     const { rows } = await db.query(
       `INSERT INTO Groups (description, title, photo, community_name) VALUES ($1, $2, $3, $4) RETURNING *`,
       [group.description, group.title, group.photo, group.community_name]
@@ -10,7 +30,7 @@ const addGroup = async (group) => {
     return rows[0];
   } catch (err) {
     console.error(`Error adding group: ${err.message}`);
-    throw new Error("Database error: Unable to add group");
+    throw new Error(err.message);
   } finally {
     client.release();
   }
@@ -63,6 +83,26 @@ const deleteGroup = async (groupId) => {
 const updateGroupById = async (groupId, group) => {
   const client = await db.connect();
   try {
+    // Validate group title
+    if (!group.title || group.title.trim() === "") {
+      throw new Error("Group title cannot be empty or null");
+    }
+
+    // Validate community name
+    if (!group.community_name || group.community_name.trim() === "") {
+      throw new Error("Community name cannot be empty or null");
+    }
+
+    // Check if the community exists
+    const { rows: existingCommunity } = await db.query(
+      `SELECT * FROM Community WHERE name = $1`,
+      [group.community_name]
+    );
+
+    if (existingCommunity.length === 0) {
+      throw new Error("Community does not exist");
+    }
+
     const { rows } = await db.query(
       `UPDATE Groups SET description = $1, title = $2, photo = $3, community_name = $4, updated_at = CURRENT_TIMESTAMP WHERE id = $5 RETURNING *`,
       [group.description, group.title, group.photo, group.community_name, groupId]
@@ -70,7 +110,7 @@ const updateGroupById = async (groupId, group) => {
     return rows[0];
   } catch (err) {
     console.error(`Error updating group: ${err.message}`);
-    throw new Error("Database error: Unable to update group");
+    throw new Error(err.message);
   } finally {
     client.release();
   }

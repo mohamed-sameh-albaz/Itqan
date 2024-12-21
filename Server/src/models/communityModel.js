@@ -3,6 +3,16 @@ const db = require("../config/db");
 const addCommunity = async (community) => {
   const client = await db.connect();
   try {
+    // Check if the community name already exists
+    const { rows: existingCommunity } = await db.query(
+      `SELECT * FROM Community WHERE name = $1`,
+      [community.name]
+    );
+
+    if (existingCommunity.length > 0) {
+      throw new Error("Community name already exists");
+    }
+
     const { rows } = await db.query(
       `INSERT INTO Community (name, color, description) VALUES ($1, $2, $3) RETURNING *`,
       [community.name, community.color, community.description]
@@ -10,7 +20,7 @@ const addCommunity = async (community) => {
     return rows[0];
   } catch (err) {
     console.error(`Error adding community: ${err.message}`);
-    throw new Error("Database error: Unable to add community");
+    throw new Error(err.message);
   } finally {
     client.release();
   }
@@ -132,6 +142,16 @@ const promoteUser = async (userId, communityName,  roleId) => {
 const updateCommunityById = async (communityId, community) => {
   const client = await db.connect();
   try {
+    // Check if the community name already exists
+    const { rows: existingCommunity } = await db.query(
+      `SELECT * FROM Community WHERE name = $1 AND id <> $2`,
+      [community.name, communityId]
+    );
+
+    if (existingCommunity.length > 0) {
+      throw new Error("Community name already exists");
+    }
+
     const { rows } = await db.query(
       `UPDATE Community SET name = $1, color = $2, description = $3, updated_at = CURRENT_TIMESTAMP WHERE id = $4 RETURNING *`,
       [community.name, community.color, community.description, communityId]
@@ -139,7 +159,7 @@ const updateCommunityById = async (communityId, community) => {
     return rows[0];
   } catch (err) {
     console.error(`Error updating community: ${err.message}`);
-    throw new Error("Database error: Unable to update community");
+    throw new Error(err.message);
   } finally {
     client.release();
   }
