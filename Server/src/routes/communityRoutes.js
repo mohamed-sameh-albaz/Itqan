@@ -1,10 +1,11 @@
 const express = require("express");
-const { createCommunity, joinCommunity, getAllCommunities, getUserCommunities, getGroupsByCommunity, searchCommunitiesByName, getUsersByCommunityName, promoteUser, editCommunity, deleteCommunity } = require("../controllers/communityController");
+const { createCommunity, joinCommunity, getAllCommunities, getUserCommunities, getGroupsByCommunity, searchCommunitiesByName, getUsersByCommunityName, promoteUser, editCommunity, deleteCommunity, leaveCommunity } = require("../controllers/communityController");
 
 const router = express.Router();
 
 router.post("/", createCommunity);
 router.post("/join", joinCommunity);
+router.post("/leave", leaveCommunity);
 router.get("/", getAllCommunities);
 router.get("/user", getUserCommunities);
 router.get("/groups", getGroupsByCommunity);
