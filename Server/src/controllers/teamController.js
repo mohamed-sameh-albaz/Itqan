@@ -7,13 +7,15 @@ const {
   deleteTeam,
   editTeam,
 } = require("../models/teamModel");
-const { leaveTeam, findUserByEmail, checkUserComm } = require("../models/userModel");
+const { leaveTeam, findUserByEmail, checkUserComm, getUserData } = require("../models/userModel");
 const httpStatusText = require("../utils/httpStatusText");
 
 // POST teams/new/
 exports.createTeam = async (req, res) => {
   const { userId, name, photo, communityName, teamUsers } = req.body;
   try {
+    let createrEmail = await getUserData(userId);
+    createrEmail = createrEmail.email;
     const userTeam = await getUserCommTeam(userId, communityName);
     if (userTeam.length) {
       return res
@@ -30,7 +32,13 @@ exports.createTeam = async (req, res) => {
         const teamUserid = await findUserByEmail(teamUsers[i]);
         if(!teamUserid) {
           message.push({
-            msg: `${teamUserid} is invalid email`
+            msg: `"${teamUsers[i]}" is invalid email`
+          });
+          teamUsers.splice(i, 1);
+          i--;
+        } else if(teamUserid.id === userId) {
+          message.push({
+            msg: `"${teamUsers[i]}" is invalid email, your can not add yourself to team`
           });
           teamUsers.splice(i, 1);
           i--;
@@ -99,6 +107,15 @@ exports.leaveTeam = async (req, res) => {
   const { userId, CommunityName } = req.body;
   try {
     const userTeam = await getUserCommTeam(userId, CommunityName);
+    if(!userTeam.length) {
+      return res
+      .status(404)
+      .json({
+        status: httpStatusText.FAIL,
+        message: "You are not in a team already",
+        data: null,
+      });
+    }
     const user = await leaveTeam(userId, userTeam[0].id);
     const users = await getTeamUsers(userTeam[0].id);
     if (users.length <= 1) {
@@ -134,8 +151,16 @@ exports.inviteUserToTeam = async (req, res) => {
           data: { invitedUser: null },
         });
     }
-    // check user is in the community update after pull
-
+    const checkInvitedInCommunity = await checkUserComm(invitedUser.id, communityName);
+    if(!checkInvitedInCommunity.length) {
+      return res
+        .status(400)
+        .json({
+          status: httpStatusText.FAIL,
+          message: "user does not joins this community",
+          data: null,
+        });
+    }
     const invitedUserTeam = await getUserCommTeam(
       invitedUser.id,
       communityName
@@ -153,11 +178,14 @@ exports.inviteUserToTeam = async (req, res) => {
       }
       const team = await addToTeam(invitedUser.id, teamId);
       const users = await getTeamUsers(teamId);
-      res
+      return res
         .status(201)
-        .json({ status: httpStatusText.SUCCESS, data: { team_users: users } });
+        .json({ 
+          status: httpStatusText.SUCCESS, 
+          data: { team_users: users } 
+        });
     } else {
-      res
+      return res
         .status(400)
         .json({
           status: httpStatusText.FAIL,
