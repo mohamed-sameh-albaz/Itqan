@@ -99,13 +99,11 @@ else if(mymode==="submit")
        setActiveIndex(index);
   }; 
   
+ 
 
 
 
-
-
-
- const [Content, setContent] = useState("");
+  const [Content, setContent] = useState("");
   const [choices, setChoices] = useState(["", "", "", ""]);
   const [Title, setTitle] = useState(""); 
   const [Points, setPoints] = useState(1);
@@ -170,6 +168,25 @@ else if(mymode==="submit")
     addQuestion(newButtons);
   };
  
+  const handleTaskDelete = (index) => {
+    if(index>0)
+    {
+      const newButtons = [...buttons];
+      newButtons.splice(index, 1);
+      if (activeIndex === newButtons.length) {
+        setActiveIndex(newButtons.length - 1);
+      }
+      for (let i = index; i < newButtons.length; i++) {
+        console.log(i, newButtons.length);
+        newButtons[i].Qn = String.fromCharCode(65 + i-1);
+      }
+
+      addQuestion(newButtons);
+    }
+  };
+
+
+  
   
   useEffect(() => {
      if (props.sendnow==="true" && (props.user==="leader"||props.user==="admin") && mymode==="create") {
@@ -460,6 +477,9 @@ async function handleeClickSubmit(index){
               className="photo-field"
             />
           </div>
+          <button className="deleteTask" onClick={() => handleTaskDelete(activeIndex)}>
+            Delete Task
+            </button>
         </div>
       )}
     </div>

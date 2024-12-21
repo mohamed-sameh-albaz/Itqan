@@ -99,6 +99,10 @@ const ContestPage = (props) => {
       {
         alert("Please fill all the fields");
       }
+      
+      else if (new Date(formData.end_date) <= new Date(formData.start_date)) {
+        alert("End date must be greater than start date");
+      }
      else {
     const {status, data} = await
     requestAPI(
@@ -134,6 +138,9 @@ const ContestPage = (props) => {
     if(formData.type === "" || formData.difficulty === "" || formData.name === "" || formData.description === "" || formData.start_date === "" || formData.end_date === "") 
       {
         alert("Please fill all the fields");
+      }
+      else if (new Date(formData.end_date) <= new Date(formData.start_date)) {
+        alert("End date must be greater than start date");
       }
      else {
     const {status, data} = await
