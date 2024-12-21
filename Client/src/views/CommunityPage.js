@@ -4,11 +4,14 @@ import CommunityNavBar from '../components/CommunityNavBar';
 import ContestTable from '../components/ContestTable';
 import './CommunityPage.css'
 import {requestAPI, useAPI} from '../hooks/useAPI';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Alert, Avatar, Button, Card, CardBody, Dialog, DialogBody, DialogFooter, DialogHeader, IconButton, Option, Select, Spinner, Typography } from '@material-tailwind/react';
 import CreateGroupDialog from '../dialogs/CreateGroup';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faAdd } from '@fortawesome/free-solid-svg-icons';
+import { faAdd, faBan } from '@fortawesome/free-solid-svg-icons';
+import useUser from '../hooks/useUser';
+import { set } from 'date-fns';
+import useRole from '../hooks/useRole';
 const TeamCard = ({ communityName, userID }) => {
   const nav = useNavigate();
   const [data, loading] = useAPI('/teams', 'get', { params: { community_name: communityName, user_id: userID } });
@@ -33,23 +36,98 @@ const TeamCard = ({ communityName, userID }) => {
     </Card>);
 }
 
-const RoleSelector = ({initRole = 3, roles = []}) => {
+const RoleSelector = ({userID, initRole = 3, roles = []}) => {
+    const parms = useParams();
+
+    const {canAdmin} = useRole(parms.name);
+    const user = useUser();
     const [selectedRole, setSelectedRole] = useState(initRole);
+    const [loading, setLoading] =   useState(false);
+
+    async function handleUpdateRole(roleId) {
+        const oldRole = selectedRole;
+
+        setLoading(true);
+        setSelectedRole(roleId)
+        const {status, data} = await requestAPI('/communities/users/promote','patch', {body:{userId:userID, roleId, communityName: parms.name}});
+        if(status > 199 && status < 300){
+            console.log("Role updated");
+        }else{
+            setSelectedRole(oldRole);
+        }
+        setLoading(false);
+    }
+
     return (
-        <select  className='border border-red-600 p-2 rounded-full' style={{color:roles[selectedRole].color}}>
-        {roles.map((e, index)=><option value={index} style={{color:e.color}}>
-            {e.name}
-        </option>)}
-        </select>
+        <div>
+            {loading ? <Spinner /> :
+        <select 
+            value={selectedRole}
+            onChange={(e)=>handleUpdateRole(e.target.value)}
+            className='font-bold p-2 rounded-full'
+            disabled={loading || user.id == userID || !canAdmin}
+            style={{
+                borderWidth: 1,
+                borderStyle:'solid',
+                borderColor: roles.find((x)=>x.id==selectedRole)?.color || 'blue',
+                backgroundColor: roles.find((x)=>x.id==selectedRole)?.color + '2F' || 'blue',
+                outlineColor: roles.find((x)=>x.id==selectedRole)?.color || 'blue'
+            }}
+            >
+        {roles.map((e, index) => 
+            <option className='font-bold' key={index} value={e.id} style={{ color: e.color }}>
+                {e.name.toUpperCase()}
+            </option>)}
+        </select>}
+        </div>
+
+    )
+}
+
+function UserFinderElement({user, roles}) {
+    return (
+        <tr>
+            <td className='flex flex-row items-center gap-3'> 
+                <Avatar className='border border-gray-600' src={user.photo}></Avatar>
+                <Typography >{user.fname + " " + user.lname}</Typography>
+            </td>
+            <td><div className=''>
+                <RoleSelector userID={user.id} roles={roles} initRole={user.role_id} />
+                </div>
+            </td>
+            <td>{user.email}</td>
+            <td>
+                <IconButton variant='text'>
+                    <FontAwesomeIcon icon={faBan} color='red'/>
+                </IconButton>
+            </td>
+        </tr>
     )
 }
 
 const UserFinderDialog = ({ open, onClose}) => {
     const parms = useParams();
     const [usersResponse, isLoadingUsers] = useAPI('/communities/users', 'get', {params: {community_name: parms.name, page: 1, limit: 10}});
-    const [rolesResponse, isRolesLoading] = useAPI('/roles', 'get', {params: {page: 1, limit: 10}});
 
-    const roles = rolesResponse?.data?.roles || [];
+    const [roles, setRoles] = useState([]);
+    async function getRoles(params) {
+        const {data, status} = await requestAPI('/roles', 'get', {params: {page: 1, limit: 10}});
+
+        if(status > 199 && status < 300){
+            setRoles(data.data.roles);
+        }else{
+            console.log("Error loading roles");
+        }
+    }
+    useEffect(()=>{
+        getRoles();
+    }, [])
+
+    function getRoleById(){
+
+    }
+
+    // const roles = rolesResponse?.data?.roles || [];
     const Header = ['Username', 'Role', 'Email'];
     return (
         <Dialog size='xl' open={open} onClose={onClose}>
@@ -64,36 +142,20 @@ const UserFinderDialog = ({ open, onClose}) => {
                     </thead>
                     <tbody>
                         {(isLoadingUsers ? [] : usersResponse.data.users).map((x) =>
-                            <tr>
-                                <td className='flex flex-row items-center'> 
-                                    <Avatar className='border border-gray-600' src={x.photo}></Avatar>
-                                    <Typography>{x.fname + " " + x.lname}</Typography>
-                                </td>
-                                <td><div className=''>
-                                    <RoleSelector roles={roles} />
-                                    {/* <Select >
-                                        <Option>Admin</Option>
-                                        <Option>Creator</Option>
-                                        <Option>Member</Option>
-                                    </Select> */}
-                                    </div>
-                                </td>
-                                <td>{x.email}</td>
-                            </tr>)}
+                            <UserFinderElement user={x} roles={roles} />)}
                     </tbody>
                 </table>
             </DialogBody>
             <DialogFooter>
-                <Button
+                {/* <Button
                     variant="text"
-                    color="red"
                     onClick={onClose}
                     className="mr-1"
                 >
-                    <span>Cancel</span>
-                </Button>
-                <Button variant="gradient" color="green" onClick={onClose}>
-                    <span>Confirm</span>
+                    <span>Done</span>
+                </Button> */}
+                <Button style={{backgroundColor:'var(--primary-color)'}} onClick={onClose}>
+                    <span>Done</span>
                 </Button>
             </DialogFooter>
         </Dialog>
@@ -141,10 +203,11 @@ const CommunityPage = () => {
     
     const [groups, isLoadingGroups, refreshGroup] = useAPI('/communities/groups', 'get', {params: {community_name: parms.name, userId:user.id}});
 
-    const [upCommingContestRes, isLoadingUpCommingContestRes] = useAPI('/contests/status', 'get',
+    const [upCommingContestRes, isLoadingUpCommingContestRes, refreshUpcomming] = useAPI('/contests/status', 'get',
         {params:{
             community_name: communityName,
-            status: "upcoming"
+            status: "upcoming",
+            limit: 5
         }});
     const upCommingContest = upCommingContestRes==null? [] : upCommingContestRes.data.contests;
 
@@ -152,7 +215,7 @@ const CommunityPage = () => {
         //JOINED remove this later
         currentGroupId.current = groupName;
         if(joined === true){
-            nav(`/community/${communityName}/group/${currentGroupId.current}`);
+            nav(`/community/${communityName}/group/${groupName}`);
             return
         }else{
             setConfirmJoinGroup(true);
@@ -162,7 +225,7 @@ const CommunityPage = () => {
     async function requestJoinGroupByID(group){
         const {data, status} = await requestAPI('/groups/join', 'post', {body: {userId: user.id, groupId: currentGroupId.current}});
         if(status > 199 && status < 300){
-            enterGroup(group, true);
+            enterGroup(currentGroupId.current, true);
         }
         else{
             setAlertMessage("Failed to join Group");
@@ -175,13 +238,19 @@ const CommunityPage = () => {
     <div>
         <Alert className='fixed w-30 bottom-3 right-3' open={alertMessage != null} onClose={() => setAlertMessage(null)}>{alertMessage}</Alert>
         <CommunityNavBar />
-        <Button onClick={()=>setUserFinder(true)}>All Users</Button>
+        <Card className='width-full min-h-28 m-8'>
+            <CardBody className='gap-3'>
+            <Button onClick={()=>setUserFinder(true)}>All Users</Button>
+            <Button onClick={()=>setUserFinder(true)}>View Summary Stats</Button>
+            <Button onClick={()=>setUserFinder(true)}>View Detailed Stats</Button>
+            </CardBody>
+        </Card>
         <CreateGroupDialog communityName={communityName} open={groupCreator} setOpen={handleGroupCreator} setAlert={setAlertMessage} />
         <UserFinderDialog open={userFinder} onClose={() => setUserFinder(false)} />
         <ConfirmDialog open={confirmJoinGroup} onClose={()=>setConfirmJoinGroup(false)} onConfirm={requestJoinGroupByID} title="Are you sure you want to join this group?" choice1="Cancel" choice2="Join" />
         <div className="content">
             <h3>Upcomming Contests</h3>
-            <ContestTable contests={upCommingContest} />
+            <ContestTable contests={upCommingContest} refresh={refreshUpcomming} />
 
             <div className="row">
 
@@ -189,6 +258,12 @@ const CommunityPage = () => {
                 <div className='groups-section'>
                     <h3>You Groups</h3>
                     <div className="groups-grid">
+                        <Card className='w-48 h-48 text-left' variant="filled" shadow="hover" onClick={()=>setgroupCreator(true)} >
+                            <Card.Body className='cursor-pointer select-none flex flex-col h-full text-center justify-center' >
+                            <FontAwesomeIcon icon={faAdd} color="black" size="3x" className="text-gray-700"/>
+                            <Typography className="text-gray-800 font-bold">Create new group</Typography>
+                            </Card.Body>
+                        </Card>
                         {(isLoadingGroups? [] : groups.data.groups).map((e,index)=>
                         <CommunityCard
                             key={e.title}
@@ -208,7 +283,7 @@ const CommunityPage = () => {
                 </div>
             </div>
         </div>
-        <div className='absolute w-full h-screen'>
+        {/* <div className='absolute w-full h-screen'>
             <div className="fixed bottom-2 right-2 rounded-full">
             <Button 
                 size="lg" 
@@ -219,7 +294,7 @@ const CommunityPage = () => {
                 <Typography variant='small'>Create<br/>Group</Typography>
             </Button>
             </div>
-        </div>
+        </div> */}
 
     </div> );
 }
