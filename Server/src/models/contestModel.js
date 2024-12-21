@@ -16,9 +16,20 @@ const getAllContests = async () => {
 const addContest = async (contest) => {
   const client = await db.connect();
   try {
+    const now = new Date();
+    let status;
+
+    if (new Date(contest.start_date) > now) {
+      status = 'upcoming';
+    } else if (new Date(contest.start_date) <= now && new Date(contest.end_date) >= now) {
+      status = 'running';
+    } else if (new Date(contest.end_date) < now) {
+      status = 'finished';
+    }
+
     const { rows } = await db.query(
       `INSERT INTO contests (description, type, difficulty, name, start_date, end_date, status, group_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
-      [contest.description, contest.type, contest.difficulty, contest.name, contest.start_date, contest.end_date, contest.status, contest.group_id]
+      [contest.description, contest.type, contest.difficulty, contest.name, contest.start_date, contest.end_date, status, contest.group_id]
     );
     return rows[0];
   } catch (err) {
@@ -29,9 +40,29 @@ const addContest = async (contest) => {
   }
 };
 
+const updateContestStatus = async (contestId, status) => {
+  const client = await db.connect();
+  try {
+    const query = `
+      UPDATE contests 
+      SET status = $1, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $2
+      RETURNING *;
+    `;
+    const { rows } = await db.query(query, [status, contestId]);
+    return rows[0];
+  } catch (err) {
+    console.error(`Error updating contest status: ${err.message}`);
+    throw new Error("Database error: Unable to update contest status");
+  } finally {
+    client.release();
+  }
+};
+
 const getContestsByStatus = async ({ community_name, group_id, status, limit }) => {
   const client = await db.connect();
   try {
+    // Fetch all contests first
     let query = `SELECT * FROM contests WHERE `;
     const params = [];
 
@@ -43,32 +74,38 @@ const getContestsByStatus = async ({ community_name, group_id, status, limit }) 
       params.push(group_id);
     }
 
-    switch (status) {
-      case 'upcoming':
-        query += `start_date > NOW() `;
-        break;
-      case 'running':
-        query += `start_date <= NOW() AND end_date >= NOW() `;
-        break;
-      case 'pending':
-        query += `end_date < NOW() AND status = 'pending' `;
-        break;
-      case 'finished':
-        query += `end_date < NOW() AND status = 'finished' `;
-        break;
-      default:
-        throw new Error("Invalid status");
-    }
-
-    query += `ORDER BY start_date ASC`;
+    query += `1=1 ORDER BY start_date ASC`;
 
     if (limit) {
       query += ` LIMIT $${params.length + 1}`;
       params.push(limit);
     }
 
-    const { rows } = await db.query(query, params);
-    return rows;
+    const { rows: contests } = await db.query(query, params);
+
+    // Update the status of each contest based on the start date and end date
+    const now = new Date();
+    for (const contest of contests) {
+      let newStatus;
+      if (new Date(contest.start_date) > now) {
+        newStatus = 'upcoming';
+      } else if (new Date(contest.start_date) <= now && new Date(contest.end_date) >= now) {
+        newStatus = 'running';
+      } else if (new Date(contest.end_date) < now && contest.status === 'finished') {
+        newStatus = 'finished';
+      } else if (new Date(contest.end_date) < now) {
+        newStatus = 'pending';
+      }
+      if (newStatus && newStatus !== contest.status) {
+        await updateContestStatus(contest.id, newStatus);
+        contest.status = newStatus;
+      }
+    }
+
+    // Filter contests by the requested status
+    const filteredContests = contests.filter(contest => contest.status === status);
+
+    return filteredContests;
   } catch (err) {
     console.error(`Error retrieving contests by status: ${err.message}`);
     throw new Error("Database error: Unable to retrieve contests by status");
@@ -286,4 +323,25 @@ const setContestStatus = async (contestId) => {
     client.release();
   }
 }
-module.exports = { getAllContests, addContest, getContestsByStatus, updateContestById, deleteContestById, getSingleLeaderboard, getTeamLeaderboard, getTasksByContestId, getContestById, getContestType, getTaskType, getMcqRightAnswer, getTaskPoints, setContestStatus };
+
+const getContestCommunity = async (contestId) => {
+  const client = await db.connect();
+  try {
+    const query = `
+      SELECT g.community_name
+      FROM Contests AS c
+      JOIN Groups AS g ON g.id = c.group_id
+      WHERE c.id = $1;
+    `;
+    const { rows } = await db.query(query, [contestId]);
+    return rows[0];
+  } catch (err) {
+    console.error(`Error get contest contest: ${err.message}`);
+    throw new Error("Database error: Unable to update contest");
+  } finally {
+    client.release();
+  }
+
+}
+module.exports = { getAllContests, addContest, getContestsByStatus, updateContestById, deleteContestById, getSingleLeaderboard, getTeamLeaderboard, getTasksByContestId, getContestById, getContestType, getTaskType, getMcqRightAnswer, getTaskPoints, setContestStatus, updateContestStatus, getContestCommunity };
+
