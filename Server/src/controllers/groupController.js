@@ -1,5 +1,5 @@
 const { addGroup, deleteGroup, updateGroupById } = require("../models/groupModel");
-const { addRegisterTo } = require("../models/registersToModel");
+const { addRegisterTo, removeRegisterTo } = require("../models/registersToModel");
 const httpStatusText = require("../utils/httpStatusText");
 
 exports.createGroup = async (req, res) => {
@@ -43,6 +43,33 @@ exports.joinGroup = async (req, res) => {
       message: "Server Error",
       details: {
         field: "registerTo",
+        error: err.message,
+      },
+    });
+  }
+};
+
+exports.leaveGroup = async (req, res) => {
+  const { userId, groupId } = req.body;
+
+  try {
+    const removedRegisterTo = await removeRegisterTo(userId, groupId);
+    if (!removedRegisterTo) {
+      return res.status(404).json({
+        status: httpStatusText.FAIL,
+        message: "User not found in the group",
+      });
+    }
+    res.status(200).json({
+      status: httpStatusText.SUCCESS,
+      message: "User has left the group",
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: httpStatusText.ERROR,
+      message: "Server Error",
+      details: {
+        field: "leave group",
         error: err.message,
       },
     });

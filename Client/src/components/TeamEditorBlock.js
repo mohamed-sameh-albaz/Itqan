@@ -45,14 +45,25 @@ const TeamEditorBlock = (props) => {
     )
  if (status > 199 && status < 300) {
     console.log("sucssess");
-   
-    }
+   alert("Team created successfully");
+   data.data.message.forEach((mes,index)=>{
+  alert(`for Team mate${index+1} : ${mes.msg}`); 
+  });
+  }
     else {
       console.log("error");
-   
+      alert("Error creating team");
+      if(typeof(data.message)==="string"){
+        alert(data.message);
+      }
+      else{
+        data.message.forEach((mes,index)=>{
+        alert(`for Team mate${index+1} : ${mes.msg}`); 
+        });
     }
 
   }
+}
    const [teamName, setTeamName] = useState("");
    const [teamMate1, setTeamMate1] = useState("");
    const [teamMate2, setTeamMate2] = useState("");

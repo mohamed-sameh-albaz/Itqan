@@ -79,14 +79,14 @@ const CreateGroupDialog = ({communityName, open, setOpen, setAlert}) => {
     }
 
     return ( <Dialog open={open} onClose={()=>setOpen(false)}>
-    <DialogHeader>Create community</DialogHeader>
+    <DialogHeader>Create group</DialogHeader>
     <DialogBody>
         <div className="w-auto">
-            <Input label="Group name" value={name} onChange={(e)=>setName(e.target.value)} error={nameError}/>
+            <Input label="Name" value={name} onChange={(e)=>setName(e.target.value)} error={nameError}/>
         </div>
         <InputError error={nameError} />
         <div className="w-auto">
-            <Input label="Group name" value={description} onChange={(e)=>setDescription(e.target.value)} error={descriptionError}/>
+            <Input label="Description" value={description} onChange={(e)=>setDescription(e.target.value)} error={descriptionError}/>
         </div>
         <InputError error={descriptionError} />
     </DialogBody>

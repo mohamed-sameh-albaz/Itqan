@@ -12,7 +12,10 @@ import TeamsPage from './views/TeamsPage';
 import AddPostPage from './views/AddPostPage'; // Import the new component
 import ProfilePage from './views/ProfilePage';
 import PostsPage from './views/PostsPage';
+import SummaryPage from './views/SummaryPage';
+import DetailedPage from './views/DetailedPage';
 
+import SubmissionsPage from './views/SubmissionsPage';
 
 function App() {
   return (
@@ -28,15 +31,22 @@ function App() {
           <Route path="/team/create" element={<TeamEditor />} />
           <Route path="/teams" element={<TeamsPage />} />
 
+          <Route path="/community/:name/stats/summary" element={<SummaryPage/>} />
+          <Route path="/community/:name/stats/detailed" element={<DetailedPage/>} />
+
           <Route path="/profile/:id" element={<ProfilePage/>} /> 
           <Route path="/community/:name/posts" element={<PostsPage/>} /> 
           <Route path="/community/:name/posts/edit" element={<AddPostPage editing={false} />} /> 
           <Route path="/community/:name/posts/edit/:post_id" element={<AddPostPage editing={true} />} /> 
 
-          <Route path="/community/:name/groups/:groupID/create" element={<ContestPage MODE={"create"} />} />
-          <Route path="/community/:name/groups/:groupID/contest/:contestID/edit" element={<ContestPage MODE={"edit"} />} />
-          <Route path="/community/:name/groups/:groupID/contest/:contestID/submit" element={<ContestPage MODE={"submit"} />} />
+
+          <Route path="/sub" element={<SubmissionsPage />} />
+
+          <Route path="/community/:name/group/:groupID/create" element={<ContestPage MODE={"create"} />} />
+          <Route path="/community/:name/group/:groupID/contest/:contestID/edit" element={<ContestPage MODE={"edit"} />} />
+          <Route path="/community/:name/group/:groupID/contest/:contestID/show" element={<ContestPage MODE={"submit"} />} />
         
+
 
         </Routes>
       </div>

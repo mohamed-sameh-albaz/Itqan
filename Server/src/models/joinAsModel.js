@@ -16,4 +16,34 @@ const addJoinAs = async (joinAs) => {
   }
 };
 
-module.exports = { addJoinAs };
+const removeJoinAs = async (userId, communityName) => {
+  const client = await db.connect();
+  try {
+    const { rows: roleRows } = await db.query(
+      `SELECT role_id FROM joinAs WHERE user_id = $1 AND community_name = $2`,
+      [userId, communityName]
+    );
+
+    if (roleRows.length === 0) {
+      return { message: "User not found in the community" };
+    }
+
+    const roleId = roleRows[0].role_id;
+    if (+roleId === 1) {
+      return { message: "An admin cannot leave the community" };
+    }
+
+    const { rows } = await db.query(
+      `DELETE FROM joinAs WHERE user_id = $1 AND community_name = $2 RETURNING *`,
+      [userId, communityName]
+    );
+    return rows[0];
+  } catch (err) {
+    console.error(`Error removing joinAs: ${err.message}`);
+    throw new Error("Database error: Unable to remove joinAs");
+  } finally {
+    client.release();
+  }
+};
+
+module.exports = { addJoinAs, removeJoinAs };
