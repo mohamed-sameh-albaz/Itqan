@@ -22,6 +22,7 @@ import { AuthProvider, ProtectedRoute} from './context/AuthContext';
 import LeaderBoardPage from './views/LeaderBoardPage';
 
 import AddRewards from './views/AddRewards';
+import Levels from './views/levels';
 
 function App() {
   return (
@@ -55,7 +56,7 @@ function App() {
             <Route path="/community/:name/group/:groupID/contest/:contestID/leaderboard" element={<ProtectedRoute element={<LeaderBoardPage/>} />} />
             
             <Route path="/rewards" element={<ProtectedRoute element={<AddRewards/>} />} />
-
+            <Route path="/levels" element={<ProtectedRoute element={<Levels/>} />} />
             <Route path="*" element={<Navigate to="/" />} />
           
           </Routes>
