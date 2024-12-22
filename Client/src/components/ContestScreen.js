@@ -199,7 +199,7 @@ else if(mymode==="submit")
     else if (props.sendnow==="true" && props.user==="member") {
     console.log("submit");
     buttons.map((label,index) => {
-      if (index > 0&&buttons[index].type==="written") {
+      if (index > 0) {
         handleeClickSubmit(index);
       }
     });
@@ -296,7 +296,7 @@ else
 }
   
 async function handleeClickSubmit(index){
-  console.log(buttons[index].id,props.contestid,UserID,buttons[index].ans);
+  // console.log(buttons[index].id,props.contestid,UserID,buttons[index].ans);
   const { status, data } = await requestAPI("/submissions/", "post", {
     body: {
      taskId: buttons[index].id,
@@ -308,10 +308,10 @@ async function handleeClickSubmit(index){
   );
   if (status > 199 && status < 300) {
     console.log("sucssess");
-    alert("Answers submitted successfully");
+   
   } else {
     console.log("error");
-    alert("Error submitting answers");
+   
   }
 
 }
@@ -447,7 +447,8 @@ async function handleeClickSubmit(index){
                 className="correct-answer-field"
                 value={buttons[activeIndex].correctAnswer}
               >
-                <option value="A">A</option>
+                
+                <option value="A" selected>A</option>
                 <option value="B">B</option>
                 <option value="C">C</option>
                 <option value="D">D</option>
