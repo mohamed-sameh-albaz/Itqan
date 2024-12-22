@@ -16,7 +16,7 @@ exports.createTeam = async (req, res) => {
   try {
     let createrEmail = await getUserData(userId);
     createrEmail = createrEmail.email;
-    const userTeam = await getUserCommTeam(userId, communityName);
+    const userTeam = await getUserCommTeam(userId, {community_name: communityName});
     if (userTeam.length) {
       return res
       .status(404)
@@ -56,7 +56,8 @@ exports.createTeam = async (req, res) => {
             });
             return null;
           } else {
-            const addedUserTeam = await getUserCommTeam(userId.id, communityName);
+            const addedUserTeam = await getUserCommTeam(userId.id, {community_name: communityName});
+            console.log(addedUserTeam);
             if (addedUserTeam.length) {
               message.push({
                 user_id: userId,
@@ -106,7 +107,7 @@ exports.createTeam = async (req, res) => {
 exports.leaveTeam = async (req, res) => {
   const { userId, CommunityName } = req.body;
   try {
-    const userTeam = await getUserCommTeam(userId, CommunityName);
+    const userTeam = await getUserCommTeam(userId, {community_name: CommunityName});
     if(!userTeam.length) {
       return res
       .status(404)
@@ -163,7 +164,7 @@ exports.inviteUserToTeam = async (req, res) => {
     }
     const invitedUserTeam = await getUserCommTeam(
       invitedUser.id,
-      communityName
+      {community_name: communityName}
     );
     if (!invitedUserTeam.length) {
       const teamUsersCount = await getTeamUsersCount(teamId);
@@ -209,7 +210,7 @@ exports.inviteUserToTeam = async (req, res) => {
 exports.getUserTeam = async (req, res) => {
   const { user_id, community_name } = req.query;
   try {
-    const team = await getUserCommTeam(user_id, community_name);
+    const team = await getUserCommTeam(user_id, {community_name: community_name});
     if (team.length) {
       const teamMembers = await getTeamUsers(team[0].id);
       res
