@@ -20,7 +20,7 @@ const HomeNavBar = ({userName}) => {
       </div>
       <div className="profile-container">
         <img
-          src="https://avatar.iran.liara.run/public/boy"
+          src={user.photo ?? "https://avatar.iran.liara.run/public/boy"}
           alt="Profile"
           className="profile-pic"
           onClick={() => nav(`/profile/${user.id}`)}

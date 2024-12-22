@@ -44,6 +44,13 @@ const ContestTable = ({contests, refresh}) => {
     const [selectedContest, setSelectedContest] = useState(null);
     const [selectedContestName, setSelectedContestName] = useState(null);
     const [open, setOpen] = useState(false);
+
+    const [teamRes, loadingTeam] = useState('/teams', 'get', {parms:{
+        user_id:1, community_name:parms.name,
+    }});
+
+    const team = teamRes?.data?.team_users ?? null;
+
     const deleteContest = async (id) => {
         const {status} = await requestAPI(`/contests/delete/${id}`, 'delete');
         if(status > 199 && status < 300){
@@ -90,6 +97,27 @@ const ContestTable = ({contests, refresh}) => {
             <tbody>
                 {contests.map((e)=>{
                     const zonedStartDate = toZonedTime(new Date(e.start_date), timeZone);
+                    
+                    let mes = (roleId == 1 || roleId == 2)? "Edit": "Go there";
+                    let canGo = true;
+                    if(!(roleId == 1 || roleId == 2)){
+                        if(e.type == 'team' && team == null) {
+                            canGo = false;
+                            mes = "Requires Team";
+                        }else if(e.status == 'upcoming'){
+                            canGo = false;
+                            mes = "Wait";
+                        }
+                    }
+
+                    canGo = !canGo;
+                    /*
+                    Wait
+                    Didn't start yet
+                    Requires Team
+                    Go There
+                    */
+
                     return <tr key={e.id}>
                     <td>
                         <div>
@@ -111,7 +139,7 @@ const ContestTable = ({contests, refresh}) => {
                     <td>{e.status != 'upcoming'? e.status : calculateTimeLeft((new Date()).toISOString(),e.start_date) + ' left'}</td>
                     <td className='flex gap-2 justify-left'>
                     
-                    <Button style={{backgroundColor:'var(--primary-color)'}} onClick={()=>handleGotoContest(e.group_id, e.id)}>{(roleId == 1 || roleId == 2)? "Edit": "Go there"}</Button>
+                    {<Button disabled={canGo} style={{backgroundColor:'var(--primary-color)'}} onClick={()=>handleGotoContest(e.group_id, e.id)}>{mes}</Button>}
                     <div>
                     { (roleId == 1 || roleId == 2) && <><IconButton variant='text' onClick={() => handleDelete(e.id, e.name)}>
                         <FontAwesomeIcon color='red'  icon={faTrash}/>

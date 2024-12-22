@@ -1,5 +1,5 @@
 import { Button, Dialog, DialogBody, DialogFooter, DialogHeader, Input, Typography } from "@material-tailwind/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Alert } from "@material-tailwind/react";
 import { requestAPI } from "../hooks/useAPI";
@@ -45,13 +45,18 @@ const InputError = ({ error }) => {
 }
  
 
-const CreateGroupDialog = ({communityName, open, setOpen, setAlert}) => {
-    const [name, setName] = useState("");
+const CreateGroupDialog = ({groupId, refresh, communityName, open, setOpen, setAlert}) => {
+    const [name, setName] = useState(groupId == null ? "" : groupId.title);
     const [nameError, setNameError] = useState(false);
-    const [description, setDescription] = useState("");
+    const [description, setDescription] = useState(groupId == null ? "" : groupId.description);
     const [descriptionError, setDescriptionError] = useState(false);
 
     const [waitingForCreateGroup, setWaitingForCreateCommunity] = useState(false);
+
+    useEffect(()=>{
+      setName(groupId == null ? "" : groupId.title);
+      setDescription(groupId == null ? "" : groupId.description);
+    }, [groupId]);
 
     async function createGroup() {
         if(name.length < 1){
@@ -65,20 +70,38 @@ const CreateGroupDialog = ({communityName, open, setOpen, setAlert}) => {
         }
 
         setWaitingForCreateCommunity(true);
-        const {data, status} = await requestAPI('/groups', 'post', {body: {description, title: name, photo: "https://example.com/photo.jpg", community_name: communityName}});
-    
-        if(status > 199 && status < 300){
-            setAlert(`${name} group created successfully`);
-        }
-        else{
-            setAlert("Failed to create group");
+        
+        if(groupId == null){
+        
+          const {data, status} = await requestAPI('/groups', 'post', {body: {description, title: name, photo: "https://example.com/photo.jpg", community_name: communityName}});
+      
+          if(status > 199 && status < 300){
+            refresh();
+
+              setAlert(`${name} group created successfully`);
+
+          }
+          else{
+              setAlert("Failed to create group");
+          }
+
+        }else{
+          const {data, status} = await requestAPI(`/groups/${groupId.id}`, 'put', {body: {description, title: name, photo: "https://example.com/photo.jpg", community_name: communityName}});
+      
+          if(status > 199 && status < 300){
+            refresh();
+              setAlert(`${name} group updated successfully`);
+          }
+          else{
+              setAlert("Failed to update group");
+          }
         }
         setWaitingForCreateCommunity(false)
-        setOpen(false);
+        setOpen();
 
     }
 
-    return ( <Dialog open={open} onClose={()=>setOpen(false)}>
+    return ( <Dialog open={open} onClose={()=>setOpen()}>
     <DialogHeader>Create group</DialogHeader>
     <DialogBody>
         <div className="w-auto">
@@ -91,7 +114,7 @@ const CreateGroupDialog = ({communityName, open, setOpen, setAlert}) => {
         <InputError error={descriptionError} />
     </DialogBody>
     <DialogFooter>
-      <Button variant="outlined" color="red" onClick={()=>setOpen(false)}>Cancle</Button>
+      <Button variant="outlined" color="red" onClick={()=>setOpen()}>Cancle</Button>
       <div className="w-2"/>
       <Button variant="filled" loading={waitingForCreateGroup} style={{backgroundColor: '#000B58'}} onClick={()=>createGroup()} >Yes, Create</Button>
     </DialogFooter>
