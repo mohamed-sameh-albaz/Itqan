@@ -148,7 +148,7 @@ const DetailedPage = () => {
                     <CardBody className="w-full h-full p-0 m-0">
                     <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
-                            <Pie data={loadingAcceptance? [] : [
+                            <Pie data={loadingparticipate? [] : [
     { name: 'Participated', value: participate_rate.data.participatied_count.participatied_count },
     { name: "Didn't Participate", value: participate_rate.data.participatied_count.non_participatied_count },
     ]} dataKey="value" cx="50%" cy="50%"  fill="#82ca9d" label>

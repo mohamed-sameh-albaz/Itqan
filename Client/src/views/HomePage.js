@@ -36,7 +36,7 @@ const HomePage = () => {
   function onCommunityClicked(name, role){
     const joined = role != null;
     if(joined){
-      nav(`/community/${name}`, {state: {role: "Participant"}});
+      nav(`/community/${encodeURIComponent(name)}`, {state: {role: "Participant"}});
     }else{
       setIsJoinConfirmDialogOpen(true);
       setSelectedCommunityName(name);
@@ -51,7 +51,7 @@ const HomePage = () => {
       roleId: 3 //1 = Admin, 2 = Leader, 3 = Participant
     }})
     if(status > 199 && status < 300){
-      nav(`/community/${name}`);
+      nav(`/community/${encodeURIComponent(name)}`);
     }else{
       alert("Failed to join community");
     }
@@ -104,7 +104,7 @@ const HomePage = () => {
       }})
     
       if(status > 199 && status < 300){
-        nav(`/community/${communityName}`);
+        nav(`/community/${encodeURIComponent(communityName)}`);
       }else{
         setCommunityNameError(true);
       }

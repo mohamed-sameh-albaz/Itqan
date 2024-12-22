@@ -8,10 +8,11 @@ import { useEffect, useRef, useState } from 'react';
 import { Alert, Avatar, Button, Card, CardBody, Dialog, DialogBody, DialogFooter, DialogHeader, IconButton, Option, Select, Spinner, Typography } from '@material-tailwind/react';
 import CreateGroupDialog from '../dialogs/CreateGroup';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faAdd, faBan } from '@fortawesome/free-solid-svg-icons';
+import { faAdd, faArrowRightFromBracket, faBan } from '@fortawesome/free-solid-svg-icons';
 import useUser from '../hooks/useUser';
 import { set } from 'date-fns';
 import useRole from '../hooks/useRole';
+import { DefaultPagination } from '../components/Paginator';
 const TeamCard = ({ communityName, userID }) => {
   const nav = useNavigate();
   const [data, loading] = useAPI('/teams', 'get', { params: { community_name: communityName, user_id: userID } });
@@ -84,7 +85,23 @@ const RoleSelector = ({userID, initRole = 3, roles = []}) => {
     )
 }
 
-function UserFinderElement({user, roles}) {
+function UserFinderElement({user, roles, refresh}) {
+    const parms = useParams();
+    async function handleKickUser(){
+        const {data, status} = await requestAPI('/communities/leave', 'post', {body: {
+            userId: user.id,
+            communityName: parms.name,
+        }});
+
+        if(status > 199 && status < 300){
+            alert("User kicked");
+            refresh();
+        }
+        else{
+            alert("Failed to kick user");
+        }
+    }
+
     return (
         <tr>
             <td className='flex flex-row items-center gap-3'> 
@@ -96,9 +113,10 @@ function UserFinderElement({user, roles}) {
                 </div>
             </td>
             <td>{user.email}</td>
-            <td>
-                <IconButton variant='text'>
+            <td className='flex flex-row gap-3 '>
+                <IconButton variant='text' color='red' onClick={handleKickUser}>
                     <FontAwesomeIcon icon={faBan} color='red'/>
+                    <div>Kick</div>
                 </IconButton>
             </td>
         </tr>
@@ -107,7 +125,7 @@ function UserFinderElement({user, roles}) {
 
 const UserFinderDialog = ({ open, onClose}) => {
     const parms = useParams();
-    const [usersResponse, isLoadingUsers] = useAPI('/communities/users', 'get', {params: {community_name: parms.name, page: 1, limit: 10}});
+    const [usersResponse, isLoadingUsers, refreshUser] = useAPI('/communities/users', 'get', {params: {community_name: parms.name, page: 1, limit: 10}});
 
     const [roles, setRoles] = useState([]);
     async function getRoles(params) {
@@ -128,7 +146,7 @@ const UserFinderDialog = ({ open, onClose}) => {
     }
 
     // const roles = rolesResponse?.data?.roles || [];
-    const Header = ['Username', 'Role', 'Email'];
+    const Header = ['Username', 'Role', 'Email', 'Action'];
     return (
         <Dialog size='xl' open={open} onClose={onClose}>
             <DialogHeader>Members</DialogHeader>
@@ -142,7 +160,7 @@ const UserFinderDialog = ({ open, onClose}) => {
                     </thead>
                     <tbody>
                         {(isLoadingUsers ? [] : usersResponse.data.users).map((x) =>
-                            <UserFinderElement user={x} roles={roles} />)}
+                            <UserFinderElement user={x} roles={roles} refresh={refreshUser} />)}
                     </tbody>
                 </table>
             </DialogBody>
@@ -183,6 +201,7 @@ const ConfirmDialog = ({ open, onClose, onConfirm, title, choice1, choice2}) => 
 const CommunityPage = () => {
     const parms = useParams();
     const nav = useNavigate();
+    const [currentPage, setCurrentPage] = useState(1);
     
     const user = JSON.parse(localStorage.getItem('user'));
     const communityName = parms.name;
@@ -200,8 +219,10 @@ const CommunityPage = () => {
         setgroupCreator(state);
     }
 
+    useEffect(() => { refreshGroup() }, [currentPage]);
+
     
-    const [groups, isLoadingGroups, refreshGroup] = useAPI('/communities/groups', 'get', {params: {community_name: parms.name, userId:user.id}});
+    const [groups, isLoadingGroups, refreshGroup] = useAPI('/communities/groups', 'get', {params: {community_name: parms.name, userId:user.id, limit: 10, page: currentPage}});
 
     const [upCommingContestRes, isLoadingUpCommingContestRes, refreshUpcomming] = useAPI('/contests/status', 'get',
         {params:{
@@ -212,10 +233,9 @@ const CommunityPage = () => {
     const upCommingContest = upCommingContestRes==null? [] : upCommingContestRes.data.contests;
 
     function enterGroup(groupName, joined){
-        //JOINED remove this later
         currentGroupId.current = groupName;
         if(joined === true){
-            nav(`/community/${communityName}/group/${groupName}`);
+            nav(`/community/${encodeURIComponent(communityName)}/group/${groupName}`);
             return
         }else{
             setConfirmJoinGroup(true);
@@ -233,19 +253,42 @@ const CommunityPage = () => {
         setConfirmJoinGroup(false);
     }
 
+    async function LeaveCommunity(){
+        const {data, status} = await requestAPI('/communities/leave', 'post', {body: {
+            userId: user.id,
+            communityName: parms.name,
+        }});
+
+        if(status > 199 && status < 300){
+            alert("You are not longer part of this community.");
+            nav('/home')
+        }
+        else{
+            alert("Failed leave community");
+        }
+    }
+
     const {roleId} = useRole(communityName);
-    const Header = ['Username', 'Role', 'Email'];
+    const Header = ['Username', 'Role', 'Email', 'Action'];
     return ( 
     <div>
         <Alert className='fixed w-30 bottom-3 right-3' open={alertMessage != null} onClose={() => setAlertMessage(null)}>{alertMessage}</Alert>
         <CommunityNavBar />
-        <Card className='width-full min-h-28 m-8'>
-            <CardBody className='gap-3 flex justify-center'>
+        <div className='px-8 pt-3 flex justify-between'>
+            <Typography className='text-start' variant='h4'>{parms.name} Community</Typography>
+            <Button variant='text' className='flex gap-2' onClick={()=>LeaveCommunity()}>
+                {/* <Typography variant='small' className=''>Leave<br/>Community</Typography> */}
+                <FontAwesomeIcon icon={faArrowRightFromBracket} size='2x'/>
+            </Button>
+        </div>
+        {(roleId == 1) && <Card className='width-full min-h-28 mx-8 mt-8 mb-0'>
+            <Typography variant='h5' className='text-start ml-8'>Admin Tools</Typography>
+            <CardBody className='gap-3 flex justify-start'>
             <Button onClick={()=>setUserFinder(true)}>All Users</Button>
-            <Button onClick={()=>nav(`/community/${parms.name}/stats/summary`)}>View Summary Stats</Button>
-            <Button onClick={()=>nav(`/community/${parms.name}/stats/detailed`)}>View Detailed Stats</Button>
+            <Button onClick={()=>nav(`/community/${encodeURIComponent(parms.name)}/stats/summary`)}>View Summary Stats</Button>
+            <Button onClick={()=>nav(`/community/${encodeURIComponent(parms.name)}/stats/detailed`)}>View Detailed Stats</Button>
             </CardBody>
-        </Card>
+        </Card>}
         <CreateGroupDialog communityName={communityName} open={groupCreator} setOpen={handleGroupCreator} setAlert={setAlertMessage} />
         <UserFinderDialog open={userFinder} onClose={() => setUserFinder(false)} />
         <ConfirmDialog open={confirmJoinGroup} onClose={()=>setConfirmJoinGroup(false)} onConfirm={requestJoinGroupByID} title="Are you sure you want to join this group?" choice1="Cancel" choice2="Join" />
@@ -298,6 +341,18 @@ const CommunityPage = () => {
             </Button>
             </div>
         </div> */}
+
+        <div className="m-8 sticky top-0 h-12">
+            {!isLoadingGroups && <DefaultPagination
+                totalPages={Math.ceil(groups.pagination.total / 10)}
+                active={currentPage}
+                setActive={(x)=>{
+                setCurrentPage(x);
+                }}
+
+            />}
+            </div>
+        
 
     </div> );
 }
