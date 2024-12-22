@@ -21,6 +21,8 @@ import SubmissionsPage from './views/SubmissionsPage';
 import { AuthProvider, ProtectedRoute} from './context/AuthContext';
 import LeaderBoardPage from './views/LeaderBoardPage';
 
+import AddRewards from './views/AddRewards';
+
 function App() {
   return (
     <AuthProvider>
@@ -52,6 +54,8 @@ function App() {
             <Route path="/community/:name/group/:groupID/contest/:contestID/approve" element={<ProtectedRoute element={<ApprovePage />} />} />
             <Route path="/community/:name/group/:groupID/contest/:contestID/leaderboard" element={<ProtectedRoute element={<LeaderBoardPage/>} />} />
             
+            <Route path="/rewards" element={<ProtectedRoute element={<AddRewards/>} />} />
+
             <Route path="*" element={<Navigate to="/" />} />
           
           </Routes>
