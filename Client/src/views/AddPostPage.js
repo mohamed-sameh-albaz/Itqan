@@ -37,6 +37,13 @@ const AddPostPage = ({editing}) => {
 }*/
   async function handleSubmit (e) {
     e.preventDefault();
+
+    if(Title === '' || Content === ''){
+      alert('Please fill in all fields');
+      return;
+    }
+
+
     if(!editing){
       console.log('Post submitted:', { Title, Content });
       console.log(images.map(image => image.name));
