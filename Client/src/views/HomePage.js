@@ -93,6 +93,16 @@ const HomePage = () => {
   }
 
   async function createCommunity(){
+    if(communityName.length < 1){
+      setCommunityNameError(true);
+      return;
+    }
+
+    if(communityName.length < 1){
+      alert("Description is required");
+      return;
+    }
+
     setWaitingForCreateCommunity(true);
 
     if(communityEditorObject == null){
