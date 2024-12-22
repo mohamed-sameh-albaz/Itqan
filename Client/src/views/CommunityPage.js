@@ -207,6 +207,17 @@ const CommunityPage = () => {
     const communityName = parms.name;
     const [groupCreator, setgroupCreator] = useState(false);
     const [userFinder, setUserFinder] = useState(false);
+    const [groupEditorObj, setGroupEditorObj] = useState(null);
+
+    function openGroupEdit(group){
+        setGroupEditorObj(group);
+        setgroupCreator(true);
+    }
+
+    function closeGroupEdit(){
+        setGroupEditorObj(null);
+        setgroupCreator(false);
+    }
 
     const [confirmJoinGroup, setConfirmJoinGroup] = useState(false);
     const currentGroupId = useRef(null);
@@ -216,7 +227,13 @@ const CommunityPage = () => {
         if(!state)
             refreshGroup();
 
-        setgroupCreator(state);
+        // setgroupCreator(state);
+
+        if(state){
+            openGroupEdit(null);
+        }else{
+            closeGroupEdit();
+        }
     }
 
     useEffect(() => { refreshGroup() }, [currentPage]);
@@ -268,11 +285,22 @@ const CommunityPage = () => {
         }
     }
 
+    async function deleteGroub(id){
+        const {status} = await requestAPI(`/groups`, 'delete', {params: {groupId: id}});
+        if(status > 199 && status < 300){
+            refreshGroup();
+            alert("Group deleted");
+        }
+        else{
+            alert("Failed to delete group");
+        }
+    }
+
     const {roleId} = useRole(communityName);
     const Header = ['Username', 'Role', 'Email', 'Action'];
     return ( 
     <div>
-        <Alert className='fixed w-30 bottom-3 right-3' open={alertMessage != null} onClose={() => setAlertMessage(null)}>{alertMessage}</Alert>
+        <Alert className='fixed w-30 bottom-3 right-3 z-50' open={alertMessage != null} onClose={() => setAlertMessage(null)}>{alertMessage}</Alert>
         <CommunityNavBar />
         <div className='px-8 pt-3 flex justify-between'>
             <Typography className='text-start' variant='h4'>{parms.name} Community</Typography>
@@ -287,9 +315,10 @@ const CommunityPage = () => {
             <Button onClick={()=>setUserFinder(true)}>All Users</Button>
             <Button onClick={()=>nav(`/community/${encodeURIComponent(parms.name)}/stats/summary`)}>View Summary Stats</Button>
             <Button onClick={()=>nav(`/community/${encodeURIComponent(parms.name)}/stats/detailed`)}>View Detailed Stats</Button>
+            <Button onClick={()=>nav(`/rewards`)}>View Detailed Stats</Button>
             </CardBody>
         </Card>}
-        <CreateGroupDialog communityName={communityName} open={groupCreator} setOpen={handleGroupCreator} setAlert={setAlertMessage} />
+        <CreateGroupDialog groupId={groupEditorObj} refresh={refreshGroup} communityName={communityName} open={groupCreator} setOpen={closeGroupEdit} setAlert={setAlertMessage} />
         <UserFinderDialog open={userFinder} onClose={() => setUserFinder(false)} />
         <ConfirmDialog open={confirmJoinGroup} onClose={()=>setConfirmJoinGroup(false)} onConfirm={requestJoinGroupByID} title="Are you sure you want to join this group?" choice1="Cancel" choice2="Join" />
         <div className="content">
@@ -302,7 +331,7 @@ const CommunityPage = () => {
                 <div className='groups-section'>
                     <h3>You Groups</h3>
                     <div className="groups-grid">
-                        {(roleId == 2 || roleId == 1) && <Card className='w-48 h-48 text-left' variant="filled" shadow="hover" onClick={()=>setgroupCreator(true)} >
+                        {(roleId == 2 || roleId == 1) && <Card className='w-48 h-48 text-left' variant="filled" shadow="hover" onClick={()=>openGroupEdit(null)} >
                             <Card.Body className='cursor-pointer select-none flex flex-col h-full text-center justify-center' >
                             <FontAwesomeIcon icon={faAdd} color="black" size="3x" className="text-gray-700"/>
                             <Typography className="text-gray-800 font-bold">Create new group</Typography>
@@ -317,8 +346,12 @@ const CommunityPage = () => {
                             buttonText={ (e.joined === true)? "View" : "Join"}
                             color= {null}
                             onClick={()=>enterGroup(e.id, e.joined)}
-                            // onDelete={() => handleDelete(e.title, e.id)}
-                            // onEdit={()=>console.log("Edit")}
+                            onDelete={(roleId == 1 || roleId == 2) ? ()=>{
+                                deleteGroub(e.id)
+                            } : null}
+                            onEdit={(roleId == 1 || roleId == 2) ? ()=>{
+                                openGroupEdit(e)
+                            } : null}
                             />)}
                     </div>
                 </div>
