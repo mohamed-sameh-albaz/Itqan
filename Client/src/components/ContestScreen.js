@@ -23,7 +23,7 @@ const ContestScreen = (props) =>
   let ContestID=parms.contestID;
   let GroupID=parms.groupID;
 
-  console.log(ContestID,GroupID);
+  // console.log(ContestID,GroupID);
 
   const [buttons_len, setButtonsLen] = useState(0);
 
@@ -40,7 +40,7 @@ const ContestScreen = (props) =>
     const fetchTasksforedit = async () => {
       const { status, data } = await requestAPI(`/contests/${props.contestid}/tasks?editing=${true}`, "get");
       if (status > 199 && status < 300) {
-        console.log(data.status);
+        // console.log(data.status);
        const newButtons = (data.data.tasks).map((task, index) => ({
           Qn: String.fromCharCode(97 + index),
           type: task.type,
@@ -64,7 +64,7 @@ const ContestScreen = (props) =>
 
       const { status, data } = await requestAPI(`/contests/${props.contestid}/tasks?editing=${false}`, "get");
       if (status > 199 && status < 300) {
-        console.log(data.status);
+        // console.log(data.status);
        const newButtons = (data.data.tasks).map((task, index) => ({
           Qn: String.fromCharCode(97 + index),
           type: task.type,
@@ -85,12 +85,12 @@ const ContestScreen = (props) =>
 
     if(mymode==="edit")
    {
-   console.log(props.contestid);
+  //  console.log(props.contestid);
     fetchTasksforedit();  
 }
 else if(mymode==="submit")
 {
-  console.log(props.contestid);
+  // console.log(props.contestid);
   fetchTasksforsubmit();
 }
   }, [props.contestid]);
@@ -139,7 +139,7 @@ else if(mymode==="submit")
     const newButtons = [...buttons];
     newButtons[activeIndex].correctAnswer = e.target.value;
     addQuestion(newButtons);
-    console.log(buttons[activeIndex].correctAnswer);
+    // console.log(buttons[activeIndex].correctAnswer);
   }
 
  const handlePhotoChange = (e) => {
@@ -177,12 +177,40 @@ else if(mymode==="submit")
         setActiveIndex(newButtons.length - 1);
       }
       for (let i = index; i < newButtons.length; i++) {
-        console.log(i, newButtons.length);
+        // console.log(i, newButtons.length);
         newButtons[i].Qn = String.fromCharCode(65 + i-1);
       }
 
       addQuestion(newButtons);
     }
+    // async function handleTaskDelete (index) {
+
+    //   if(index<=buttons_len&&index>0)
+    //     {
+    //       const {status, data} = requestAPI(`/contests/task/delete/${buttons[index].id}`, "delete");
+    //       if (status > 199 && status < 300) {
+    //         console.log("Task deleted successfully");
+    //       } else {
+    //         console.log("Error deleting task");
+    //       }
+    //       setButtonsLen(buttons_len-1);
+    //     }
+  
+    //   if(index>0)
+    //   {
+    //     const newButtons = [...buttons];
+    //     newButtons.splice(index, 1);
+    //     if (activeIndex === newButtons.length) {
+    //       setActiveIndex(newButtons.length - 1);
+    //     }
+    //     for (let i = index; i < newButtons.length; i++) {
+    //       console.log(i, newButtons.length);
+    //       newButtons[i].Qn = String.fromCharCode(65 + i-1);
+    //     }
+    //     addQuestion(newButtons);
+    //   }
+     
+    // };
   };
 
 
@@ -197,7 +225,7 @@ else if(mymode==="submit")
        });
      }
     else if (props.sendnow==="true" && props.user==="member") {
-    console.log("submit");
+    // console.log("submit");
     buttons.map((label,index) => {
       if (index > 0&&buttons[index].type==="written") {
         handleeClickSubmit(index);
@@ -215,7 +243,7 @@ else if(mymode==="submit")
    }, [props.sendnow]);
 
   async function handleeClick(index) {
-       console.log(props.contestid,buttons[index].title);
+      //  console.log(props.contestid,buttons[index].title);
        const { status, data } = await requestAPI("/contests/task", "post", {
         body: {
           contest_id: props.contestid,
@@ -241,10 +269,10 @@ else if(mymode==="submit")
   };
   
 async function handleeClickedit(index) {
-  console.log(buttons_len);
+  // console.log(buttons_len);
   if(index<buttons_len)
   {
-  console.log(props.contestid,buttons[index].title);
+  // console.log(props.contestid,buttons[index].title);
   const { status, data } = await requestAPI(`/contests/task/edit/${buttons[index].id}`, "put", {
     body: {
       description: buttons[index].content,
@@ -269,7 +297,7 @@ async function handleeClickedit(index) {
 }
 else
 {
-  console.log("new task");
+  // console.log("new task");
   const { status, data } = await requestAPI("/contests/task", "post", {
     body: {
       contest_id: props.contestid,
@@ -296,7 +324,7 @@ else
 }
   
 async function handleeClickSubmit(index){
-  console.log(buttons[index].id,props.contestid,UserID,buttons[index].ans);
+  // console.log(buttons[index].id,props.contestid,UserID,buttons[index].ans);
   const { status, data } = await requestAPI("/submissions/", "post", {
     body: {
      taskId: buttons[index].id,
@@ -416,7 +444,7 @@ async function handleeClickSubmit(index){
                   const newButtons = [...buttons];
                   newButtons[activeIndex].ans = e.target.value;
                   addQuestion(newButtons);
-                  console.log(buttons[activeIndex].ans);
+                  // console.log(buttons[activeIndex].ans);
 
                 }}
                   // value={`msq-choice${num}`}
