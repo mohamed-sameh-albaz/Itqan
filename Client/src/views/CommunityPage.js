@@ -315,6 +315,7 @@ const CommunityPage = () => {
             <Button onClick={()=>setUserFinder(true)}>All Users</Button>
             <Button onClick={()=>nav(`/community/${encodeURIComponent(parms.name)}/stats/summary`)}>View Summary Stats</Button>
             <Button onClick={()=>nav(`/community/${encodeURIComponent(parms.name)}/stats/detailed`)}>View Detailed Stats</Button>
+            <Button onClick={()=>nav(`/rewards`)}>View Detailed Stats</Button>
             </CardBody>
         </Card>}
         <CreateGroupDialog groupId={groupEditorObj} refresh={refreshGroup} communityName={communityName} open={groupCreator} setOpen={closeGroupEdit} setAlert={setAlertMessage} />
