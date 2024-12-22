@@ -19,7 +19,7 @@ const CommunityNavBar = () => {
         <div className="items">
             {/* <a>Leader Board</a> */}
             <a className='cursor-pointer' onClick={()=>nav('/home')}>Home</a>
-            <a href={`/community/${parms.name}/posts`}>Posts</a>
+            {parms.name && <a href={`/community/${parms.name}/posts`}>Posts</a>}
 
             <div className="level-view">
                 <div className="level-indecator">{user.level_name.split(' ')[1]}</div>

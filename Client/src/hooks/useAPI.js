@@ -41,6 +41,7 @@ function useAPI(endPoint, method = 'get', { params = {}, body = {} } = {}) {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     function refresh() {
+        setLoading(true);
         axios.request({
             baseURL: process.env.REACT_APP_API_BASE_URL,
             url: endPoint,

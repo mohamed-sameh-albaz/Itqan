@@ -206,7 +206,7 @@ const CommunityPage = () => {
     const [upCommingContestRes, isLoadingUpCommingContestRes, refreshUpcomming] = useAPI('/contests/status', 'get',
         {params:{
             community_name: communityName,
-            status: "upcoming",
+            status: "active",
             // limit: 5
         }});
     const upCommingContest = upCommingContestRes==null? [] : upCommingContestRes.data.contests;

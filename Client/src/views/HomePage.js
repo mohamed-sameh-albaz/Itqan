@@ -7,15 +7,24 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Button, ButtonGroup, Card, Dialog, DialogBody, DialogFooter, DialogHeader, Input, Spinner, Typography } from "@material-tailwind/react";
 import {faAdd} from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { DefaultPagination } from "../components/Paginator";
 const HomePage = () => {
   const user = JSON.parse(localStorage.getItem("user"));
 
   const nav = useNavigate();
   const [viewAll, setViewAll] = useState(false);
 
-  const [allCommunities, isAllCommunitiyLoading, refreshAllCommunities] = useAPI('/communities', 'get', {params: {userId: user.id}});
-  const [userCommunities, isUserCommunitiyLoading, refreshCommunities] = useAPI('/communities/user', 'get', {params: {userId: user.id}});
-  console.log(allCommunities, " ", userCommunities);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [allCommunities, isAllCommunitiyLoading, refreshAllCommunities] = useAPI('/communities', 'get', {params: {userId: user.id    , page: currentPage, limit: 10}});
+  const [userCommunities, isUserCommunitiyLoading, refreshCommunities] = useAPI('/communities/user', 'get', {params: {userId: user.id, page: currentPage, limit: 10}});
+
+  useEffect(() => {
+    refreshCommunities();
+    refreshAllCommunities(); 
+  }, [currentPage])
+
+  useEffect(() => {setCurrentPage(1)}, [viewAll])
+
   useEffect(() => {
     localStorage.getItem("user") ?? nav("/auth#login");
   }, [])
@@ -56,30 +65,69 @@ const HomePage = () => {
 
   const colors = ['#BE181B', '#4807E0', '#3DB741', '#E5A226', '#DBD827', '#BF2794', '#B2084C', '#1AB8C0']
   const [isCreateComDialogOpen, setIsCreateComDialogOpen] = useState(false);
-  const [communityEditorId, setCommunityEditorId] = useState(null);
+  const [communityEditorObject, setCommunityEditorObject] = useState(null);
   const [selectedColorIndex, setSelectedColorIndex] = useState(0);
   const [communityName, setCommunityName] = useState("");
   const [communityDes, setCommunityDes] = useState("");
   const [communityNameError, setCommunityNameError] = useState(false);
   const [waitingForCreateCommunity, setWaitingForCreateCommunity] = useState(false);
 
+  const openCommunityEditor = (community) => {
+    setCommunityEditorObject(community);
+    setIsCreateComDialogOpen(true);
+    setLoadingJoinCommunity(false);
+
+    if(community != null){
+      setCommunityName(community.name);
+      setCommunityDes(community.description);
+      setSelectedColorIndex(colors.indexOf(community.color));
+    }else{
+      setCommunityName("");
+      setCommunityDes("");
+      setSelectedColorIndex(0);
+    }
+  }
+  const closeCommunityEditor = () => {
+    setIsCreateComDialogOpen(false);
+    setCommunityEditorObject(null);
+  }
 
   async function createCommunity(){
     setWaitingForCreateCommunity(true);
-    const {data, status} = await requestAPI('/communities', 'post', {body: {
-      name: communityName,
-      color: colors[selectedColorIndex],
-      description: "A community for " + communityName,
-      userId: user.id
-    }})
-    setWaitingForCreateCommunity(false);
+
+    if(communityEditorObject == null){
+      const {data, status} = await requestAPI('/communities', 'post', {body: {
+        name: communityName,
+        color: colors[selectedColorIndex],
+        description: "A community for " + communityName,
+        userId: user.id
+      }})
     
-    if(status > 199 && status < 300){
-      nav(`/community/${communityName}`);
+      if(status > 199 && status < 300){
+        nav(`/community/${communityName}`);
+      }else{
+        setCommunityNameError(true);
+      }
     }else{
-      setCommunityNameError(true);
+      const {data, status} = await requestAPI(`/communities/${communityEditorObject.id}`, 'put', {body: {
+        name: communityName,
+        color: colors[selectedColorIndex],
+        description: communityDes
+      }})
+    
+      if(status > 199 && status < 300){
+        refreshCommunities();
+        refreshAllCommunities();
+        alert(`Community ${communityName} updated`);
+      }
+      else{
+        alert(`Failed to update community ${communityName}`);
+      }
+
+      closeCommunityEditor();
     }
 
+    setWaitingForCreateCommunity(false);
   }
   const parm = useParams();
 
@@ -98,6 +146,7 @@ const HomePage = () => {
     }
   }
 
+
   return (
     <div>
       <HomeNavBar userName = {user.fname + " " + user.lname}/>
@@ -110,7 +159,7 @@ const HomePage = () => {
         </DialogFooter>
       </Dialog>
 
-      <Dialog open={isCreateComDialogOpen} onClose={()=>setIsCreateComDialogOpen(false)}>
+      <Dialog open={isCreateComDialogOpen} onClose={()=>closeCommunityEditor()}>
         <DialogHeader>Create community</DialogHeader>
         <DialogBody>
           <div className="w-auto">
@@ -146,9 +195,9 @@ const HomePage = () => {
           </div>
         </DialogBody>
         <DialogFooter>
-          <Button variant="outlined" color="red" onClick={()=>setIsCreateComDialogOpen(false)}>Cancle</Button>
+          <Button variant="outlined" color="red" onClick={()=>closeCommunityEditor()}>Cancle</Button>
           <div className="w-2"/>
-          <Button variant="filled" loading={waitingForCreateCommunity} style={{backgroundColor: '#000B58'}} onClick={()=>createCommunity()} >Yes, Create</Button>
+          <Button variant="filled" loading={waitingForCreateCommunity} style={{backgroundColor: '#000B58'}} onClick={()=>createCommunity()} >{setCommunityEditorObject? "Yes, Edit" : "Yes, Create"}</Button>
         </DialogFooter>
       </Dialog>
       <div className="content">
@@ -168,6 +217,12 @@ const HomePage = () => {
         {((viewAll && isAllCommunitiyLoading) || (!viewAll && isUserCommunitiyLoading)) ? <div className=" w-full"><Spinner className="m-auto" /> </div> 
         : 
         <div className="community-grid">
+          <Card className='w-48 h-48 text-left' variant="filled" shadow="hover" onClick={()=>openCommunityEditor(null)} >
+            <Card.Body className='cursor-pointer select-none flex flex-col h-full text-center justify-center' >
+              <FontAwesomeIcon icon={faAdd} color="black" size="3x" className="text-gray-700"/>
+              <Typography className="text-gray-800 font-bold">Create new community</Typography>
+            </Card.Body>
+          </Card>
           {(viewAll? allCommunities.data.communities : userCommunities.data.communities).map((community, index)=> 
                                                                     <CommunityCard
                                                                       key={community.name}
@@ -176,17 +231,24 @@ const HomePage = () => {
                                                                       number={index}
                                                                       buttonText={ (community.role_color === null)? "Join" : "View"}
                                                                       color= {community.role_color}
+                                                                      bgColor = {community.color}
                                                                       onClick={()=>onCommunityClicked(community.name, community.role_id)}
-                                                                      onDelete={()=>handleDelete(community.name, community.id)}
-
+                                                                      onDelete={(community.role_id==1 || community.roleId == 2) ? ()=>handleDelete(community.name, community.id) : null}
+                                                                      onEdit={(community.role_id==1 || community.roleId == 2) ? ()=>openCommunityEditor(community) : null}
                                                                       />)}
-      <Card className='w-48 h-48 text-left' variant="filled" shadow="hover" onClick={()=>setIsCreateComDialogOpen(true)} >
-        <Card.Body className='cursor-pointer select-none flex flex-col h-full text-center justify-center' >
-          <FontAwesomeIcon icon={faAdd} color="black" size="3x" className="text-gray-700"/>
-          <Typography className="text-gray-800 font-bold">Create new community</Typography>
-        </Card.Body>
-      </Card>
+
         </div>}
+        <div className="m-8 sticky top-0 h-12">
+        {((viewAll && !isAllCommunitiyLoading) || (!viewAll && !isUserCommunitiyLoading)) && <DefaultPagination 
+          totalPages={Math.ceil(viewAll? allCommunities.pagination.total / 10 : userCommunities.pagination.total / 10)}
+          active={currentPage}
+          setActive={(x)=>{
+            setCurrentPage(x);
+          }}
+
+        />}
+        </div>
+
       </div>
     </div>
   );
