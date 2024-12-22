@@ -96,7 +96,7 @@ const Post = ({data, isAdmin, id, author, content, images, topComment, initLike,
     }
 
     function handlePostEdit(){
-        nav(`/community/${parm.name}/posts/edit/${id}`, {state:data});
+        nav(`/community/${encodeURIComponent(parm.name)}/posts/edit/${id}`, {state:data});
     }
 
     return (
@@ -236,7 +236,7 @@ const PostsPage = () => {
                     
                     size="lg" 
                     style={{backgroundColor: 'var(--primary-color)'} }
-                    onClick={() => nav(`/community/${parm.name}/posts/edit`)}
+                    onClick={() => nav(`/community/${encodeURIComponent(parm.name)}/posts/edit`)}
                 >
                     <FontAwesomeIcon icon={faAdd} size="2x" />
                 </Button>

@@ -8,6 +8,8 @@ import {ConfirmDialog} from '../dialogs/ConfirmDialog'
 import { useState } from 'react';
 import { requestAPI, useAPI } from '../hooks/useAPI';
 import useRole from '../hooks/useRole';
+import { toZonedTime } from 'date-fns-tz';
+
 const calculateTimeLeft = (startDate, endData) => {
     const now = new Date();
     const start = new Date(startDate);
@@ -31,6 +33,8 @@ const calculateTimeLeft = (startDate, endData) => {
 const isDateBetween = (date, startDate, endDate) => {
     return isWithinInterval(new Date(date), { start: new Date(startDate), end: new Date(endDate) });
 };
+
+const timeZone = 'UTC'; // Adjust this to your server's timezone if needed
 
 const ContestTable = ({contests, refresh}) => {
     const nav = useNavigate();
@@ -60,9 +64,9 @@ const ContestTable = ({contests, refresh}) => {
 
     function handleGotoContest(group_id, id){
         if(roleId == 1 || roleId == 2){
-            nav(`/community/${parms.name}/group/${group_id}/contest/${id}/show`)
+            nav(`/community/${encodeURIComponent(parms.name)}/group/${group_id}/contest/${id}/edit`)
         }else{
-            nav(`/community/${parms.name}/group/${group_id}/contest/${id}/edit`)
+            nav(`/community/${encodeURIComponent(parms.name)}/group/${group_id}/contest/${id}/show`)
         }
     }
 
@@ -84,7 +88,9 @@ const ContestTable = ({contests, refresh}) => {
                 </tr>
             </thead>
             <tbody>
-                {contests.map((e)=><tr key={e.id}>
+                {contests.map((e)=>{
+                    const zonedStartDate = toZonedTime(new Date(e.start_date), timeZone);
+                    return <tr key={e.id}>
                     <td>
                         <div>
                         <Typography variant='h6'>{e.name}</Typography>
@@ -95,10 +101,14 @@ const ContestTable = ({contests, refresh}) => {
                         <FontAwesomeIcon className='m-auto' icon={e.type =='team'? faPeopleGroup : faUser}/>
                         {e.type == 'team'? "Team" : "Individual"}
                     </td>
-                    <td>{format(new Date(e.start_date), 'yyyy-MM-dd')}<br/> {format(new Date(e.start_date), 'HH:mm')} </td>
+                    <td>
+                        {format(zonedStartDate, 'yyyy-MM-dd')}<br />
+                        {format(zonedStartDate, 'HH:mm')}
+                    </td>
+
                     {/* <td>{format(new Date(e.end_date), 'yyyy-MM-dd')}<br/> {format(new Date(e.start_date), 'HH:mm')} </td> */}
                     <td>{calculateTimeLeft(e.start_date, e.end_date)}</td>
-                    <td>{calculateTimeLeft((new Date()).toUTCString(),e.start_date) != 0 ? calculateTimeLeft((new Date()).toUTCString(),e.start_date) : "Finished"}</td>
+                    <td>{e.status != 'upcoming'? e.status : calculateTimeLeft((new Date()).toISOString(),e.start_date) + ' left'}</td>
                     <td className='flex gap-2 justify-left'>
                     
                     <Button style={{backgroundColor:'var(--primary-color)'}} onClick={()=>handleGotoContest(e.group_id, e.id)}>{(roleId == 1 || roleId == 2)? "Edit": "Go there"}</Button>
@@ -109,13 +119,13 @@ const ContestTable = ({contests, refresh}) => {
                     {/* <IconButton variant='text' onClick={() => nav(`/community/${parms.name}/group/${e.group_id}/contest/${e.id}/edit`)}>
                         <FontAwesomeIcon icon={faEdit}/>
                     </IconButton> */}
-                    <IconButton variant='text' onClick={() => nav(`/community/${parms.name}/group/${e.group_id}/contest/${e.id}/approve`)}>
+                    <IconButton variant='text' onClick={() => nav(`/community/${encodeURIComponent(parms.name)}/group/${e.group_id}/contest/${e.id}/approve`)}>
                         <FontAwesomeIcon icon={faListCheck}/>
                     </IconButton></>}
                     </div>
                     
                     </td>
-                </tr>)}
+                </tr>})}
             </tbody>
         </table>   
 

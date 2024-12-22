@@ -35,7 +35,12 @@ const ContestPage = (props) => {
   }
 
   const fetchUserRole = async () => {
-    const { status, data } = await requestAPI(`/roles/user-role?userId=${user_ID}&communityName=${parms.name}`, 'get');  
+    const { status, data } = await requestAPI(`/roles/user-role`, 'get', {
+      params:{
+        userId: user_ID,
+        communityName: parms.name
+      }
+    });  
     if (status > 199 && status < 300) {
       setUser(data.data.role.name);
       console.log(data.data.role.name);
