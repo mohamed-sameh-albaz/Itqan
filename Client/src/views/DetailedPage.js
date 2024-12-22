@@ -161,23 +161,6 @@ const DetailedPage = () => {
                     </CardBody>
                 </Card>
 
-                <Card className="w-52 h-52 bg" shadow="lg">
-                    <Typography className="font-bold">Team Contest Participate Rate</Typography>
-                    <CardBody className="w-full h-full p-0 m-0">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <PieChart>
-                            <Pie data={loadingAcceptance? [] : [
-    { name: 'Participated', value: acceptance_rate.data.acceptance_rate.accepted_count },
-    { name: "Didn't Participated", value: acceptance_rate.data.acceptance_rate.rejected_count },
-    ]} dataKey="value" cx="50%" cy="50%"  fill="#82ca9d" label>
-                                <Cell key="Participated" fill="#00C49F" />
-                                <Cell key="Didn't Participate" fill="#FF8042" />
-                            </Pie>
-                            <Legend layout="vertical"/>
-                        </PieChart>
-                    </ResponsiveContainer>
-                    </CardBody>
-                </Card>
                 </div>
 
                 </CardBody>
