@@ -57,6 +57,15 @@ const ContestTable = ({contests, refresh}) => {
         setSelectedContestName(name);
         setOpen(true);
     }
+
+    function handleGotoContest(group_id, id){
+        if(roleId == 1 || roleId == 2){
+            nav(`/community/${parms.name}/group/${group_id}/contest/${id}/show`)
+        }else{
+            nav(`/community/${parms.name}/group/${group_id}/contest/${id}/edit`)
+        }
+    }
+
     return ( 
     <div className='contest-table'>
         <ConfirmDialog title={`Are you sure you want to delete ${selectedContestName}?`} choice1={"Cancle"} choice2={`Yes, delete ${selectedContestName}`} open={open} onClose={()=>setOpen(false)} onConfirm={()=>deleteContest(selectedContest)}/>
@@ -92,14 +101,14 @@ const ContestTable = ({contests, refresh}) => {
                     <td>{calculateTimeLeft((new Date()).toUTCString(),e.start_date) != 0 ? calculateTimeLeft((new Date()).toUTCString(),e.start_date) : "Finished"}</td>
                     <td className='flex gap-2 justify-left'>
                     
-                    <Button style={{backgroundColor:'var(--primary-color)'}} onClick={()=>nav(`/community/${parms.name}/group/${e.group_id}/contest/${e.id}/show`)}>Go There</Button>
+                    <Button style={{backgroundColor:'var(--primary-color)'}} onClick={()=>handleGotoContest(e.group_id, e.id)}>{(roleId == 1 || roleId == 2)? "Edit": "Go there"}</Button>
                     <div>
                     { (roleId == 1 || roleId == 2) && <><IconButton variant='text' onClick={() => handleDelete(e.id, e.name)}>
                         <FontAwesomeIcon color='red'  icon={faTrash}/>
                     </IconButton>
-                    <IconButton variant='text' onClick={() => nav(`/community/${parms.name}/group/${e.group_id}/contest/${e.id}/edit`)}>
+                    {/* <IconButton variant='text' onClick={() => nav(`/community/${parms.name}/group/${e.group_id}/contest/${e.id}/edit`)}>
                         <FontAwesomeIcon icon={faEdit}/>
-                    </IconButton>
+                    </IconButton> */}
                     <IconButton variant='text' onClick={() => nav(`/community/${parms.name}/group/${e.group_id}/contest/${e.id}/approve`)}>
                         <FontAwesomeIcon icon={faListCheck}/>
                     </IconButton></>}

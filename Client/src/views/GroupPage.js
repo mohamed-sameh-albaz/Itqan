@@ -17,7 +17,7 @@ const GroupPage = () => {
     const [upCommingResponse, isLoadingCpmming, refreshUpcomming] = useAPI('/contests/status', 'get',
         {params:{
             group_id: groupID,
-            status: "upcoming"
+            status: "active"
         }});
 
     const upCommingContest = isLoadingCpmming? [] : upCommingResponse.data.contests;
