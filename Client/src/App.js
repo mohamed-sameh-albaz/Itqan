@@ -17,6 +17,7 @@ import DetailedPage from './views/DetailedPage';
 
 import ApprovePage from './views/AprovePage'
 import SubmissionsPage from './views/SubmissionsPage';
+import RolesPage from './views/RolesPage';
 
 import { AuthProvider, ProtectedRoute} from './context/AuthContext';
 import LeaderBoardPage from './views/LeaderBoardPage';
@@ -54,7 +55,11 @@ function App() {
             <Route path="/community/:name/group/:groupID/contest/:contestID/approve" element={<ProtectedRoute element={<ApprovePage />} />} />
             <Route path="/community/:name/group/:groupID/contest/:contestID/leaderboard" element={<ProtectedRoute element={<LeaderBoardPage/>} />} />
             
+
+            <Route path="/roles" element={<RolesPage />} />
+
             <Route path="/rewards" element={<ProtectedRoute element={<AddRewards/>} />} />
+
 
             <Route path="*" element={<Navigate to="/" />} />
           
