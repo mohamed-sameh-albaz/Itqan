@@ -1,5 +1,5 @@
 import React, { useState,useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import CommunityNavBar from '../components/CommunityNavBar';
 import ContestScreen from '../components/ContestScreen';
 import './ContestPage.css';
@@ -8,13 +8,13 @@ import { format } from "date-fns";
 
 const ContestPage = (props) => {
   
-
+ 
   const my_user = JSON.parse(localStorage.getItem('user'));
   
 
   const parms= useParams();
   let user_ID = my_user.id;
-  console.log(user_ID);
+  // console.log(user_ID);
   let group_ID = parms.groupID;
   let mode=props.MODE;
   
@@ -43,12 +43,12 @@ const ContestPage = (props) => {
     });  
     if (status > 199 && status < 300) {
       setUser(data.data.role.name);
-      console.log(data.data.role.name);
+      // console.log(data.data.role.name);
     } else {
       console.error("Error fetching user role");
     }
   };
-
+  
   useEffect(() => {
 
     fetchUserRole();
@@ -64,9 +64,10 @@ const ContestPage = (props) => {
           name: data.data.contest.name,
           description: data.data.contest.description,
           start_date: truncatedStartDate,
-          end_date: truncatedEndDate
+          end_date: truncatedEndDate,
+          mystatus: data.data.contest.status  
         });
-      
+       
       } else {
         console.error("Error fetching contest details");
       }
@@ -75,7 +76,7 @@ const ContestPage = (props) => {
     if (mode !== "create") {
       setContestID(parms.contestID);
       fetchContest();
-     console.log(parms.contestID);
+    //  console.log(parms.contestID);
     }
   
   }, [parms.contestID, mode]);
@@ -91,13 +92,13 @@ const ContestPage = (props) => {
     name: '',
     description: '',
     start_date: '',
-    end_date: ''
+    end_date: '',
+    mystatus: '',
   });
 
 
 
   async function handleClick () {
-
     
     if((user === "leader" || user==="admin") &&mode === "create") {
       if(formData.type === "" || formData.difficulty === "" || formData.name === "" || formData.description === "" || formData.start_date === "" || formData.end_date === "") 
@@ -134,9 +135,12 @@ const ContestPage = (props) => {
     }
       else {
         console.log("error");
-      }
-        
+      }     
   }  
+  
+  
+  
+
   }
 
   else if ((user==="leader"||user==="admin") && mode === "edit") {
@@ -183,7 +187,11 @@ const ContestPage = (props) => {
   }
   setSendNow("true");
   
+
   };
+
+
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -192,7 +200,8 @@ const ContestPage = (props) => {
       [name]: value
     
     }));
-      console.log(name, value);
+      // console.log(name, value);
+     
   };
 
 
@@ -275,9 +284,9 @@ const ContestPage = (props) => {
 
       <ContestScreen user={user} sendnow={send_now} contestid={contestID} Mode={mode} />
       {!enableclick && <label >You can not {buttonText} again</label>}
-      <button className="submitt" onClick={handleClick} form-data={formData} disabled={!enableclick}>
+      {(formData.mystatus==="running"||formData.mystatus==="upcoming" || mode==="create")&& < button className="submitt" onClick={handleClick} form-data={formData} disabled={!enableclick}>
         {buttonText}
-      </button>
+      </button>}
      
     </div>
   );
