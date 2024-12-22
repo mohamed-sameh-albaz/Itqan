@@ -1,4 +1,4 @@
-const {submitTask, getPendingSubmissions, getSubmissions, addTaskPoints, approveSubmission, getSubmitor, setSubmissionScore, checkSubmitorSubs, checkApproved, checkTeamSubmissions} = require("../models/submissionModel");
+const {submitTask, getPendingSubmissions, getSubmissions, addTaskPoints, approveSubmission, getSubmitor, setSubmissionScore, checkSubmitorSubs, checkApproved} = require("../models/submissionModel");
 const { getTeamUsers, getUserCommTeam } = require("../models/teamModel");
 const { getContestType, getTaskType, getMcqRightAnswer, getTaskPoints, setContestStatus, getContestCommunity } = require("../models/contestModel");
 const { getUserPoints, getUserData } = require("../models/userModel");
@@ -13,7 +13,7 @@ exports.submitTask = async (req, res) => {
     if(contestType === 'team') {
       const contestCommunity = await getContestCommunity(contestId);
       userTeam = await getUserCommTeam(userId, contestCommunity);
-      checkSubmitorSubmissions = await checkTeamSubmissions({userId, teamId: userTeam.id, taskId});
+      checkSubmitorSubmissions = await checkSubmitorSubs({userId, teamId: userTeam[0].id, taskId});
     } else {
       checkSubmitorSubmissions = await checkSubmitorSubs({ userId, teamId: null, taskId });
     }
@@ -29,7 +29,7 @@ exports.submitTask = async (req, res) => {
     const taskType = await getTaskType(taskId);
     let submission;
     if(contestType === 'team') {
-      submission = await submitTask(taskId, userId, userTeam.id, content, contestType, taskType);
+      submission = await submitTask(taskId, userId, userTeam[0].id, content, contestType, taskType);
     } else {
       submission = await submitTask(taskId, userId, null, content, contestType, taskType);
     }
