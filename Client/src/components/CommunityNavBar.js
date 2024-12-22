@@ -19,6 +19,7 @@ const CommunityNavBar = () => {
         <div className="items">
             {/* <a>Leader Board</a> */}
             <a className='cursor-pointer' onClick={()=>nav('/home')}>Home</a>
+            {parms.contestID && <a href={`/community/${encodeURIComponent(parms.name)}/group/${parms.groupID}/contest/${parms.contestID}/leaderboard`}>LeaderBoard</a>}
             {parms.name && <a href={`/community/${encodeURIComponent(parms.name)}/posts`}>Posts</a>}
 
             <div className="level-view">
@@ -28,7 +29,7 @@ const CommunityNavBar = () => {
 
             <img
                 className='hover:filter hover:brightness-50 cursor-pointer'
-                src="https://avatar.iran.liara.run/public/boy"
+                src={user.photo ?? "https://avatar.iran.liara.run/public/boy"}
                 alt="Profile"
                 onClick={() => nav(`/profile/${user.id}`)}
             />

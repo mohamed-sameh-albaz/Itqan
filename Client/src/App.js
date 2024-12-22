@@ -19,6 +19,7 @@ import ApprovePage from './views/AprovePage'
 import SubmissionsPage from './views/SubmissionsPage';
 
 import { AuthProvider, ProtectedRoute} from './context/AuthContext';
+import LeaderBoardPage from './views/LeaderBoardPage';
 
 function App() {
   return (
@@ -49,6 +50,7 @@ function App() {
             <Route path="/community/:name/group/:groupID/contest/:contestID/edit" element={<ProtectedRoute element={<ContestPage MODE={"edit"} />} />} />
             <Route path="/community/:name/group/:groupID/contest/:contestID/show" element={<ProtectedRoute element={<ContestPage MODE={"submit"} />} />} />
             <Route path="/community/:name/group/:groupID/contest/:contestID/approve" element={<ProtectedRoute element={<ApprovePage />} />} />
+            <Route path="/community/:name/group/:groupID/contest/:contestID/leaderboard" element={<ProtectedRoute element={<LeaderBoardPage/>} />} />
             
             <Route path="*" element={<Navigate to="/" />} />
           

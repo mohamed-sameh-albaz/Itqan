@@ -161,7 +161,7 @@ const ProfilePage = () => {
                 <div className="profile-header w-full h-full">
                 {loadingProfile? <Spinner className="m-auto"/> : <>
                     <div className="w-40">
-                    <img className="aspect-square" src="https://avatar.iran.liara.run/public/boy" alt="profile" />
+                    <img className="aspect-square" src={photo??"https://avatar.iran.liara.run/public/boy"} alt="profile" />
                     <div className="flex justify-items-center items-center">
                     <div className="mt-2 border border-gray-800 w-28 text-center rounded">
                         {level}: {point}
