@@ -57,7 +57,7 @@ function App() {
             <Route path="/community/:name/group/:groupID/contest/:contestID/leaderboard" element={<ProtectedRoute element={<LeaderBoardPage/>} />} />
             
 
-            <Route path="/roles" element={<RolesPage />} />
+           <Route path="/roles" element={ <ProtectedRoute element={<RolesPage/>} />} />
 
             <Route path="/rewards" element={<ProtectedRoute element={<AddRewards/>} />} />
 

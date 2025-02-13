@@ -316,6 +316,8 @@ const CommunityPage = () => {
             <Button onClick={()=>nav(`/community/${encodeURIComponent(parms.name)}/stats/summary`)}>View Summary Stats</Button>
             <Button onClick={()=>nav(`/community/${encodeURIComponent(parms.name)}/stats/detailed`)}>View Detailed Stats</Button>
             <Button onClick={()=>nav(`/rewards`)}>Rewards Editor</Button>
+            <Button onClick={()=>nav(`/roles`)}>Roles Editor</Button>
+            <Button onClick={()=>nav(`/levels`)}>Levels Editor</Button>
             </CardBody>
         </Card>}
         <CreateGroupDialog groupId={groupEditorObj} refresh={refreshGroup} communityName={communityName} open={groupCreator} setOpen={closeGroupEdit} setAlert={setAlertMessage} />

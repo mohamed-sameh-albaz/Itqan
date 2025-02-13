@@ -8,6 +8,7 @@ import { button } from "@material-tailwind/react";
 const ContestScreen = (props) =>
 { 
   let s="                                                                                Lets Go Now";
+  const [counter, setCounter] = useState(0);
   const [activeIndex, setActiveIndex] = useState(0); // Track the clicked button index
   const [buttons, addQuestion] = useState([{ Qn: 'Question', type: '', title: 'Are You Ready', content: s,points:0,photo : '', choices: ['', '', '', ''], correctAnswer: '',id:0,ans:'' }]); // Array of buttons
   let allow_read = "";
@@ -35,12 +36,13 @@ const ContestScreen = (props) =>
   }
   
 
+
+
   useEffect(() => {
    
     const fetchTasksforedit = async () => {
       const { status, data } = await requestAPI(`/contests/${props.contestid}/tasks?editing=${true}`, "get");
       if (status > 199 && status < 300) {
-        // console.log(data.status);
        const newButtons = (data.data.tasks).map((task, index) => ({
           Qn: String.fromCharCode(97 + index),
           type: task.type,
@@ -52,12 +54,14 @@ const ContestScreen = (props) =>
          correctAnswer: task.correctAnswer,
           ans: "",
          id: task.id
-        }));
+        })
+      );
         addQuestion(prevButtons=>[...prevButtons,...newButtons]);
-        setButtonsLen((newButtons.length)+1);
+        
       } else {
         console.error("Error fetching tasks");
       }
+    
     };
 
     const fetchTasksforsubmit = async () => {
@@ -77,16 +81,18 @@ const ContestScreen = (props) =>
          id: task.id
         }));
         addQuestion(prevButtons=>[...prevButtons,...newButtons]);
-        setButtonsLen((newButtons.length)+1);
       } else {
         console.log("Error fetching tasks");
       }
     };
+  
+
 
     if(mymode==="edit")
    {
   //  console.log(props.contestid);
     fetchTasksforedit();  
+   
 }
 else if(mymode==="submit")
 {
@@ -153,13 +159,18 @@ else if(mymode==="submit")
     const char = String.fromCharCode(buttons.length + 64);
     const newitem = { Qn:char ,type:"mcq",title:Title,content:Content,points:Points,photo:"", choices:["","","",""],correctAnswer:"",id:0,ans:Ans};
     addQuestion((prevButtons) => [...prevButtons, newitem]);
+    if (mymode==="edit") {
+      setCounter(counter + 1);
+    }
   };
   const addquesW = () => {
     
      const char = String.fromCharCode(buttons.length + 64);
      const newitem = {Qn:char,type:"written",title:Title, content:Content,points:Points,photo:"",choices:["","","",""],correctAnswer:"",id:0,ans:Ans};  
      addQuestion((prevButtons) => [...prevButtons, newitem]);
-    
+     if (mymode==="edit") {
+       setCounter(counter + 1);
+     }
   };
 
   const handleAnsChanged = (e) => {
@@ -177,40 +188,23 @@ else if(mymode==="submit")
         setActiveIndex(newButtons.length - 1);
       }
       for (let i = index; i < newButtons.length; i++) {
-        // console.log(i, newButtons.length);
         newButtons[i].Qn = String.fromCharCode(65 + i-1);
       }
-
       addQuestion(newButtons);
     }
-    // async function handleTaskDelete (index) {
-
-    //   if(index<=buttons_len&&index>0)
-    //     {
-    //       const {status, data} = requestAPI(`/contests/task/delete/${buttons[index].id}`, "delete");
-    //       if (status > 199 && status < 300) {
-    //         console.log("Task deleted successfully");
-    //       } else {
-    //         console.log("Error deleting task");
-    //       }
-    //       setButtonsLen(buttons_len-1);
-    //     }
-  
-    //   if(index>0)
-    //   {
-    //     const newButtons = [...buttons];
-    //     newButtons.splice(index, 1);
-    //     if (activeIndex === newButtons.length) {
-    //       setActiveIndex(newButtons.length - 1);
-    //     }
-    //     for (let i = index; i < newButtons.length; i++) {
-    //       console.log(i, newButtons.length);
-    //       newButtons[i].Qn = String.fromCharCode(65 + i-1);
-    //     }
-    //     addQuestion(newButtons);
-    //   }
-     
-    // };
+    if (mymode==="edit") {
+      if (index < buttons.length-counter) {
+      const { status, data } = requestAPI(`/contests/task/delete/${buttons[index].id}`, "delete");
+      if (status > 199 && status < 300) {
+        console.log("Task deleted successfully");
+      } else {
+        console.log("Error deleting task");
+      }
+    }
+    else {
+      setCounter(counter - 1);
+    }
+  }
   };
 
 
@@ -243,7 +237,6 @@ else if(mymode==="submit")
    }, [props.sendnow]);
 
   async function handleeClick(index) {
-      //  console.log(props.contestid,buttons[index].title);
        const { status, data } = await requestAPI("/contests/task", "post", {
         body: {
           contest_id: props.contestid,
@@ -269,35 +262,8 @@ else if(mymode==="submit")
   };
   
 async function handleeClickedit(index) {
-  // console.log(buttons_len);
-  if(index<buttons_len)
+  if (index>=buttons.length-counter)
   {
-  // console.log(props.contestid,buttons[index].title);
-  const { status, data } = await requestAPI(`/contests/task/edit/${buttons[index].id}`, "put", {
-    body: {
-      description: buttons[index].content,
-      title: buttons[index].title,
-      points: buttons[index].points,
-      type: buttons[index].type,
-      image: buttons[index].photo,
-      mcqData: {
-        A: buttons[index].choices[0],
-        B: buttons[index].choices[1],
-        C: buttons[index].choices[2],
-        D: buttons[index].choices[3],
-        right_answer: buttons[index].correctAnswer,
-      }
-    }
-  });
-  if (status > 199 && status < 300) {
-    console.log("sucssess");
-  } else {
-    console.log("error");
-  }
-}
-else
-{
-  // console.log("new task");
   const { status, data } = await requestAPI("/contests/task", "post", {
     body: {
       contest_id: props.contestid,
@@ -321,7 +287,32 @@ else
     console.log("error");
   }
 }
+else
+{
+  const { status, data } = await requestAPI(`/contests/task/edit/${buttons[index].id}`, "put", {
+    body: {
+      description: buttons[index].content,
+      title: buttons[index].title,
+      points: buttons[index].points,
+      type: buttons[index].type,
+      image: buttons[index].photo,
+      mcqData: {
+        A: buttons[index].choices[0],
+        B: buttons[index].choices[1],
+        C: buttons[index].choices[2],
+        D: buttons[index].choices[3],
+        right_answer: buttons[index].correctAnswer,
+      }
+    }
+  });
+  if (status > 199 && status < 300) {
+    console.log("sucssess");
+  } else {
+    console.log("error");
+  }
 }
+};
+
   
 async function handleeClickSubmit(index){
   // console.log(buttons[index].id,props.contestid,UserID,buttons[index].ans);
@@ -473,10 +464,10 @@ async function handleeClickSubmit(index){
               <select
                 onChange={handleanswerchange}
                 className="correct-answer-field"
-                value={buttons[activeIndex].correctAnswer}
+                value={buttons[activeIndex]?.correctAnswer||"A"}
               >
                 
-                <option value="A" selected>A</option>
+                <option value="A" >A</option>
                 <option value="B">B</option>
                 <option value="C">C</option>
                 <option value="D">D</option>

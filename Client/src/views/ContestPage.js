@@ -11,10 +11,9 @@ const ContestPage = (props) => {
  
   const my_user = JSON.parse(localStorage.getItem('user'));
   
-
+  const nav = useNavigate();
   const parms= useParams();
   let user_ID = my_user.id;
-  // console.log(user_ID);
   let group_ID = parms.groupID;
   let mode=props.MODE;
   
@@ -43,7 +42,7 @@ const ContestPage = (props) => {
     });  
     if (status > 199 && status < 300) {
       setUser(data.data.role.name);
-      // console.log(data.data.role.name);
+    
     } else {
       console.error("Error fetching user role");
     }
@@ -137,10 +136,6 @@ const ContestPage = (props) => {
         console.log("error");
       }     
   }  
-  
-  
-  
-
   }
 
   else if ((user==="leader"||user==="admin") && mode === "edit") {
@@ -187,7 +182,7 @@ const ContestPage = (props) => {
   }
   setSendNow("true");
   
-
+  nav(`/community/${parms.name}/group/${group_ID}`);
   };
 
 
@@ -200,7 +195,7 @@ const ContestPage = (props) => {
       [name]: value
     
     }));
-      // console.log(name, value);
+  
      
   };
 

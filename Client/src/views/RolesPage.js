@@ -3,11 +3,12 @@ import React, { useState, useEffect } from 'react';
 import { requestAPI } from '../hooks/useAPI';
 import CommunityNavBar from '../components/CommunityNavBar';
 import './RolesPage.css';
+
 const RolesPage = () => {
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [newRole, setNewRole] = useState({ name: '', description: '', color: '' });
-  const [editRole, setEditRole] = useState({ id: null, name: '', description: '', color: '' });
+  const [newRole, setNewRole] = useState({ name: '', description: '', color: '#000000' });
+  const [editRole, setEditRole] = useState({ id: null, name: '', description: '', color: '#000000' });
 
   useEffect(() => {
     const fetchRoles = async () => {
@@ -40,7 +41,7 @@ const RolesPage = () => {
     });
     if (status > 199 && status < 300) {
       setRoles([...roles, data.data.role]);
-      setNewRole({ name: '', description: '', color: '' });
+      setNewRole({ name: '', description: '', color: '#000000' });
     } else {
       console.error('Error adding role');
     }
@@ -53,7 +54,7 @@ const RolesPage = () => {
     });
     if (status > 199 && status < 300) {
       setRoles(roles.map(role => (role.id === editRole.id ? data.data.role : role)));
-      setEditRole({ id: null, name: '', description: '', color: '' });
+      setEditRole({ id: null, name: '', description: '', color: '#000000' });
     } else {
       console.error('Error editing role');
     }
@@ -65,7 +66,7 @@ const RolesPage = () => {
 
   return (
     <div>
-      <CommunityNavBar />
+      <CommunityNavBar /> 
       <div className="container mx-auto mt-5">
         <h2 className="text-2xl font-bold mb-4">Roles</h2>
         {loading ? (
@@ -88,13 +89,15 @@ const RolesPage = () => {
                 onChange={(e) => setNewRole({ ...newRole, description: e.target.value })}
                 className="mb-2 p-2 border"
               />
-              <input
-                type="text"
-                placeholder="Color"
-                value={newRole.color}
-                onChange={(e) => setNewRole({ ...newRole, color: e.target.value })}
-                className="mb-2 p-2 border"
-              />
+              <div className="mb-2">
+                <label className="block text-sm font-medium text-gray-700">Role Color</label>
+                <input
+                  type="color"
+                  value={newRole.color}
+                  onChange={(e) => setNewRole({ ...newRole, color: e.target.value })}
+                  className="mt-1 block w-full p-2 border"
+                />
+              </div>
               <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
                 Add Role
               </button>
@@ -117,13 +120,15 @@ const RolesPage = () => {
                   onChange={(e) => setEditRole({ ...editRole, description: e.target.value })}
                   className="mb-2 p-2 border"
                 />
-                <input
-                  type="text"
-                  placeholder="Color"
-                  value={editRole.color}
-                  onChange={(e) => setEditRole({ ...editRole, color: e.target.value })}
-                  className="mb-2 p-2 border"
-                />
+                <div className="mb-2">
+                  <label className="block text-sm font-medium text-gray-700">Role Color</label>
+                  <input
+                    type="color"
+                    value={editRole.color}
+                    onChange={(e) => setEditRole({ ...editRole, color: e.target.value })}
+                    className="mt-1 block w-full p-2 border"
+                  />
+                </div>
                 <button type="submit" className="bg-green-500 text-white px-4 py-2 rounded">
                   Save Changes
                 </button>
